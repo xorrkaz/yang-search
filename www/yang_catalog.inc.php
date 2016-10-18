@@ -44,6 +44,14 @@ define('JSTREE_JS', '<script type="text/javascript" src="//cdnjs.cloudflare.com/
 define('JSTREE_CSS', '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.2/themes/default/style.min.css" integrity="sha256-riSdF36gKV63v22ujIMlNzON5f7AS9MNzwFn0ZgGt0Q=" crossorigin="anonymous" />');
 define('JQUERY_UI_JS', '<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>');
 
+// Global data_definitions
+define('YANG_CATALOG_URL', 'http://yangcatalog.org/api/operational');
+define('REST_USER', 'oper');
+define('REST_PASS', 'oper');
+define('REST_TIMEOUT', 300);
+define('RESTCONF_JSON_MIME_TYPE', 'application/vnd.yang.data+json');
+define('OPENCONFIG_CATALOG_MOD_NS', 'openconfig-module-catalog:module');
+
 // Global variables
 $COLOR_UNKNOWN = '#F5A45D';
 $CMAP = [
