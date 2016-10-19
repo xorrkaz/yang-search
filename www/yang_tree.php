@@ -100,14 +100,14 @@ function build_tree($json, $module)
     if (isset($json['path'])) {
         $node['data']['path'] = $json['path'];
     }
-    if (!isset($json['children']) || count($json['children']) == 0) {
+    if ($json['name'] != $module && (!isset($json['children']) || count($json['children']) == 0)) {
         $node['icon'] = 'glyphicon glyphicon-leaf';
         if (isset($json['path'])) {
             $node['a_attr']['href'] = "show_node.php?module={$module}&path=".urlencode($json['path']);
         }
         $node['a_attr']['class'] = 'nodeClass';
         $node['a_attr']['style'] = 'color: #00e;';
-    } else {
+    } elseif (isset($json['children'])) {
         $node['children'] = [];
         foreach ($json['children'] as $child) {
             array_push($node['children'], build_tree($child, $module));
