@@ -74,9 +74,9 @@ else
 fi
 
 for m in ${modules}; do
-    cmd="pyang -p ${YANGDIR} -f yang-catalog-index --yang-index-no-schema ${m}"
+    cmd="pyang -p ${YANGDIR} -f yang-catalog-index --yang-index-make-module-table --yang-index-no-schema ${m}"
     if [ ${first_run} = 1 ]; then
-        cmd="pyang -p ${YANGDIR} -f yang-catalog-index ${m}"
+        cmd="pyang -p ${YANGDIR} -f yang-catalog-index --yang-index-make-module-table ${m}"
         first_run=0
     fi
     mod_name=$(pyang -p ${YANGDIR} -f name ${m} 2>/dev/null | cut -d' ' -f1)
