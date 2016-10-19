@@ -102,7 +102,9 @@ function build_tree($json, $module)
     }
     if (!isset($json['children']) || count($json['children']) == 0) {
         $node['icon'] = 'glyphicon glyphicon-leaf';
-        $node['a_attr']['href'] = "show_node.php?module={$module}&path=".urlencode($json['path']);
+        if (isset($json['path'])) {
+            $node['a_attr']['href'] = "show_node.php?module={$module}&path=".urlencode($json['path']);
+        }
         $node['a_attr']['class'] = 'nodeClass';
         $node['a_attr']['style'] = 'color: #00e;';
     } else {
