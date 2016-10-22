@@ -25,10 +25,8 @@
 // SUCH DAMAGE.
 
 // Where to find various files.
-define('WWWROOT', '/var/www');
-define('WWWDATAROOT', WWWROOT.'/html');
-define('YTREES_DIR', WWWROOT.'/ytrees');
-define('YDEPS_DIR', WWWROOT.'/ydeps');
+define('YTREES_DIR', '/var/yang/ytrees');
+define('YDEPS_DIR', '/var/yang/ydeps');
 
 // JS and CSS components from CDNs.
 define('BOOTSTRAP_CSS', '<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">');
