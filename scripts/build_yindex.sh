@@ -28,29 +28,27 @@
 # and nodes, as well as pyang and symd to build JSON files containing
 # tree and dependency structures for YANG modules.
 #
-# This script assumes the YANG GitHub repository is being used at
-# https://github.com/YangModels/yang for the library of YANG modules.  While
-# other locations can be used, this is the base location, and a "git pull" is
-# done prior to any other actions.
 
-# Adjust these paths below to point to the correct directories for the web
-# server, database location, and YANG module repository.
-WWWROOT="/var/www"
-WWWDATAROOT="${WWWROOT}/html"
+# The file yindex.env must be sourced into the environment prior to running
+# this script.
 
-YANGDIR="/home/jclarke/src/git/yang"
-TYANGDIR="${YANGDIR}/vendor/cisco/xe/1631"
-DBF="/tmp/yang.db"
+if [ -z "${DBF}" -o -z "${YTREE_DIR}" -o -z "${YDEP_DIR}" ]; then
+    echo "ERROR: Environment not properly defined; be sure to source yindex.env"
+    exit 1
+fi
+
 TDBF=$(mktemp)
-TOOLS_DIR="/home/jclarke/src/git/yang-search/scripts"
 
-YTREE_DIR="${WWWROOT}/ytrees"
-YDEP_DIR="${WWWROOT}/ydeps"
+mkdir -p ${YTREE_DIR}
+mkdir -p ${YDEP_DIR}
+mkdir -p $(dirname ${DBF})
 
-cd ${YANGDIR}
-git pull >/dev/null 2>&1
-if [ $? != 0 ]; then
-    echo "WARNING: Failed to update YANG repo!"
+if [ ${update_yang_repo} = 1 ]; then
+    cd ${YANGDIR}
+    git pull >/dev/null 2>&1
+    if [ $? != 0 ]; then
+        echo "WARNING: Failed to update YANG repo!"
+    fi
 fi
 
 modules=""
