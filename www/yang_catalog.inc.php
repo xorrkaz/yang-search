@@ -113,7 +113,7 @@ function get_color($module, &$dbh, &$alerts)
             $color = $CMAP[$row['maturity']];
         }
     } catch (Exception $e) {
-        array_push($alerts, "Failed to get module maturity for $module: {$e->getMessage()} : ({$e->getFile()}:{$e->getLine()})");
+        push_exception("Failed to get module maturity for $module", $e, $alerts);
     }
 
     return $color;
@@ -127,6 +127,24 @@ function error_to_exception($severity, $message, $file, $line)
     }
 
     throw new ErrorException($message, 0, $severity, $file, $line);
+}
+
+function push_exception($msg, $e, &$alerts, $add_msg = true, $add_file = true)
+{
+    if ($add_msg) {
+        if ($msg != '') {
+            $msg .= ' : ';
+        }
+        $msg .= $e->getMessage();
+    }
+    if ($add_file) {
+        if ($msg != '') {
+            $msg .= ' : ';
+        }
+        $msg .= "({$e->getFile()}:{$e->getLine()})";
+    }
+
+    array_push($alerts, $msg);
 }
 
 // Convert JSON error codes to strings.

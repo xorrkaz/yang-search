@@ -65,7 +65,7 @@ $search_string = null;
 try {
     $dbh = new PDO($dsn, $db_user, $db_pass, $opt);
 } catch (PDOException $e) {
-    array_push($alerts, "Failed to connect to DB: {$e->getMessage()} : ({$e->getFile()}:{$e->getLine()})");
+    push_exception('Failed to connect to DB', $e, $alerts);
 }
 
 if (isset($_POST['search_string'])) {
@@ -125,7 +125,7 @@ if ($dbh !== null && $search_string !== null) {
         $sth = $dbh->prepare($sql);
         $sth->execute(['descr' => $search_string]);
     } catch (Exception $e) {
-        array_push($alerts, "{$e->getMessage()} : ({$e->getFile()}:{$e->getLine()})");
+        push_exception('', $e, $alerts);
         $sth = null;
     }
 }
