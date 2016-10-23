@@ -6,6 +6,6 @@
 */
 
 $db_driver = 'sqlite';
-$db_file = '/tmp/yang.db';
+$db_file = '/var/yang/yang.db';
 $db_user = null;
 $db_pass = null;
