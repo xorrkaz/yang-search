@@ -90,19 +90,17 @@ for m in ${modules}; do
     fi
     ${TOOLS_DIR}/add-catalog-data.py ${m} ${mod_name} ${TDBF}
     if [ $? != 0 ]; then
-        echo "ERROR: Failed to add YANG catalog data for ${mod_name} (${m})!"
+        echo "WARNING: Failed to add YANG catalog data for ${mod_name} (${m})!"
     fi
 
     # Generate YANG tree data.
     pyang -p ${YANGDIR} -f json-tree -o "${YTREE_DIR}/${mod_name}.json" ${m}
     if [ $? != 0 ]; then
-        echo "ERROR: Failed to generate YANG tree data for ${mod_name} (${m})!"
-        continue
+        echo "WARNING: Failed to generate YANG tree data for ${mod_name} (${m})!"
     fi
     symd -r --rfc-repos ${YANGDIR} --draft-repos ${YANGDIR} --json-output ${YDEP_DIR}/${mod_name}.json --single-impact-analysis-json ${mod_name} 2>/dev/null
     if [ $? != 0 ]; then
-        echo "ERROR: Failed to generate YANG dependency data for ${mod_name} (${m})!"
-        continue
+        echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
     fi
 done
 
