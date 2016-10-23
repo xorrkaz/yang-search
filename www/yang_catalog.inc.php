@@ -113,7 +113,7 @@ function get_color($module, &$dbh, &$alerts)
             $color = $CMAP[$row['maturity']];
         }
     } catch (Exception $e) {
-        array_push($alerts, "Failed to get module maturity for $module: {$e->getMessage()} : {$e->getLine()}");
+        array_push($alerts, "Failed to get module maturity for $module: {$e->getMessage()} : ({$e->getFile()}:{$e->getLine()})");
     }
 
     return $color;

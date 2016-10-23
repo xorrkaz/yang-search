@@ -132,7 +132,7 @@ $opt = [
 try {
     $dbh = new PDO($dsn, $db_user, $db_pass, $opt);
 } catch (PDOException $e) {
-    array_push($alerts, "Failed to connect to DB: {$e->getMessage()} : {$e->getLine()}");
+    array_push($alerts, "Failed to connect to DB: {$e->getMessage()}  ({$e->getFile()}:{$e->getLine()})");
 }
 
 if (!isset($_GET['module'])) {
@@ -169,7 +169,7 @@ if (!isset($_GET['module'])) {
                     }
                 }
             } catch (Exception $e) {
-                array_push($alerts, "Failed to read YANG tree data for $module: {$e->getMessage()} : {$e->getLine()}");
+                array_push($alerts, "Failed to read YANG tree data for $module: {$e->getMessage()} : ({$e->getFile()}:{$e->getLine()})");
             }
         } else {
             array_push($alerts, "YANG Tree data does not exist for $module");

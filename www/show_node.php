@@ -64,7 +64,7 @@ $title = '';
 try {
     $dbh = new PDO($dsn, $db_user, $db_pass, $opt);
 } catch (PDOException $e) {
-    array_push($alerts, "Failed to connect to DB: {$e->getMessage()} : {$e->getLine()}");
+    array_push($alerts, "Failed to connect to DB: {$e->getMessage()} : ({$e->getFile()}:{$e->getLine()})");
 }
 
 if (!isset($_GET['path']) || !isset($_GET['module'])) {
@@ -77,7 +77,7 @@ if (!isset($_GET['path']) || !isset($_GET['module'])) {
             $sth->execute(['path' => $_GET['path'], 'module' => $_GET['module']]);
         }
     } catch (PDOException $e) {
-        array_push($alerts, "{$e->getMessage()} : {$e->getLine()}");
+        array_push($alerts, "{$e->getMessage()} : ({$e->getFile()}:{$e->getLine()})");
     }
 }
 
