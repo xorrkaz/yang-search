@@ -25,7 +25,7 @@
 // SUCH DAMAGE.
 
 include_once 'yang_catalog.inc.php';
-include_once 'httpful.phar';
+require_once 'httpful.phar';
 
 /*
  * Test that the REST response was good.  This function throws an exception
