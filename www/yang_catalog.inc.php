@@ -24,6 +24,8 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
+include_once 'yang_db.inc.php';
+
 // Where to find various files.
 define('YTREES_DIR', '/var/yang/ytrees');
 define('YDEPS_DIR', '/var/yang/ydeps');
@@ -70,6 +72,17 @@ $SDOS = [
 ];
 
 // Functions
+
+/*
+ * Generate the HTML header for yang-search pages.
+ *
+ * Input:
+ *  $title           : HTML title of the page
+ *  $extra_css_items : (optional) Array of CSS items (full HTML tags included) to add to the header
+ *  $extra_js_items  : (optional) Array of Javascript items (fill HTML tags included) to add to the header
+ * Output:
+ *  None
+ */
 function print_header($title, $extra_css_items = [], $extra_js_items = [])
 {
     ?>
@@ -97,8 +110,44 @@ function print_header($title, $extra_css_items = [], $extra_js_items = [])
 }
 
 /*
+ * Open a connection to the YANG index database.
+ *
+ * Input:
+ *  $alerts : Pointer to array containing any error messages
+ * Output:
+ *  Database connection handle
+ */
+function yang_db_conn(&$alerts)
+{
+    global $db_driver, $db_file, $db_user, $db_pass;
+
+    $dsn = $db_driver.':'.$db_file;
+    $opt = [
+      PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+      PDO::ATTR_EMULATE_PREPARES => false,
+    ];
+    $dbh = null;
+
+    try {
+        $dbh = new PDO($dsn, $db_user, $db_pass, $opt);
+    } catch (PDOException $e) {
+        push_exception('Failed to connect to DB', $e, $alerts);
+    }
+
+    return $dbh;
+}
+
+/*
  * This function gets an object's color using the same methodology as
  * symd.
+ *
+ * Input:
+ *  $module : YANG module name
+ *  $dbh    : Pointer to the YANG index database handle
+ *  $alerts : Pointer to an array containing errors
+ * Output:
+ *  The HTML color code of the module
  */
 function get_color($module, &$dbh, &$alerts)
 {
@@ -119,7 +168,17 @@ function get_color($module, &$dbh, &$alerts)
     return $color;
 }
 
-// Turn all PHP errors into catchable exceptions.
+/*
+ * Turn all PHP errors and warnings into exceptions.
+ *
+ * Input:
+ *  $severity : Severity of the error
+ *  $message  : The error message to display
+ *  $file     : File in which the error occurred
+ *  $line     : Line number at which the error occurred
+ * Output:
+ *  None
+ */
 function error_to_exception($severity, $message, $file, $line)
 {
     if (!(error_reporting() & $severity)) {
@@ -129,6 +188,18 @@ function error_to_exception($severity, $message, $file, $line)
     throw new ErrorException($message, 0, $severity, $file, $line);
 }
 
+/*
+ * Add an exception message to the list of errors.
+ *
+ * Input:
+ *  $msg     : Additional error message to display
+ *  $e       : Exception object
+ *  $alerts  : Pointer to an array onto which the error will be pushed
+ *  $add_msg : (optional) If true, the additional error message is added to the exception error message
+ *  $add_file: (optional) If true, the file name and line number are added to the error message
+ * Output:
+ *  None
+ */
 function push_exception($msg, $e, &$alerts, $add_msg = true, $add_file = true)
 {
     if ($add_msg) {
@@ -147,7 +218,14 @@ function push_exception($msg, $e, &$alerts, $add_msg = true, $add_file = true)
     array_push($alerts, $msg);
 }
 
-// Convert JSON error codes to strings.
+/*
+ * Convert JSON error codes to strings.
+ *
+ * Input:
+ *  $error: JSON error code
+ * Output:
+ *  String representation of the JSON error code
+ */
 function json_error_to_str($error)
 {
     switch ($error) {

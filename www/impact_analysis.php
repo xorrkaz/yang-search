@@ -24,7 +24,6 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-include_once 'yang_db.inc.php';
 include_once 'yang_catalog.inc.php';
 
 $alerts = [];
@@ -33,18 +32,7 @@ $edges = [];
 $module = '';
 $title = 'Empty Impact Graph';
 
-$dsn = $db_driver.':'.$db_file;
-$opt = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES => false,
-];
-
-try {
-    $dbh = new PDO($dsn, $db_user, $db_pass, $opt);
-} catch (PDOException $e) {
-    push_exception('Failed to connect to DB', $e, $alerts);
-}
+$dbh = yang_db_conn($alerts);
 
 if (!isset($_GET['module'])) {
     array_push($alerts, 'Module was not specified');

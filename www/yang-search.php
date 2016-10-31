@@ -24,7 +24,6 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-include_once 'yang_db.inc.php';
 include_once 'yang_catalog.inc.php';
 
 function __sqlite_regexp($pattern, $buf, $modifiers = 'is')
@@ -42,13 +41,6 @@ function __sqlite_regexp($pattern, $buf, $modifiers = 'is')
     return null;
 }
 
-$dsn = $db_driver.':'.$db_file;
-$opt = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES => false,
-];
-
 $schema_types = [
     ['Typedef' => 'typedef', 'Grouping' => 'grouping', 'Feature' => 'feature'],
     ['Identity' => 'identity', 'Extension' => 'extension', 'RPC' => 'rpc'],
@@ -58,15 +50,10 @@ $schema_types = [
 
 $alerts = [];
 $sth = null;
-$dbh = null;
 $title = 'YANG DB Search';
 $search_string = null;
 
-try {
-    $dbh = new PDO($dsn, $db_user, $db_pass, $opt);
-} catch (PDOException $e) {
-    push_exception('Failed to connect to DB', $e, $alerts);
-}
+$dbh = yang_db_conn($alerts);
 
 if (isset($_POST['search_string'])) {
     $search_string = $_POST['search_string'];
