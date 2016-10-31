@@ -141,41 +141,80 @@ foreach ($alerts as $alert) {
     </div>
 <?php
 if (isset($_POST['search_string'])) {
-    ?>
+    $table_columns = [
+        'Name',
+        'Schema Type',
+        'Path',
+        'Module',
+        'Origin',
+        'Organization',
+        'Maturity',
+        'Description',
+    ]; ?>
 		<script language="Javascript">
+    var tableColumns = <?=json_encode($table_columns)?>;
+    var prevValue = -1;
+    var dt;
+
+    $.fn.dataTable.ext.search.push(function(settings, sdata, rindex, rdata, counter) {
+      var idx = $('#column_filter').val();
+      if (idx == -1) {
+        return true;
+      }
+
+      var stext = $('#datatable_filter label input').val();
+      var col = sdata[idx] || '';
+      if (col.toLowerCase().indexOf(stext.toLowerCase()) != -1) {
+        return true;
+      }
+
+      return false;
+    });
+
+    function do_search(s) {
+      var idx = s.value;
+
+      if (prevValue == idx) {
+        return;
+      }
+
+      stext = $('#datatable_filter label input').val();
+      dt.search('').columns().search('').draw();
+
+      prevValue = idx;
+
+      if (idx == -1) {
+        dt.search(stext).columns().search(stext).draw();
+      } else {
+        dt.search(stext).columns(idx).search(stext).draw();
+      }
+
+    }
+
 		$(document).ready(function() {
-			$('#datatable thead th').each(function() {
-				var curHtml = $(this).html();
-        var title = $(this).text();
-				$(this).html('<div style="padding: 8; align: center;"><input type="text" placeholder="' + title + '" class="input-sm col-sm-12" style="text-align: center;"/></div><div>' + curHtml + '</div>');
-			});
+			dt = $('#datatable').DataTable();
 
-			var dt = $('#datatable').DataTable();
-
-			dt.columns().eq(0).each(function(idx) {
-				$('input', dt.column(idx).header()).on('keyup change', function() {
-					dt.column(idx).search(this.value).draw();
-				});
-				$('input', dt.column(idx).header()).on('click', function(e) {
-					e.stopPropagation();
-				});
-			});
+      var newHtml = '<select id="column_filter" name="column_filter" onChange="do_search(this);"><option value="-1">Entire Table</option>';
+      $.each(tableColumns, function(key, val) {
+        newHtml += '<option value="' + key + '">' + val + '</option>';
+      });
+      newHtml += '</select>';
+      $('#datatable_filter label').after(' ' + newHtml);
 		});
     </script>
       <div class="page-header">
         <h3><?=$title?></h3>
       </div>
-      <table id="datatable" class="table table-bordered table-responsive" width="100%" cellspacing="0" style="max-width: none; word-wrap: break-word; table-layout: fixed;">
+      <table id="datatable" class="table table-bordered table-responsive" width="100%" cellspacing="0">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Schema Type</th>
-            <th>Path</th>
-            <th>Module</th>
-            <th>Origin</th>
-            <th>Organization</th>
-            <th>Maturity</th>
-            <th>Description</th>
+            <?php
+            foreach ($table_columns as $tc) {
+                ?>
+              <th><?=$tc?></th>
+              <?php
+
+            } ?>
           </tr>
         </thead>
         <tbody>
