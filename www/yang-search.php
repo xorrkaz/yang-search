@@ -153,7 +153,7 @@ if (isset($_POST['search_string'])) {
     ]; ?>
 		<script language="Javascript">
     var tableColumns = <?=json_encode($table_columns)?>;
-    var prevValue = -1;
+    var prev_idx = -1;
     var dt;
 
     $.fn.dataTable.ext.search.push(function(settings, sdata, rindex, rdata, counter) {
@@ -174,14 +174,14 @@ if (isset($_POST['search_string'])) {
     function do_search(s) {
       var idx = s.value;
 
-      if (prevValue == idx) {
+      if (prev_idx == idx) {
         return;
       }
 
       stext = $('#datatable_filter label input').val();
       dt.search('').columns().search('').draw();
 
-      prevValue = idx;
+      prev_idx = idx;
 
       if (idx == -1) {
         dt.search(stext).columns().search(stext).draw();
