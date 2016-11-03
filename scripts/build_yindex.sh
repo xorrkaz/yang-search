@@ -32,10 +32,12 @@
 # The file yindex.env must be sourced into the environment prior to running
 # this script.
 
-if [ -z "${DBF}" -o -z "${YTREE_DIR}" -o -z "${YDEP_DIR}" ]; then
-    echo "ERROR: Environment not properly defined; be sure to source yindex.env"
+if [ -z "${YANG_INDEX_HOME}" ]; then
+    echo "ERROR: YANG_INDEX_HOME environment variable not defined; please set this to the path to the yindex.env file"
     exit 1
 fi
+
+. ${YANG_INDEX_HOME}/yindex.env
 
 TDBF=$(mktemp)
 
