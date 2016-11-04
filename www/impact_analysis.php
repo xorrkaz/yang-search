@@ -26,7 +26,7 @@
 
 include_once 'yang_catalog.inc.php';
 
-function build_graph($module, &$dbh, &$nodes, &$edges, &$seen, &$alerts, $recurse = true)
+function build_graph($module, &$dbh, &$nodes, &$edges, &$seen, &$alerts, $recurse = 0)
 {
     if (isset($seen[$module])) {
         return;
@@ -45,20 +45,24 @@ function build_graph($module, &$dbh, &$nodes, &$edges, &$seen, &$alerts, $recurs
                 if (isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
                         $color = get_color($mod, $dbh, $alerts);
-                        //array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
-                        if ($recurse) {
-                            build_graph($mod, $dbh, $nodes, $edges, $seen, $alerts, $recurse);
+                        if ($recurse > 0) {
+                            $r = $recurse - 1;
+                            build_graph($mod, $dbh, $nodes, $edges, $seen, $alerts, $r);
+                        } else {
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
                     }
                 }
                 if (isset($json['impacting_modules'][$module])) {
                     foreach ($json['impacting_modules'][$module] as $mod) {
                         $color = get_color($mod, $dbh, $alerts);
-                        //array_push($nodes, ['data' => ['id' => "mod_$i", 'name' => $mod, 'objColor' => $color]]);
-                        array_push($edges, ['data' => ['source' => "mod_$i", 'target' => "mod_$module", 'objColor' => $color]]);
-                        if ($recurse) {
-                            build_graph($mod, $dbh, $nodes, $edges, $seen, $alerts, $recurse);
+                        array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
+                        if ($recurse > 0) {
+                            $r = $recurse - 1;
+                            build_graph($mod, $dbh, $nodes, $edges, $seen, $alerts, $r);
+                        } else {
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
                     }
                 }
@@ -90,7 +94,7 @@ if (!isset($_GET['module'])) {
         $module = '';
     } else {
         $title = "YANG Impact Graph for Module: '$module'";
-        build_graph($module, $dbh, $nodes, $edges, $seen, $alerts);
+        build_graph($module, $dbh, $nodes, $edges, $seen, $alerts, 1);
     }
 }
 
