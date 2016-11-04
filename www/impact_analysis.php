@@ -94,7 +94,7 @@ if (!isset($_GET['module'])) {
         $module = '';
     } else {
         $title = "YANG Impact Graph for Module: '$module'";
-        build_graph($module, $dbh, $nodes, $edges, $seen, $alerts, 1);
+        build_graph($module, $dbh, $nodes, $edges, $seen, $alerts, 0);
     }
 }
 
