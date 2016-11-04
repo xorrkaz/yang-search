@@ -26,9 +26,55 @@
 
 include_once 'yang_catalog.inc.php';
 
+function build_graph($module, &$dbh, &$nodes, &$edges, &$seen, &$alerts, $recurse = true)
+{
+    if (isset($seen[$module])) {
+        return;
+    }
+    $f = YDEPS_DIR.'/'.$module.'.json';
+    if (is_file($f)) {
+        try {
+            $contents = file_get_contents($f);
+            $json = json_decode($contents, true);
+            if ($json === null) {
+                array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
+            } else {
+                $color = get_color($module, $dbh, $alerts);
+                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color]]);
+                $seen[$module] = true;
+                if (isset($json['impacted_modules'][$module])) {
+                    foreach ($json['impacted_modules'][$module] as $mod) {
+                        $color = get_color($mod, $dbh, $alerts);
+                        //array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
+                        array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
+                        if ($recurse) {
+                            build_graph($mod, $dbh, $nodes, $edges, $seen, $alerts, $recurse);
+                        }
+                    }
+                }
+                if (isset($json['impacting_modules'][$module])) {
+                    foreach ($json['impacting_modules'][$module] as $mod) {
+                        $color = get_color($mod, $dbh, $alerts);
+                        //array_push($nodes, ['data' => ['id' => "mod_$i", 'name' => $mod, 'objColor' => $color]]);
+                        array_push($edges, ['data' => ['source' => "mod_$i", 'target' => "mod_$module", 'objColor' => $color]]);
+                        if ($recurse) {
+                            build_graph($mod, $dbh, $nodes, $edges, $seen, $alerts, $recurse);
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            push_exception("Failed to read dependency data for $module", $e, $alerts);
+        }
+    } else {
+        array_push($alerts, "YANG dependency graph data does not exist for $module");
+    }
+}
+
 $alerts = [];
 $nodes = [];
 $edges = [];
+$seen = [];
 $module = '';
 $title = 'Empty Impact Graph';
 
@@ -44,40 +90,7 @@ if (!isset($_GET['module'])) {
         $module = '';
     } else {
         $title = "YANG Impact Graph for Module: '$module'";
-        $f = YDEPS_DIR.'/'.$module.'.json';
-        if (is_file($f)) {
-            try {
-                $contents = file_get_contents($f);
-                $json = json_decode($contents, true);
-                if ($json === null) {
-                    array_push($alerts, 'Failed to decode JSON data');
-                } else {
-                    $color = get_color($module, $dbh, $alerts);
-                    array_push($nodes, ['data' => ['id' => 'root', 'name' => $module, 'objColor' => $color]]);
-                    $i = 0;
-                    if (isset($json['impacted_modules'][$module])) {
-                        foreach ($json['impacted_modules'][$module] as $mod) {
-                            $color = get_color($mod, $dbh, $alerts);
-                            array_push($nodes, ['data' => ['id' => "mod_$i", 'name' => $mod, 'objColor' => $color]]);
-                            array_push($edges, ['data' => ['source' => 'root', 'target' => "mod_$i", 'objColor' => $color]]);
-                            ++$i;
-                        }
-                    }
-                    if (isset($json['impacting_modules'][$module])) {
-                        foreach ($json['impacting_modules'][$module] as $mod) {
-                            $color = get_color($mod, $dbh, $alerts);
-                            array_push($nodes, ['data' => ['id' => "mod_$i", 'name' => $mod, 'objColor' => $color]]);
-                            array_push($edges, ['data' => ['source' => "mod_$i", 'target' => 'root', 'objColor' => $color]]);
-                            ++$i;
-                        }
-                    }
-                }
-            } catch (Exception $e) {
-                push_exception("Failed to read dependency data for $module", $e, $alerts);
-            }
-        } else {
-            array_push($alerts, "YANG dependency graph data does not exist for $module");
-        }
+        build_graph($module, $dbh, $nodes, $edges, $seen, $alerts);
     }
 }
 
