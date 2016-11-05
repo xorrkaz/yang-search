@@ -26,9 +26,9 @@
 
 include_once 'yang_catalog.inc.php';
 
-function build_graph($module, &$dbh, &$nodes, &$edges, &$seen, &$alerts, $recurse = 0)
+function build_graph($module, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, &$alerts, $recurse = 0)
 {
-    if (isset($seen[$module])) {
+    if (isset($nseen[$module])) {
         return;
     }
     $f = YDEPS_DIR.'/'.$module.'.json';
@@ -41,14 +41,18 @@ function build_graph($module, &$dbh, &$nodes, &$edges, &$seen, &$alerts, $recurs
             } else {
                 $color = get_color($module, $dbh, $alerts);
                 array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color]]);
-                $seen[$module] = true;
+                $nseen[$module] = true;
                 if (isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
+                        if (isset($eseen["mod_$module:mod_$mod"])) {
+                            continue;
+                        }
+                        $eseen["mod_$module:mod_$mod"] = true;
                         $color = get_color($mod, $dbh, $alerts);
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $dbh, $nodes, $edges, $seen, $alerts, $r);
+                            build_graph($mod, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $r);
                         } else {
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
@@ -56,11 +60,18 @@ function build_graph($module, &$dbh, &$nodes, &$edges, &$seen, &$alerts, $recurs
                 }
                 if (isset($json['impacting_modules'][$module])) {
                     foreach ($json['impacting_modules'][$module] as $mod) {
+                        if (isset($eseen["mod_$mod:mod_$module"])) {
+                            continue;
+                        }
+                        if (isset($eseen["mod_$module:mod_$mod"])) {
+                            array_push($alerts, "Loop found $module <=> $mod");
+                        }
+                        $eseen["mod_$mod:mod_$module"] = true;
                         $color = get_color($mod, $dbh, $alerts);
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $dbh, $nodes, $edges, $seen, $alerts, $r);
+                            build_graph($mod, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $r);
                         } else {
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
@@ -78,7 +89,8 @@ function build_graph($module, &$dbh, &$nodes, &$edges, &$seen, &$alerts, $recurs
 $alerts = [];
 $nodes = [];
 $edges = [];
-$seen = [];
+$nseen = [];
+$eseen = [];
 $module = '';
 $title = 'Empty Impact Graph';
 
@@ -94,7 +106,7 @@ if (!isset($_GET['module'])) {
         $module = '';
     } else {
         $title = "YANG Impact Graph for Module: '$module'";
-        build_graph($module, $dbh, $nodes, $edges, $seen, $alerts, 0);
+        build_graph($module, $dbh, $nodes, $edges, $nseen, $eseen, $alerts);
     }
 }
 
