@@ -195,7 +195,7 @@ if ($jstree_json !== null) {
     ?>
     <div style="margin-bottom: 10px;">
       <b>Module: <span style="color: <?=$color?>;"><?=$module?></span>, Namespace: <span style="color: <?=$color?>;"><?=$json['namespace']?></span>, Prefix: <span style="color: <?=$color?>;"><?=$json['prefix']?></span><br/>
-        <a href="impact_analysis.php?module=<?=$module?>">Impact Analysis</a> for <?=$module?></b>
+        <a href="impact_analysis.php?modules[]=<?=$module?>">Impact Analysis</a> for <?=$module?></b>
     </div>
     <div id="yangtree"></div>
     <script language="Javascript">

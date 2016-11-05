@@ -91,22 +91,28 @@ $nodes = [];
 $edges = [];
 $nseen = [];
 $eseen = [];
-$module = '';
+$modules = [];
+$good_mods = [];
 $title = 'Empty Impact Graph';
 
 $dbh = yang_db_conn($alerts);
 
-if (!isset($_GET['module'])) {
-    array_push($alerts, 'Module was not specified');
+if (!isset($_GET['modules'])) {
+    array_push($alerts, 'Modules were not specified');
 } else {
-    $module = $_GET['module'];
-    $nmodule = basename($module);
-    if ($nmodule != $module) {
-        array_push($alerts, 'Invalid module name specified');
-        $module = '';
-    } else {
-        $title = "YANG Impact Graph for Module: '$module'";
-        build_graph($module, $dbh, $nodes, $edges, $nseen, $eseen, $alerts);
+    $modules = $_GET['modules'];
+    foreach ($modules as $module) {
+        $nmodule = basename($module);
+        if ($nmodule != $module) {
+            array_push($alerts, 'Invalid module name specified');
+            $module = '';
+        } else {
+            array_push($good_mods, $module);
+            build_graph($module, $dbh, $nodes, $edges, $nseen, $eseen, $alerts);
+        }
+    }
+    if (count($good_mods) > 0) {
+        $title = 'YANG Impact Graph for Module(s): '.implode(', ', $good_mods);
     }
 }
 
