@@ -26,10 +26,31 @@
 
 include_once 'yang_catalog.inc.php';
 
-function build_graph($module, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, &$alerts, $recurse = 0)
+function get_org(&$dbh, $module)
+{
+    try {
+        $sth = $dbh->prepare('SELECT organization FROM modules WHERE module=:mod');
+        $sth->execute(['mod' => $module]);
+        $row = $sth->fetch();
+
+        return $row['organization'];
+    } catch (Exception $e) {
+        return '';
+    }
+
+    return '';
+}
+
+function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, &$alerts, $recurse = 0)
 {
     if (isset($nseen[$module])) {
         return;
+    }
+    if (count($orgs) > 0) {
+        $org = get_org($dbh, $module);
+        if (array_search($org, $orgs) === false) {
+            return;
+        }
     }
     $f = YDEPS_DIR.'/'.$module.'.json';
     if (is_file($f)) {
@@ -48,11 +69,17 @@ function build_graph($module, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, &$alert
                             continue;
                         }
                         $eseen["mod_$module:mod_$mod"] = true;
+                        if (count($orgs) > 0) {
+                            $org = get_org($dbh, $mod);
+                            if (array_search($org, $orgs) === false) {
+                                continue;
+                            }
+                        }
                         $color = get_color($mod, $dbh, $alerts);
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $r);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $r);
                         } else {
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
@@ -67,11 +94,17 @@ function build_graph($module, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, &$alert
                             array_push($alerts, "Loop found $module <=> $mod");
                         }
                         $eseen["mod_$mod:mod_$module"] = true;
+                        if (count($orgs) > 0) {
+                            $org = get_org($dbh, $mod);
+                            if (array_search($org, $orgs) === false) {
+                                continue;
+                            }
+                        }
                         $color = get_color($mod, $dbh, $alerts);
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $r);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $r);
                         } else {
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
@@ -93,6 +126,8 @@ $nseen = [];
 $eseen = [];
 $modules = [];
 $good_mods = [];
+$orgs = [];
+$recurse = 0;
 $title = 'Empty Impact Graph';
 
 $dbh = yang_db_conn($alerts);
@@ -101,6 +136,12 @@ if (!isset($_GET['modules'])) {
     array_push($alerts, 'Modules were not specified');
 } else {
     $modules = $_GET['modules'];
+    if (isset($_GET['orgs'])) {
+        $orgs = $_GET['orgs'];
+    }
+    if (isset($_GET['recurse']) && is_int($_GET['recurse'])) {
+        $recurse = $_GET['recurse'];
+    }
     foreach ($modules as $module) {
         $nmodule = basename($module);
         if ($nmodule != $module) {
@@ -108,7 +149,7 @@ if (!isset($_GET['modules'])) {
             $module = '';
         } else {
             array_push($good_mods, $module);
-            build_graph($module, $dbh, $nodes, $edges, $nseen, $eseen, $alerts);
+            build_graph($module, $orgs, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $recurse);
         }
     }
     if (count($good_mods) > 0) {
