@@ -139,7 +139,7 @@ if (!isset($_GET['modules'])) {
     if (isset($_GET['orgs'])) {
         $orgs = $_GET['orgs'];
     }
-    if (isset($_GET['recurse']) && is_int($_GET['recurse'])) {
+    if (isset($_GET['recurse']) && is_numeric($_GET['recurse'])) {
         $recurse = $_GET['recurse'];
     }
     foreach ($modules as $module) {
