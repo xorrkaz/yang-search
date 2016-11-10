@@ -239,17 +239,19 @@ function reloadPage() {
   window.location.href = url;
 }
 
-$('#modtags').on('itemAdded', function(e) {
-  reloadPage();
-});
-$('#orgtags').on('itemAdded', function(e) {
-  reloadPage();
-});
-$('#modtags').on('itemRemoved', function(e) {
-  reloadPage();
-});
-$('#orgtags').on('itemRemoved', function(e) {
-  reloadPage();
+$(document).ready(function() {
+  $('#modtags').on('itemAdded', function(e) {
+    reloadPage();
+  });
+  $('#orgtags').on('itemAdded', function(e) {
+    reloadPage();
+  });
+  $('#modtags').on('itemRemoved', function(e) {
+    reloadPage();
+  });
+  $('#orgtags').on('itemRemoved', function(e) {
+    reloadPage();
+  });
 });
 </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -285,7 +287,7 @@ foreach ($alerts as $alert) {
               <tbody>
                 <tr>
                   <td><b>Modules:</b></td>
-                  <td><input type="text" value="<?=implode(',', $modules)?>" data-role="tagsinput" id="modtags"></td>
+                  <td><input type="text" value="<?=implode(',', $modules)?>" data-role="tagsinput" id="moduletags"></td>
                 </tr>
                 <tr>
                   <td><b>Orgs:</b></td>
