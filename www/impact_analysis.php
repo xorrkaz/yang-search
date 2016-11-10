@@ -166,9 +166,13 @@ if (!isset($_GET['modules'])) {
 
 		<?=BOOTSTRAP_THEME_CSS?>
 
+    <?=BOOTSTRAP_TAGINPUT_CSS?>
+
 		<?=JQUERY_JS?>
 
 		<?=BOOTSTRAP_JS?>
+
+    <?=BOOTSTRAP_TAGINPUT_JS?>
 
 		<?=CYTOSCAPE_JS?>
 
@@ -219,6 +223,34 @@ $(function() {
 		}
 	});
 });
+
+function reloadPage() {
+  var url = "<?=$_SERVER['PHP_SELF']?>?";
+  var uargs = [];
+  $.each($('#modtags').val().split(","), function(k, v) {
+    uargs.push("modules[]=" + v);
+  });
+  $.each($('#orgtags').val().split(","), function(k, v) {
+    uargs.push("orgs[]=" + v);
+  });
+  uargs.push("recurse=<?=$recurse?>");
+  url += uargs.join("&");
+
+  window.location.href = url;
+}
+
+$('#modtags').on('itemAdded', function(e) {
+  reloadPage();
+});
+$('#orgtags').on('itemAdded', function(e) {
+  reloadPage();
+});
+$('#modtags').on('itemRemoved', function(e) {
+  reloadPage();
+});
+$('#orgtags').on('itemRemoved', function(e) {
+  reloadPage();
+});
 </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
@@ -245,7 +277,27 @@ foreach ($alerts as $alert) {
     <div class="page-header">
       <h3><?=$title?></h3>
     </div>
-    <div id="cy" style="width:100%;height:100%;position:absolute;left:0;"></div>
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="offset1 span8 pull-left">
+          <form>
+            <table border="0">
+              <tbody>
+                <tr>
+                  <td><b>Modules:</b></td>
+                  <td><input type="text" value="<?=implode(',', $modules)?>" data-role="tagsinput" id="modtags"></td>
+                </tr>
+                <tr>
+                  <td><b>Orgs:</b></td>
+                  <td><input type="text" value="<?=implode(',', $orgs)?>" data-role="tagsinput" id="orgtags"></td>
+                </tr>
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div>
     </div>
+    <div id="cy" style="width:100%;height:100%;position:absolute;left:0;"></div>
+  </div>
   </body>
 </html>
