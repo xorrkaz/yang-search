@@ -332,7 +332,7 @@ foreach ($alerts as $alert) {
     <div class="panel panel-default">
       <div class="panel-heading">
         <label for="impactOptions" class="panel-title">Graph Options</label>
-        <span class="pull-right clickable panel-collapsed" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-down"></i></span>
+        <span class="pull-right clickable" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </div>
       <div class="panel-body">
         <fieldset>
@@ -356,8 +356,8 @@ foreach ($alerts as $alert) {
           <?php } ?>
         </fieldset>
       </div>
-      <div class="container-fluid">
-        <div class="row-fluid">
+      <div>
+        <div>
           <div class="offset1 span8 pull-left">
             <form>
               <table border="0">
