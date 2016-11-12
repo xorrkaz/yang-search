@@ -87,7 +87,6 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
-                            $edge_counts[$mod] = 0;
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
                     }
@@ -109,14 +108,17 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
                         $color = get_color($mod, $dbh, $alerts);
                         if ($color == $CMAP['DRAFT']) {
-                            ++$edge_counts[$mod];
+                            if (!isset($edge_counts[$mod])) {
+                                $edge_counts[$mod] = 1;
+                            } else {
+                                ++$edge_counts[$mod];
+                            }
                         }
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
-                            $edge_counts[$mod] = 0;
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
                     }
