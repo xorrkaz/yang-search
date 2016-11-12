@@ -43,6 +43,8 @@ function get_org(&$dbh, $module)
 
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $recurse = 0)
 {
+    global $CMAP;
+
     if (isset($nseen[$module])) {
         return;
     }
@@ -77,11 +79,15 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $color = get_color($mod, $dbh, $alerts);
+                        if ($color == $CMAP['DRAFT']) {
+                            ++$edge_counts[$module];
+                        }
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
+                            $edge_counts[$mod] = 0;
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
                     }
@@ -102,12 +108,15 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $color = get_color($mod, $dbh, $alerts);
-                        ++$edge_counts[$module];
+                        if ($color == $CMAP['DRAFT']) {
+                            ++$edge_counts[$module];
+                        }
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
+                            $edge_counts[$mod] = 0;
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
                     }
