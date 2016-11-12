@@ -45,7 +45,7 @@ define('JSTREE_CSS', '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/l
 define('JQUERY_UI_JS', '<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>');
 define('BOOTSTRAP_TAGINPUT_CSS', '<link rel="stylesheet" href="css/bootstrap-tagsinput.css">');
 define('BOOTSTRAP_TAGINPUT_JS', '<script type="text/javascript" src="js/bootstrap-tagsinput.js"></script>');
-define('CYTOSCAPE_SPREAD_JS', '<script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.9/cytoscape-spread.js"></script>');
+define('CYTOSCAPE_SPREAD_JS', '<script src="//cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.9/cytoscape-spread.js"></script>');
 
 // Global data_definitions
 define('YANG_CATALOG_URL', 'http://yangcatalog.org/api/operational');
