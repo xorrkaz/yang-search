@@ -45,6 +45,14 @@ mkdir -p ${YTREE_DIR}
 mkdir -p ${YDEP_DIR}
 mkdir -p $(dirname ${DBF})
 
+if [ -z "${DRAFTS_DIR}" ]; then
+    DRAFTS_DIR=${YANGDIR}
+fi
+
+if [ -z "${RFCS_DIR}" ]; then
+    RFCS_DIR=${YANGDIR}
+fi
+
 if [ ${update_yang_repo} = 1 ]; then
     cd ${YANGDIR}
     git pull >/dev/null 2>&1
@@ -100,7 +108,7 @@ for m in ${modules}; do
     if [ $? != 0 ]; then
         echo "WARNING: Failed to generate YANG tree data for ${mod_name} (${m})!"
     fi
-    symd -r --rfc-repos ${YANGDIR} --draft-repos ${YANGDIR} --json-output ${YDEP_DIR}/${mod_name}.json --single-impact-analysis-json ${mod_name} 2>/dev/null
+    symd -r --rfc-repos ${RFCS_DIR} --draft-repos ${DRAFTS_DIR} --json-output ${YDEP_DIR}/${mod_name}.json --single-impact-analysis-json ${mod_name} 2>/dev/null
     if [ $? != 0 ]; then
         echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
     fi
