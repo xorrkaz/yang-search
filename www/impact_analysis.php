@@ -317,7 +317,7 @@ foreach ($alerts as $alert) {
     <div class="page-header">
       <h3><?=$title?></h3>
     </div>
-    <div style="font-size: 9px">
+    <div style="font-size: 10px">
       <fieldset>
         <legend>Legend</legend>
         <table border="0">
@@ -326,7 +326,7 @@ foreach ($alerts as $alert) {
             foreach ($CMAP as $des => $col) {
                 ?>
               <tr>
-                <td style="color: <?=$col?>">&nbsp;&nbsp;</td>
+                <td style="background-color: <?=$col?>">&nbsp;&nbsp;</td>
                 <td>Status: <?=$des?></td>
               </tr>
               <?php
@@ -334,7 +334,9 @@ foreach ($alerts as $alert) {
             } ?>
           </tbody>
         </table>
+        <?php if ($found_bottleneck) { ?>
         <p><b>NOTE:</b> Highlighted node(s) represent bottleneck(s)</p>
+        <?php } ?>
       </fieldset>
     </div>
     <div class="container-fluid">
