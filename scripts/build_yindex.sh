@@ -53,6 +53,10 @@ if [ -z "${RFCS_DIR}" ]; then
     RFCS_DIR=${YANGDIR}
 fi
 
+if [ -z "${YANGREPO}" ]; then
+    YANGREPO=${YANGDIR}
+fi
+
 if [ ${update_yang_repo} = 1 ]; then
     cd ${YANGDIR}
     git pull >/dev/null 2>&1
@@ -82,12 +86,12 @@ else
 fi
 
 for m in ${modules}; do
-    cmd="pyang -p ${YANGDIR} -f yang-catalog-index --yang-index-make-module-table --yang-index-no-schema ${m}"
+    cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table --yang-index-no-schema ${m}"
     if [ ${first_run} = 1 ]; then
-        cmd="pyang -p ${YANGDIR} -f yang-catalog-index --yang-index-make-module-table ${m}"
+        cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table ${m}"
         first_run=0
     fi
-    mod_name=$(pyang -p ${YANGDIR} -f name ${m} 2>/dev/null | cut -d' ' -f1)
+    mod_name=$(pyang -p ${YANGREPO} -f name ${m} 2>/dev/null | cut -d' ' -f1)
     if [ ${update} = 1 ]; then
         echo "DELETE FROM modules WHERE module='${mod_name}'; DELETE FROM yindex WHERE module='${mod_name}';" | sqlite3 ${TDBF}
     fi
@@ -104,7 +108,7 @@ for m in ${modules}; do
     fi
 
     # Generate YANG tree data.
-    pyang -p ${YANGDIR} -f json-tree -o "${YTREE_DIR}/${mod_name}.json" ${m}
+    pyang -p ${YANGREPO} -f json-tree -o "${YTREE_DIR}/${mod_name}.json" ${m}
     if [ $? != 0 ]; then
         echo "WARNING: Failed to generate YANG tree data for ${mod_name} (${m})!"
     fi

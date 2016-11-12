@@ -47,6 +47,7 @@ fi
 cd ${YANGDIR}
 export DRAFTS_DIR=${YANGDIR}/tmp/DRAFT
 export RFCS_DIR=${YANGDIR}/tmp/RFC
+export YANGREPO=${YANGDIR}/tmp
 
 ${TOOLS_DIR}/build_yindex.sh ${YANGDIR}/tmp
 cleanup
