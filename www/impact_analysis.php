@@ -239,7 +239,7 @@ $(function() {
       <?php
       if ($found_bottleneck) {
           ?>
-      this.elements('<?=implode(',', $bottlenecks)?>').css({'border-wdith':5, 'border-color': '#333'});
+      this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
       <?php
 
       } ?>
