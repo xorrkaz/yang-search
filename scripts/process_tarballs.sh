@@ -31,7 +31,7 @@ if [ $? != 0 ]; then
 fi
 
 cd tmp/DRAFT
-tar -xf ${YANGDIR}/YANG-draft.tar
+tar -xf ${YANGDIR}/YANG-drafts.tar
 if [ $? != 0 ]; then
     echo "ERROR: Failed to extract draft tarball"
     exit 1
