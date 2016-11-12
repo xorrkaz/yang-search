@@ -191,6 +191,8 @@ if (!isset($_GET['modules'])) {
 
 		<?=CYTOSCAPE_JS?>
 
+    <?=CYTOSCAPE_SPREAD_JS?>
+
 		<script language="javascript">
 $(function() {
 	$("#cy").cytoscape({
