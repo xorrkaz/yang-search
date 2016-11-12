@@ -109,7 +109,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
                         $color = get_color($mod, $dbh, $alerts);
                         if ($color == $CMAP['DRAFT']) {
-                            ++$edge_counts[$module];
+                            ++$edge_counts[$mod];
                         }
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
