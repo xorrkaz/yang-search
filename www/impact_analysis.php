@@ -41,7 +41,7 @@ function get_org(&$dbh, $module)
     return '';
 }
 
-function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, &$alerts, $recurse = 0)
+function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $recurse = 0)
 {
     if (isset($nseen[$module])) {
         return;
@@ -62,6 +62,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, 
             } else {
                 $color = get_color($module, $dbh, $alerts);
                 array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color]]);
+                $edge_counts[$module] = 0;
                 $nseen[$module] = true;
                 if (isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
@@ -76,10 +77,11 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, 
                             }
                         }
                         $color = get_color($mod, $dbh, $alerts);
+                        ++$edge_counts[$module];
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $r);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
@@ -104,7 +106,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, 
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $r);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
                         }
@@ -122,12 +124,15 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$nseen, &$eseen, 
 $alerts = [];
 $nodes = [];
 $edges = [];
+$edge_counts = [];
 $nseen = [];
 $eseen = [];
 $modules = [];
 $good_mods = [];
 $orgs = [];
 $recurse = 0;
+$found_bottleneck = false;
+$bottlenecks = [];
 $title = 'Empty Impact Graph';
 
 $dbh = yang_db_conn($alerts);
@@ -149,11 +154,21 @@ if (!isset($_GET['modules'])) {
             $module = '';
         } else {
             array_push($good_mods, $module);
-            build_graph($module, $orgs, $dbh, $nodes, $edges, $nseen, $eseen, $alerts, $recurse);
+            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $recurse);
         }
     }
     if (count($good_mods) > 0) {
         $title = 'YANG Impact Graph for Module(s): '.implode(', ', $good_mods);
+    }
+    arsort($edge_counts, SORT_NUMERIC);
+    $curr_count = 0;
+    foreach ($edge_counts as $m => $c) {
+        if ($c == 1 || $c < $curr_count) {
+            break;
+        }
+        array_push($bottlenecks, "node#mod_{$m}");
+        $found_bottleneck = true;
+        $curr_count = $c;
     }
 }
 
@@ -180,9 +195,8 @@ if (!isset($_GET['modules'])) {
 $(function() {
 	$("#cy").cytoscape({
 		layout: {
-			name: 'cose',
-			padding: 10,
-			randomize: true,
+			name: 'spread',
+			minDist: 40
 		},
 		style: cytoscape.stylesheet()
 		  .selector('node')
@@ -228,10 +242,14 @@ function reloadPage() {
   var url = "<?=$_SERVER['PHP_SELF']?>?";
   var uargs = [];
   $.each($('#modtags').val().split(","), function(k, v) {
-    uargs.push("modules[]=" + v);
+    if (v != '') {
+      uargs.push("modules[]=" + v);
+    }
   });
   $.each($('#orgtags').val().split(","), function(k, v) {
-    uargs.push("orgs[]=" + v);
+    if (v != '') {
+      uargs.push("orgs[]=" + v);
+    }
   });
   uargs.push("recurse=<?=$recurse?>");
   url += uargs.join("&");
@@ -252,6 +270,12 @@ $(document).ready(function() {
   $('#orgtags').on('itemRemoved', function(e) {
     reloadPage();
   });
+  <?php
+  if ($found_bottleneck) {
+      ?>
+  cy.elements('<?=implode(',', $bottlenecks)?>').css({'border-wdith':5, 'border-color': '#333'});
+  <?php
+  } ?>
 });
 </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
