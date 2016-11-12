@@ -77,7 +77,6 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $color = get_color($mod, $dbh, $alerts);
-                        ++$edge_counts[$module];
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
@@ -103,6 +102,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $color = get_color($mod, $dbh, $alerts);
+                        ++$edge_counts[$module];
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
@@ -236,6 +236,13 @@ $(function() {
 		},
 		ready: function() {
 		  window.cy = this;
+      <?php
+      if ($found_bottleneck) {
+          ?>
+      this.elements('<?=implode(',', $bottlenecks)?>').css({'border-wdith':5, 'border-color': '#333'});
+      <?php
+
+      } ?>
 		}
 	});
 });
@@ -272,12 +279,6 @@ $(document).ready(function() {
   $('#orgtags').on('itemRemoved', function(e) {
     reloadPage();
   });
-  <?php
-  if ($found_bottleneck) {
-      ?>
-  cy.elements('<?=implode(',', $bottlenecks)?>').css({'border-wdith':5, 'border-color': '#333'});
-  <?php
-  } ?>
 });
 </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
