@@ -291,6 +291,18 @@ $(document).ready(function() {
     reloadPage();
   });
 });
+
+$(document).on('click', '.panel-heading span.clickable', function(e){
+  if(!$(this).hasClass('panel-collapsed')) {
+    $(this).parents('.panel').find('.panel-body').slideUp();
+    $(this).addClass('panel-collapsed');
+    $(this).find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+  } else {
+    $(this).parents('.panel').find('.panel-body').slideDown();
+    $(this).removeClass('panel-collapsed');
+    $(this).find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+  }
+});
 </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
@@ -317,45 +329,51 @@ foreach ($alerts as $alert) {
     <div class="page-header">
       <h3><?=$title?></h3>
     </div>
-    <div style="font-size: 10px">
-      <fieldset>
-        <legend>Legend</legend>
-        <table border="0">
-          <tbody>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <label for="impactOptions" class="panel-title">Graph Options</label>
+        <span class="pull-right clickable panel-collapsed" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </div>
+      <div class="panel-body">
+        <fieldset>
+          <label>Legend</label>
+          <table border="0">
+            <tbody>
             <?php
             foreach ($CMAP as $des => $col) {
                 ?>
-              <tr>
-                <td style="background-color: <?=$col?>">&nbsp;&nbsp;</td>
-                <td>Status: <?=$des?></td>
-              </tr>
+                <tr>
+                  <td style="background-color: <?=$col?>">&nbsp;&nbsp;</td>
+                  <td>Status: <?=$des?></td>
+                </tr>
               <?php
 
             } ?>
-          </tbody>
-        </table>
-        <?php if ($found_bottleneck) { ?>
-        <p><b>NOTE:</b> Highlighted node(s) represent bottleneck(s)</p>
-        <?php } ?>
-      </fieldset>
-    </div>
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="offset1 span8 pull-left">
-          <form>
-            <table border="0">
-              <tbody>
-                <tr>
-                  <td><b>Modules:</b></td>
-                  <td><input type="text" value="<?=implode(',', $modules)?>" data-role="tagsinput" id="modtags"></td>
-                </tr>
-                <tr>
-                  <td><b>Orgs:</b></td>
-                  <td><input type="text" value="<?=implode(',', $orgs)?>" data-role="tagsinput" id="orgtags"></td>
-                </tr>
-              </tbody>
-            </table>
-          </form>
+            </tbody>
+          </table>
+          <?php if ($found_bottleneck) { ?>
+          <p><b>NOTE:</b> Highlighted node(s) represent bottleneck(s)</p>
+          <?php } ?>
+        </fieldset>
+      </div>
+      <div class="container-fluid">
+        <div class="row-fluid">
+          <div class="offset1 span8 pull-left">
+            <form>
+              <table border="0">
+                <tbody>
+                  <tr>
+                    <td><b>Modules:</b></td>
+                    <td><input type="text" value="<?=implode(',', $modules)?>" data-role="tagsinput" id="modtags"></td>
+                  </tr>
+                  <tr>
+                    <td><b>Orgs:</b></td>
+                    <td><input type="text" value="<?=implode(',', $orgs)?>" data-role="tagsinput" id="orgtags"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+          </div>
         </div>
       </div>
     </div>
