@@ -38,7 +38,7 @@ if [ $? != 0 ]; then
 fi
 
 cd ${YANGDIR}/tmp/RFC
-tar -xf ${YANGDIR}YANG-RFC.tar
+tar -xf ${YANGDIR}/YANG-RFC.tar
 if [ $? != 0 ]; then
     echo "ERROR: Failed to extract RFC tarball"
     exit 1
