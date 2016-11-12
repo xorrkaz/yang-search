@@ -287,7 +287,7 @@ foreach ($alerts as $alert) {
               <tbody>
                 <tr>
                   <td><b>Modules:</b></td>
-                  <td><input type="text" value="<?=implode(',', $modules)?>" data-role="tagsinput" id="moduletags"></td>
+                  <td><input type="text" value="<?=implode(',', $modules)?>" data-role="tagsinput" id="modtags"></td>
                 </tr>
                 <tr>
                   <td><b>Orgs:</b></td>
