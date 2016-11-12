@@ -317,6 +317,26 @@ foreach ($alerts as $alert) {
     <div class="page-header">
       <h3><?=$title?></h3>
     </div>
+    <div style="font-size: 9px">
+      <fieldset>
+        <legend>Legend</legend>
+        <table border="0">
+          <tbody>
+            <?php
+            foreach ($CMAP as $des => $col) {
+                ?>
+              <tr>
+                <td style="color: <?=$col?>">&nbsp;&nbsp;</td>
+                <td>Status: <?=$des?></td>
+              </tr>
+              <?php
+
+            } ?>
+          </tbody>
+        </table>
+        <p><b>NOTE:</b> Highlighted node(s) represent bottleneck(s)</p>
+      </fieldset>
+    </div>
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="offset1 span8 pull-left">
