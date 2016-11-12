@@ -355,10 +355,9 @@ foreach ($alerts as $alert) {
           <p><b>NOTE:</b> Highlighted node(s) represent bottleneck(s)</p>
           <?php } ?>
         </fieldset>
-      </div>
       <div>
         <div>
-          <div class="offset1 span8 pull-left">
+          <div>
             <form>
               <table border="0">
                 <tbody>
