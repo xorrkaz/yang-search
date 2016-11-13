@@ -192,7 +192,7 @@ if (!isset($_GET['modules'])) {
     arsort($edge_counts, SORT_NUMERIC);
     $curr_count = 0;
     foreach ($edge_counts as $m => $c) {
-        if ($c == 1 || $c < $curr_count) {
+        if ($c <= 1 || $c < $curr_count) {
             break;
         }
         array_push($bottlenecks, "node#mod_{$m}");
@@ -278,7 +278,6 @@ $(function() {
       <?php
 
       }
-      var_dump($nodes);
       foreach ($nodes as $n) {
           ?>
         this.elements('node#<?=$n['data']['id']?>').qtip({content: 'Document: <?=$n['data']['document']?>'});
