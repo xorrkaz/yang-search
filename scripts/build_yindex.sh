@@ -72,6 +72,7 @@ first_run=1
 if [ $# = 0 ]; then
     modules=$(find ${TYANGDIR} -type f -name "*.yang")
 else
+    cp -f ${DBF} ${TDBF}
     for m in $*; do
         if [ -d ${m} ]; then
             mods=$(find ${m} -type f -name "*.yang")
@@ -81,7 +82,6 @@ else
         fi
     done
     update=1
-    TDBF=${DBF}
     first_run=0
 fi
 
@@ -119,7 +119,5 @@ if [ $? != 0 ]; then
     echo "WARNING: Failed to add YANG catalog data!"
 fi
 
-if [ ${update} = 0 ]; then
-    mv -f ${TDBF} ${DBF}
-    chmod 0644 ${DBF}
-fi
+mv -f ${TDBF} ${DBF}
+chmod 0644 ${DBF}
