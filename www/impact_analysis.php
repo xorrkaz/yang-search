@@ -186,7 +186,7 @@ if (!isset($_GET['modules'])) {
     if (isset($_GET['recurse']) && is_numeric($_GET['recurse'])) {
         $recurse = $_GET['recurse'];
     }
-    if (isset($_GET['rfcs']) && $show_rfcs == 0) {
+    if (isset($_GET['rfcs']) && $_GET['show_rfcs'] == 0) {
         $show_rfcs = false;
     }
     foreach ($modules as $module) {
@@ -333,7 +333,7 @@ function reloadPage() {
     recusrion = 0;
   }
   uargs.push("recurse=" + recursion);
-  if ($('#show_rfcs').attr('checked')) {
+  if ($('#show_rfcs').is(':checked')) {
     uargs.push("rfcs=1");
   } else {
     uargs.push("rfcs=0");
