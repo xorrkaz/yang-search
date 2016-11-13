@@ -186,7 +186,7 @@ if (!isset($_GET['modules'])) {
     if (isset($_GET['recurse']) && is_numeric($_GET['recurse'])) {
         $recurse = $_GET['recurse'];
     }
-    if (isset($_GET['rfcs']) && $_GET['show_rfcs'] == 0) {
+    if (isset($_GET['rfcs']) && $_GET['rfcs'] == 0) {
         $show_rfcs = false;
     }
     foreach ($modules as $module) {
