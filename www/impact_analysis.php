@@ -448,7 +448,6 @@ foreach ($alerts as $alert) {
                   </tr>
                   <tr>
                     <td><b>Recursion Levels:</b>&nbsp;&nbsp;&nbsp;<input type="text" id="recursion" size="2" value="<?=$recurse?>"></td>
-                    <td>&nbsp;&nbsp;&nbsp;</td>
                     <td><b>Include RFCs?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
                   </tr>
                 </tbody>
