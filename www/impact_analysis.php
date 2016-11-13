@@ -333,7 +333,7 @@ function reloadPage() {
     recusrion = 0;
   }
   uargs.push("recurse=" + recursion);
-  if ($('#show_rfcs').checked()) {
+  if ($('#show_rfcs').attr('checked')) {
     uargs.push("rfcs=1");
   } else {
     uargs.push("rfcs=0");
