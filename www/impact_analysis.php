@@ -41,6 +41,21 @@ function get_org(&$dbh, $module)
     return '';
 }
 
+function get_doc(&$dbh, $module)
+{
+    try {
+        $sth = $dbh->prepare('SELECT document FROM modules WHERE module=:mod');
+        $sth->execute(['mod' => $module]);
+        $row = $sth->fetch();
+
+        return $row['document'];
+    } catch (Exception $e) {
+        return '';
+    }
+
+    return '';
+}
+
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $recurse = 0)
 {
     global $CMAP;
@@ -63,7 +78,8 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
             } else {
                 $color = get_color($module, $dbh, $alerts);
-                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color]]);
+                $document = get_doc($dbh, $module);
+                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document]]);
                 $edge_counts[$module] = 0;
                 $nseen[$module] = true;
                 if (isset($json['impacted_modules'][$module])) {
@@ -87,7 +103,8 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
+                            $document = get_doc($dbh, $module);
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
                         }
                     }
                 }
@@ -119,7 +136,8 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color]]);
+                            $document = get_doc($dbh, $module);
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
                         }
                     }
                 }
@@ -194,15 +212,21 @@ if (!isset($_GET['modules'])) {
 
     <?=BOOTSTRAP_TAGINPUT_CSS?>
 
+    <?=QTIP_CSS?>
+
 		<?=JQUERY_JS?>
 
 		<?=BOOTSTRAP_JS?>
 
     <?=BOOTSTRAP_TAGINPUT_JS?>
 
+    <?=QTIP_JS?>
+
 		<?=CYTOSCAPE_JS?>
 
     <?=CYTOSCAPE_SPREAD_JS?>
+
+    <?=CYTOSCAPE_QTIP_JS?>
 
 		<script language="javascript">
 $(function() {
@@ -253,7 +277,13 @@ $(function() {
       this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
       <?php
 
-      } ?>
+      }
+      foreach ($nodes['data'] as $n) {
+          ?>
+        this.elements('node#<?=$n['id']?>').qtip({content: 'Document: <?=$n['document']?>'});
+        <?php
+
+      }?>
 		}
 	});
 });
@@ -351,9 +381,12 @@ foreach ($alerts as $alert) {
             } ?>
             </tbody>
           </table>
-          <?php if ($found_bottleneck) { ?>
+          <?php if ($found_bottleneck) {
+                ?>
           <p><b>NOTE:</b> Highlighted node(s) represent bottleneck(s)</p>
-          <?php } ?>
+          <?php
+
+            } ?>
         </fieldset>
       <div>
         <div>
