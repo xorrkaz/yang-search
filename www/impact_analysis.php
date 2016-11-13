@@ -278,9 +278,10 @@ $(function() {
       <?php
 
       }
-      foreach ($nodes['data'] as $n) {
+      var_dump($nodes);
+      foreach ($nodes as $n) {
           ?>
-        this.elements('node#<?=$n['id']?>').qtip({content: 'Document: <?=$n['document']?>'});
+        this.elements('node#<?=$n['data']['id']?>').qtip({content: 'Document: <?=$n['data']['document']?>'});
         <?php
 
       }?>
