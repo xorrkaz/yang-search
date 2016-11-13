@@ -284,6 +284,12 @@ $(function() {
           my: 'top center',
           at: 'bottom center'
         },
+        show: {
+          event: 'mouseover'
+        },
+        hide: {
+          event: 'mouseout'
+        },
         style: {
           classes: 'qtip-bootstrap',
           tip: {
