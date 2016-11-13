@@ -77,9 +77,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
             if ($json === null) {
                 array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
             } else {
-                $color = get_color($module, $dbh, $alerts);
+                $mcolor = get_color($module, $dbh, $alerts);
                 $document = get_doc($dbh, $module);
-                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document]]);
+                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $mcolor, 'document' => $document]]);
                 $edge_counts[$module] = 0;
                 $nseen[$module] = true;
                 if (isset($json['impacted_modules'][$module])) {
@@ -95,7 +95,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $color = get_color($mod, $dbh, $alerts);
-                        if ($color == $CMAP['DRAFT']) {
+                        if ($mcolor == $CMAP['DRAFT']) {
                             ++$edge_counts[$module];
                         }
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
@@ -281,7 +281,7 @@ $(function() {
       window.cy.nodes().qtip({
         content: function() { return 'Document ' + this.data('document') },
         position: {
-          my: 'top left',
+          my: 'bottom right',
           at: 'top left'
         },
         show: {
