@@ -103,7 +103,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
-                            $document = get_doc($dbh, $module);
+                            $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
                         }
                     }
@@ -136,7 +136,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
                         } else {
-                            $document = get_doc($dbh, $module);
+                            $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
                         }
                     }
@@ -278,7 +278,7 @@ $(function() {
       <?php
 
       }?>
-      this.nodes().qtip({
+      window.cy.nodes().qtip({
         content: function() { return 'Document ' + this.data('document') },
         position: {
           my: 'top center',
