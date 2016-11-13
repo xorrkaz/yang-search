@@ -47,8 +47,8 @@ NS_MAP = {
 mods = {}
 
 MATURITY_MAP = {
-    "rfc": "http://www.claise.be/IETFYANGNoRevRFC.json",
-    "draft": "http://www.claise.be/IETFYANGNoRevDraft.json"
+    "RFC": "http://www.claise.be/IETFYANGNoRevRFC.json",
+    "DRAFT": "http://www.claise.be/IETFYANGNoRevDraft.json"
 }
 
 for m, u in MATURITY_MAP.items():
@@ -62,6 +62,7 @@ for m, u in MATURITY_MAP.items():
     j = r.json()
 
     for mod, props in j.items():
+        mods[mod] = {}
         mods[mod]['maturity'] = m
         reg = re.compile(r'<a.*?>(.*?)</a>', re.S | re.M)
         doc_tag = props
