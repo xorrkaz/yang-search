@@ -277,13 +277,21 @@ $(function() {
       this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
       <?php
 
-      }
-      foreach ($nodes as $n) {
-          ?>
-        this.elements('node#<?=$n['data']['id']?>').qtip({content: 'Document: <?=$n['data']['document']?>'});
-        <?php
-
       }?>
+      this.nodes().qtip({
+        content: function() { return 'Document ' + this.data('document') },
+        position: {
+          my: 'top center',
+          at: 'bottom center'
+        },
+        style: {
+          classes: 'qtip-bootstrap',
+          tip: {
+            width: 16,
+            height: 8
+          }
+        }
+      });
 		}
 	});
 });
