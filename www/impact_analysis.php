@@ -447,8 +447,9 @@ foreach ($alerts as $alert) {
                     <td><input type="text" value="<?=implode(',', $orgs)?>" data-role="tagsinput" id="orgtags"></td>
                   </tr>
                   <tr>
-                    <td><b>Recursion Levels:</b> <input type="text" id="recursion" size="2"></td>
-                    <td><b>Include RFCs?</b> <input type="checkbox" id="show_rfcs" value="1" <?=(isset($_GET['rfcs']) && $_GET['rfcs'] == 1) ? 'checked' : ''?>></td>
+                    <td><b>Recursion Levels:</b>&nbsp;&nbsp;&nbsp;<input type="text" id="recursion" size="2" value="<?=$recurse?>"></td>
+                    <td>&nbsp;&nbsp;&nbsp;</td>
+                    <td><b>Include RFCs?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
                   </tr>
                 </tbody>
               </table>
