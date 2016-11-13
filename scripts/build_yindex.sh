@@ -102,10 +102,6 @@ for m in ${modules}; do
         echo "ERROR: Failed to update YANG DB for ${mod_name} (${m})!"
         continue
     fi
-    ${TOOLS_DIR}/add-catalog-data.py ${m} ${mod_name} ${TDBF}
-    if [ $? != 0 ]; then
-        echo "WARNING: Failed to add YANG catalog data for ${mod_name} (${m})!"
-    fi
 
     # Generate YANG tree data.
     pyang -p ${YANGREPO} -f json-tree -o "${YTREE_DIR}/${mod_name}.json" ${m}
@@ -117,6 +113,11 @@ for m in ${modules}; do
         echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
     fi
 done
+
+${TOOLS_DIR}/add-catalog-data.py ${TDBF}
+if [ $? != 0 ]; then
+    echo "WARNING: Failed to add YANG catalog data!"
+fi
 
 if [ ${update} = 0 ]; then
     mv -f ${TDBF} ${DBF}
