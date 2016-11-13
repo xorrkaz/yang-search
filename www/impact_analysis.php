@@ -56,7 +56,7 @@ function get_doc(&$dbh, $module)
     return '';
 }
 
-function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $recurse = 0)
+function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0)
 {
     global $CMAP;
 
@@ -78,6 +78,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
             } else {
                 $mcolor = get_color($module, $dbh, $alerts);
+                if ($mcolor == $CMAP['RFC'] && !$show_rfcs) {
+                    return;
+                }
                 $document = get_doc($dbh, $module);
                 array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $mcolor, 'document' => $document]]);
                 $edge_counts[$module] = 0;
@@ -95,13 +98,16 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $color = get_color($mod, $dbh, $alerts);
+                        if ($color == $CMAP['RFC'] && !$show_rfcs) {
+                            continue;
+                        }
                         if ($mcolor == $CMAP['DRAFT']) {
                             ++$edge_counts[$module];
                         }
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r);
                         } else {
                             $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
@@ -124,6 +130,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $color = get_color($mod, $dbh, $alerts);
+                        if ($color == $CMAP['RFC'] && !$show_rfcs) {
+                            continue;
+                        }
                         if ($color == $CMAP['DRAFT']) {
                             if (!isset($edge_counts[$mod])) {
                                 $edge_counts[$mod] = 1;
@@ -134,7 +143,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $r);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r);
                         } else {
                             $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
@@ -159,6 +168,7 @@ $eseen = [];
 $modules = [];
 $good_mods = [];
 $orgs = [];
+$show_rfcs = true;
 $recurse = 0;
 $found_bottleneck = false;
 $bottlenecks = [];
@@ -176,6 +186,9 @@ if (!isset($_GET['modules'])) {
     if (isset($_GET['recurse']) && is_numeric($_GET['recurse'])) {
         $recurse = $_GET['recurse'];
     }
+    if (isset($_GET['rfcs']) && $show_rfcs == 0) {
+        $show_rfcs = false;
+    }
     foreach ($modules as $module) {
         $nmodule = basename($module);
         if ($nmodule != $module) {
@@ -183,7 +196,7 @@ if (!isset($_GET['modules'])) {
             $module = '';
         } else {
             array_push($good_mods, $module);
-            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $recurse);
+            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse);
         }
     }
     if (count($good_mods) > 0) {
@@ -315,7 +328,16 @@ function reloadPage() {
       uargs.push("orgs[]=" + v);
     }
   });
-  uargs.push("recurse=<?=$recurse?>");
+  var recursion = $('#recursion').val();
+  if (recursion == '') {
+    recusrion = 0;
+  }
+  uargs.push("recurse=" + recursion);
+  if ($('#show_rfcs').checked()) {
+    uargs.push("rfcs=1");
+  } else {
+    uargs.push("rfcs=0");
+  }
   url += uargs.join("&");
 
   window.location.href = url;
@@ -334,6 +356,12 @@ $(document).ready(function() {
   $('#orgtags').on('itemRemoved', function(e) {
     reloadPage();
   });
+  $('#recursion').on('change', function(e) {
+    reloadPage();
+  });
+  $('#show_rfcs').on('change', function(e) {
+    reloadPage();
+  });
 });
 
 $(document).on('click', '.panel-heading span.clickable', function(e){
@@ -341,10 +369,12 @@ $(document).on('click', '.panel-heading span.clickable', function(e){
     $(this).parents('.panel').find('.panel-body').slideUp();
     $(this).addClass('panel-collapsed');
     $(this).find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+    window.cy.resize();
   } else {
     $(this).parents('.panel').find('.panel-body').slideDown();
     $(this).removeClass('panel-collapsed');
     $(this).find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+    window.cy.resize();
   }
 });
 </script>
@@ -415,6 +445,10 @@ foreach ($alerts as $alert) {
                   <tr>
                     <td><b>Orgs:</b></td>
                     <td><input type="text" value="<?=implode(',', $orgs)?>" data-role="tagsinput" id="orgtags"></td>
+                  </tr>
+                  <tr>
+                    <td><b>Recursion Levels:</b> <input type="text" id="recursion" size="2"></td>
+                    <td><b>Include RFCs?</b> <input type="checkbox" id="show_rfcs" value="1" <?=(isset($_GET['rfcs']) && $_GET['rfcs'] == 1) ? 'checked' : ''?>></td>
                   </tr>
                 </tbody>
               </table>
