@@ -281,8 +281,8 @@ $(function() {
       window.cy.nodes().qtip({
         content: function() { return 'Document ' + this.data('document') },
         position: {
-          my: 'top center',
-          at: 'bottom center'
+          my: 'top left',
+          at: 'top left'
         },
         show: {
           event: 'mouseover'
