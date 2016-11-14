@@ -216,7 +216,7 @@ if (!isset($_GET['modules'])) {
     foreach ($tbottlenecks as $bn) {
         $found_dep = false;
         foreach ($edges as $edge) {
-            if ($edge['data']['target'] == "mod_{$bn}") {
+            if ($edge['data']['objColor'] == $CMAP['DRAFT'] && $edge['data']['target'] == "mod_{$bn}") {
                 array_push($bottlenecks, "node#{$edge['data']['source']}");
                 $found_dep = true;
             }
