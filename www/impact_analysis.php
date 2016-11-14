@@ -204,13 +204,26 @@ if (!isset($_GET['modules'])) {
     }
     arsort($edge_counts, SORT_NUMERIC);
     $curr_count = 0;
+    $tbottlenecks = [];
     foreach ($edge_counts as $m => $c) {
         if ($c <= 1 || $c < $curr_count) {
             break;
         }
-        array_push($bottlenecks, "node#mod_{$m}");
+        array_push($tbottlenecks, $m);
         $found_bottleneck = true;
         $curr_count = $c;
+    }
+    foreach ($tbottlenecks as $bn) {
+        $found_dep = false;
+        foreach ($edges as $edge) {
+            if ($edge['data']['target'] == "mod_{$bn}") {
+                array_push($bottlenecks, "node#{$edge['data']['source']}");
+                $found_dep = true;
+            }
+        }
+        if (!$found_dep) {
+            array_push($bottlenecks, "node#{$bn}");
+        }
     }
 }
 
