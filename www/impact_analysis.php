@@ -222,7 +222,7 @@ if (!isset($_GET['modules'])) {
             }
         }
         if (!$found_dep) {
-            array_push($bottlenecks, "node#{$bn}");
+            array_push($bottlenecks, "node#mod_{$bn}");
         }
     }
 }
