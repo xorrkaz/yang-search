@@ -83,7 +83,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 }
                 $document = get_doc($dbh, $module);
                 array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $mcolor, 'document' => $document]]);
-                $edge_counts[$module] = 0;
+                if (!isset($edge_counts[$module])) {
+                    $edge_counts[$module] = 0;
+                }
                 $nseen[$module] = true;
                 if (isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
@@ -216,9 +218,13 @@ if (!isset($_GET['modules'])) {
     foreach ($tbottlenecks as $bn) {
         $found_dep = false;
         foreach ($edges as $edge) {
-            if ($edge['data']['objColor'] == $CMAP['DRAFT'] && $edge['data']['target'] == "mod_{$bn}") {
-                array_push($bottlenecks, "node#{$edge['data']['source']}");
-                $found_dep = true;
+            if ($edge['data']['target'] == "mod_{$bn}") {
+                $mn = str_replace('mod_', '', $edge['data']['source']);
+                $color = get_color($mn, $dbh, $alerts);
+                if ($color == $CMAP['DRAFT']) {
+                    array_push($bottlenecks, "node#{$edge['data']['source']}");
+                    $found_dep = true;
+                }
             }
         }
         if (!$found_dep) {
