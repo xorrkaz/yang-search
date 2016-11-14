@@ -206,7 +206,7 @@ if (!isset($_GET['modules'])) {
     $curr_count = 0;
     $tbottlenecks = [];
     foreach ($edge_counts as $m => $c) {
-        if ($c <= 1 || $c < $curr_count) {
+        if ($c < 1 || $c < $curr_count) {
             break;
         }
         array_push($tbottlenecks, $m);
