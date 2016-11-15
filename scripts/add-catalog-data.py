@@ -57,7 +57,7 @@ for m, u in MATURITY_MAP.items():
         r.raise_for_status()
     except requests.exceptions.HTTPError as e:
         print("Error fetching JSON data from {}: {}".format(u, e.args[0]))
-        continue
+        sys.exit(1)
 
     j = r.json()
 
