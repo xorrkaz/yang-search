@@ -56,7 +56,7 @@ function get_doc(&$dbh, $module)
     return '';
 }
 
-function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0)
+function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false)
 {
     global $CMAP;
 
@@ -78,7 +78,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
             } else {
                 $mcolor = get_color($module, $dbh, $alerts);
-                if ($mcolor == $CMAP['RFC'] && !$show_rfcs) {
+                if ($nested && $mcolor == $CMAP['RFC'] && !$show_rfcs) {
                     return;
                 }
                 $document = get_doc($dbh, $module);
@@ -109,7 +109,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                         } else {
                             $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
@@ -143,9 +143,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
-                        if ($recurse > 0 || $recurse < 0) {
+                        if ($nested && ($recurse > 0 || $recurse < 0)) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                         } else {
                             $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
