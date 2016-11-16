@@ -142,11 +142,13 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                                 ++$edge_counts[$mod];
                             }
                         }
-                        array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
+                        if (!$nested) {
+                            array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
+                        }
                         if ($nested && ($recurse > 0 || $recurse < 0)) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
-                        } else {
+                            //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
+                        } elseif (!$nested) {
                             $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
                         }
@@ -197,6 +199,9 @@ if (!isset($_GET['modules'])) {
             array_push($alerts, 'Invalid module name specified');
             $module = '';
         } else {
+            $module = str_replace('.yang', '', $module);
+            $module = str_replace('.yin', '', $module);
+            $module = explode('@', $module)[0];
             array_push($good_mods, $module);
             build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse);
         }
