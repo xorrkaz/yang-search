@@ -386,7 +386,7 @@ $(document).ready(function() {
   $('#show_rfcs').on('change', function(e) {
     reloadPage();
   });*/
-  $('graph_commit').on('click', function(e) {
+  $('#graph_commit').on('click', function(e) {
     reloadPage();
   });
   $('#graph_export').on('click', function(e) {
