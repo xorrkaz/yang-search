@@ -368,7 +368,7 @@ function reloadPage() {
 }
 
 $(document).ready(function() {
-  $('#modtags').on('itemAdded', function(e) {
+  /*$('#modtags').on('itemAdded', function(e) {
     reloadPage();
   });
   $('#orgtags').on('itemAdded', function(e) {
@@ -385,8 +385,11 @@ $(document).ready(function() {
   });
   $('#show_rfcs').on('change', function(e) {
     reloadPage();
+  });*/
+  $('graph_commit').on('click', function(e) {
+    reloadPage();
   });
-  $('#export_graph').on('click', function(e) {
+  $('#graph_export').on('click', function(e) {
     var png = window.cy.png({full: true});
     var img = new Image();
     img.src = png;
@@ -484,6 +487,7 @@ foreach ($alerts as $alert) {
                   </tr>
                   <tr>
                     <td><button type="button" class="btn" id="graph_export">Export</button></td>
+                    <td><button type="button" class="btn btn-primary" id="graph_commit">OK</button></td>
                   </tr>
                 </tbody>
               </table>
