@@ -486,8 +486,8 @@ foreach ($alerts as $alert) {
                     <td><b>Include RFCs?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
                   </tr>
                   <tr>
+                    <td><button type="button" class="btn btn-primary" id="graph_commit">Generate</button></td>
                     <td><button type="button" class="btn" id="graph_export">Export</button></td>
-                    <td><button type="button" class="btn btn-primary" id="graph_commit">OK</button></td>
                   </tr>
                 </tbody>
               </table>
