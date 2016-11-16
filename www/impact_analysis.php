@@ -386,6 +386,14 @@ $(document).ready(function() {
   $('#show_rfcs').on('change', function(e) {
     reloadPage();
   });
+  $('#export_graph').on('click', function(e) {
+    var png = window.cy.png({full: true});
+    var img = new Image();
+    img.src = png;
+
+    var win = window.open("");
+    win.document.write(img.outerHTML);
+  });
 });
 
 $(document).on('click', '.panel-heading span.clickable', function(e){
@@ -473,6 +481,9 @@ foreach ($alerts as $alert) {
                   <tr>
                     <td><b>Recursion Levels:</b>&nbsp;&nbsp;&nbsp;<input type="text" id="recursion" size="2" value="<?=$recurse?>"></td>
                     <td><b>Include RFCs?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
+                  </tr>
+                  <tr>
+                    <td><button type="button" class="btn" id="graph_export">Export</button></td>
                   </tr>
                 </tbody>
               </table>
