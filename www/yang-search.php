@@ -90,22 +90,22 @@ if ($dbh !== null && $search_string !== null) {
             }
         }
 
-        $sql = 'SELECT * FROM yindex WHERE ';
+        $sql = 'SELECT yi.* FROM yindex yi, modules mo WHERE ';
         $qparams['descr'] = $search_string;
         if ($do_regexp) {
-            $sql .= " (REGEXP(:descr, argument, '$modifiers') OR REGEXP(:descr, description, '$modifiers'))";
+            $sql .= " (REGEXP(:descr, yi.argument, '$modifiers') OR REGEXP(:descr, yi.description, '$modifiers'))";
         } else {
-            $sql .= ' (argument LIKE :descr OR description LIKE :descr)';
+            $sql .= ' (yi.argument LIKE :descr OR yi.description LIKE :descr)';
         }
         if (!isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1) {
-            $sql .= ' AND (namespace NOT LIKE :mib)';
+            $sql .= ' AND (mo.module = yi.module AND mo.namespace NOT LIKE :mib)';
             $qparams['mib'] = '%yang:smiv2:%';
         }
         if (!isset($_POST['schemaAll']) || $_POST['schemaAll'] != 1) {
             $queries = [];
             $sql .= ' AND (';
             foreach ($_POST['schemaTypes'] as $st) {
-                array_push($queries, "statement = '$st'");
+                array_push($queries, "yi.statement = '$st'");
             }
             $sql .= implode(' OR ', $queries);
             $sql .= ')';
