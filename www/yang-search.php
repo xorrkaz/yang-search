@@ -248,7 +248,7 @@ if (isset($_POST['search_string'])) {
 <?php
             if ((isset($modules[$row['module']]) && $modules[$row['module']] === true) || (!isset($modules[$row['module']]) && is_file(YTREES_DIR.'/'.$row['module'].'.json'))) {
                 ?>
-            <td><a href="yang_tree.php?module=<?=$row['module']?>"><?=$row['module']?></a></td>
+            <td><a href="yang_tree.php?module=<?=$row['module']?>"><?=$row['module']?></a> <span style="font-size: small">(<a href="impact_analysis.php?modules[]=<?=$row['module']?>">Impact Analysis</a>)</span></td>
 <?php
                 $modules[$row['module']] = true;
             } else {
