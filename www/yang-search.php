@@ -91,26 +91,28 @@ if ($dbh !== null && $search_string !== null) {
         }
 
         $sql = 'SELECT * FROM yindex WHERE ';
-        if (isset($_POST['schemaAll']) && $_POST['schemaAll'] == 1) {
-            if ($do_regexp) {
-                $sql .= " REGEXP(:descr, argument, '$modifiers') OR REGEXP(:descr, description, '$modifiers')";
-            } else {
-                $sql .= ' argument LIKE :descr OR description LIKE :descr';
-            }
+        $qparams['descr'] = $search_string;
+        if ($do_regexp) {
+            $sql .= " (REGEXP(:descr, argument, '$modifiers') OR REGEXP(:descr, description, '$modifiers'))";
         } else {
+            $sql .= ' (argument LIKE :descr OR description LIKE :descr)';
+        }
+        if (!isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1) {
+            $sql .= ' AND (namespace NOT LIKE :mib)';
+            $qparams['mib'] = '%yang:smiv2:%';
+        }
+        if (!isset($_POST['schemaAll']) || $_POST['schemaAll'] != 1) {
             $queries = [];
+            $sql .= ' AND (';
             foreach ($_POST['schemaTypes'] as $st) {
-                if ($do_regexp) {
-                    array_push($queries, "(statement = '$st' AND (REGEXP(:descr, argument, '$modifiers') OR REGEXP(:descr, description, '$modifiers')))");
-                } else {
-                    array_push($queries, "(statement = '$st' AND (argument LIKE :descr OR description LIKE :descr))");
-                }
+                array_push($queries, "statement = '$st'");
             }
             $sql .= implode(' OR ', $queries);
+            $sql .= ')';
         }
 
         $sth = $dbh->prepare($sql);
-        $sth->execute(['descr' => $search_string]);
+        $sth->execute($qparams);
     } catch (Exception $e) {
         push_exception('', $e, $alerts);
         $sth = null;
@@ -352,6 +354,13 @@ function verify() {
                   <div class="checkbox">
                     <label for="regexp">
                       <input id="regexp" type="checkbox" name="regexp" style="margin-top: 0;" value="1"> Regular Expression
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <div class="checkbox">
+                    <label for="includeMIBs">
+                      <input id="includeMIBs" type="checkbox" name="includeMIBs" style="margin-top: 0;" value="1"> Include MIBs
                     </label>
                   </div>
                 </td>
