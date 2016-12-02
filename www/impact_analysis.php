@@ -47,13 +47,16 @@ function get_doc(&$dbh, $module)
         $sth = $dbh->prepare('SELECT document FROM modules WHERE module=:mod');
         $sth->execute(['mod' => $module]);
         $row = $sth->fetch();
+        if ($row['document'] === null) {
+            return 'unknown';
+        }
 
         return $row['document'];
     } catch (Exception $e) {
-        return '';
+        return 'unknown';
     }
 
-    return '';
+    return 'unknown';
 }
 
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false)
