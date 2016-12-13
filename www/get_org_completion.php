@@ -44,12 +44,11 @@ $res['status'] = 'SUCCESS';
 $res['response'] = [];
 
 if (!isset($_GET['org_pattern']) || $_GET['org_pattern'] == '') {
-    $res['response'] = [[]];
     echo json_encode($res);
     exit(0);
 }
 
-$sql = 'SELECT organization FROM modules WHERE organization LIKE :orgpat ESCAPE :esc LIMIT 10';
+$sql = 'SELECT DISTINCT(organization) FROM modules WHERE organization LIKE :orgpat ESCAPE :esc LIMIT 10';
 try {
     $sth = $dbh->prepare($sql);
     $sth->execute(['orgpat' => str_replace(['\\', '%', '_'], ['\\'.'\\', '\\'.'%', '\\'.'_'], $_GET['org_pattern']).'%', 'esc' => '\\']);
