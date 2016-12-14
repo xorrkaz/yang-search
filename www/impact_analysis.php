@@ -66,7 +66,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
     if (isset($nseen[$module])) {
         return;
     }
-    if (count($orgs) > 0) {
+    if (count($orgs) > 0 && !(count($orgs) == 1 && $orgs[0] == '')) {
         $org = get_org($dbh, $module);
         if (array_search($org, $orgs) === false) {
             return;
