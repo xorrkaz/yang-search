@@ -43,17 +43,29 @@ $res = [];
 $res['status'] = 'SUCCESS';
 $res['response'] = [];
 
-if (!isset($_GET['org_pattern']) || $_GET['org_pattern'] == '') {
+if (!isset($_GET['type']) || ($_GET['type'] != 'org' && $_GET['type'] != 'module')) {
     echo json_encode($res);
     exit(0);
 }
 
-$sql = 'SELECT DISTINCT(organization) FROM modules WHERE organization LIKE :orgpat ESCAPE :esc LIMIT 10';
+if (!isset($_GET['pattern']) || $_GET['pattern'] == '') {
+    echo json_encode($res);
+    exit(0);
+}
+
+$selector = null;
+if ($_GET['type'] == 'org') {
+    $selector = 'organization';
+} elseif ($_GET['type'] == 'module') {
+    $selector = 'module';
+}
+
+$sql = 'SELECT DISTINCT(:selector) FROM modules WHERE :selector LIKE :pattern ESCAPE :esc LIMIT 10';
 try {
     $sth = $dbh->prepare($sql);
-    $sth->execute(['orgpat' => str_replace(['\\', '%', '_'], ['\\'.'\\', '\\'.'%', '\\'.'_'], $_GET['org_pattern']).'%', 'esc' => '\\']);
+    $sth->execute(['pattern' => str_replace(['\\', '%', '_'], ['\\'.'\\', '\\'.'%', '\\'.'_'], $_GET['pattern']).'%', 'esc' => '\\', 'selector' => $selector]);
     while ($row = $sth->fetch()) {
-        array_push($res['response'], $row['organization']);
+        array_push($res['response'], $row[$selector]);
     }
 } catch (PDOException $e) {
 }
