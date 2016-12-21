@@ -57,6 +57,8 @@ define('REST_PASS', 'oper');
 define('REST_TIMEOUT', 300);
 define('RESTCONF_JSON_MIME_TYPE', 'application/vnd.yang.data+json');
 define('OPENCONFIG_CATALOG_MOD_NS', 'openconfig-module-catalog:module');
+define('LOCKF', '/tmp/webhook.lock');
+define('CHANGE_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
 
 // Global variables
 $COLOR_UNKNOWN = '#F5A45D';
