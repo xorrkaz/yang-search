@@ -37,24 +37,22 @@ if (!$res) {
     throw new Exception('Failed to obtain lock '.LOCKF);
 }
 
-$change_cache = [];
-$fd = @fopen(CHANGES_CACHE, 'r');
-if ($fd !== false) {
-    $changes_cache = json_decode(file_get_contents($fd), true);
-    close($fd);
+$changes_cache = [];
+if (file_exists(CHANGES_CACHE)) {
+    $changes_cache = json_decode(file_get_contents(CHANGES_CACHE), true);
 }
 
 foreach ($json['commits'] as $commit) {
     $files = array_merge($commit['added'], $commit['modified']);
     foreach ($files as $file) {
         $dir = dirname($file);
-        if (array_search($dir, $change_cache) == -1) {
-            array_push($change_cache, $dir);
+        if (array_search($dir, $changes_cache) == -1) {
+            array_push($changes_cache, $dir);
         }
     }
 }
 
 $fd = fopen(CHANGE_CACHE, 'w');
-fwrite($fd, json_encode($change_cache));
+fwrite($fd, json_encode($changes_cache));
 fclose($fd);
 unlink(LOCKF);
