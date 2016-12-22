@@ -58,7 +58,7 @@ if ($_GET['type'] == 'org') {
     $selector = 'module';
 }
 
-$sql = "SELECT DISTINCT({$selector}}) FROM modules WHERE {$selector} LIKE :pattern ESCAPE :esc LIMIT 10";
+$sql = "SELECT DISTINCT({$selector}) FROM modules WHERE {$selector} LIKE :pattern ESCAPE :esc LIMIT 10";
 try {
     $sth = $dbh->prepare($sql);
     $sth->execute(['pattern' => str_replace(['\\', '%', '_'], ['\\'.'\\', '\\'.'%', '\\'.'_'], $_GET['pattern']).'%', 'esc' => '\\']);
