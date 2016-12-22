@@ -403,7 +403,7 @@ $(document).ready(function() {
     win.document.write(img.outerHTML);
   });
 
-  var orgCompletions = new Bloodhound(
+  var orgCompletions = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.whitespace,
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     local: <?php echo json_encode(array_values($SDOS)); ?>,
@@ -411,10 +411,10 @@ $(document).ready(function() {
       url: 'completions.php?type=org&pattern=%QUERY',
       wildcard: '%QUERY'
     }
-  );
+  });
   orgCompletions.initialize();
 
-  var moduleCompletions = new Bloodhound(
+  var moduleCompletions = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.whitespace,
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     local: [],
@@ -422,7 +422,7 @@ $(document).ready(function() {
       url: 'completions.php?type=module&pattern=%QUERY',
       wildcard: '%QUERY'
     }
-  );
+  });
   moduleCompletions.initialize();
 
   $('#orgtags').tagsinput({
