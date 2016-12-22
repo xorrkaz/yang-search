@@ -402,36 +402,6 @@ $(document).ready(function() {
     var win = window.open("");
     win.document.write(img.outerHTML);
   });
-
-  var orgCompletions = new Bloodhound({
-    datumTokenizer: Bloodhound.tokenizers.whitespace,
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: <?php echo json_encode(array_values($SDOS)); ?>,
-    remote: {
-      url: 'completions.php?type=org&pattern=%QUERY',
-      wildcard: '%QUERY'
-    }
-  });
-  orgCompletions.initialize();
-
-  var moduleCompletions = new Bloodhound({
-    datumTokenizer: Bloodhound.tokenizers.whitespace,
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: [],
-    remote: {
-      url: 'completions.php?type=module&pattern=%QUERY',
-      wildcard: '%QUERY'
-    }
-  });
-  moduleCompletions.initialize();
-
-  $('#orgtags').tagsinput({
-    typeaheadjs: {
-      name: 'org_completions',
-      source: orgCompletions.ttAdapter()
-    }
-  });
-
 });
 
 $(document).on('click', '.panel-heading span.clickable', function(e){
@@ -531,6 +501,36 @@ foreach ($alerts as $alert) {
         </div>
       </div>
     </div>
+    <script language="javascript">
+    var orgCompletions = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.whitespace,
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      local: <?php echo json_encode(array_values($SDOS)); ?>,
+      remote: {
+        url: 'completions.php?type=org&pattern=%QUERY',
+        wildcard: '%QUERY'
+      }
+    });
+    orgCompletions.initialize();
+
+    var moduleCompletions = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.whitespace,
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      local: [],
+      remote: {
+        url: 'completions.php?type=module&pattern=%QUERY',
+        wildcard: '%QUERY'
+      }
+    });
+    moduleCompletions.initialize();
+
+    $('#orgtags').tagsinput({
+      typeaheadjs: {
+        name: 'org_completions',
+        source: orgCompletions.ttAdapter()
+      }
+    });
+    </script>
     <div id="cy" style="width:100%;height:100%;position:absolute;left:0;"></div>
   </div>
   </body>
