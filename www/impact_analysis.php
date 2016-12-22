@@ -268,6 +268,8 @@ if (!isset($_GET['modules'])) {
 
     <?=CYTOSCAPE_QTIP_JS?>
 
+    <?=TYPEAHEAD_JS?>
+
 		<script language="javascript">
 $(function() {
 	$("#cy").cytoscape({
@@ -400,6 +402,36 @@ $(document).ready(function() {
     var win = window.open("");
     win.document.write(img.outerHTML);
   });
+
+  var orgCompletions = new Bloodhound(
+    datumTokenizer: Bloodhound.tokenizers.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    local: <?php echo json_encode(array_values($SDOS)); ?>,
+    remote: {
+      url: 'completions.php?type=org&pattern=%QUERY',
+      wildcard: '%QUERY'
+    }
+  );
+  orgCompletions.initialize();
+
+  var moduleCompletions = new Bloodhound(
+    datumTokenizer: Bloodhound.tokenizers.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    local: [],
+    remote: {
+      url: 'completions.php?type=module&pattern=%QUERY',
+      wildcard: '%QUERY'
+    }
+  );
+  moduleCompletions.initialize();
+
+  $('#orgtags').tagsinput({
+    typeaheadjs: {
+      name: 'org_completions',
+      source: orgCompletions.ttAdapter()
+    }
+  });
+
 });
 
 $(document).on('click', '.panel-heading span.clickable', function(e){
