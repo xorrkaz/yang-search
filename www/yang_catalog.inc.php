@@ -49,6 +49,7 @@ define('CYTOSCAPE_SPREAD_JS', '<script src="//cdn.rawgit.com/cytoscape/cytoscape
 define('CYTOSCAPE_QTIP_JS', '<script src="js/cytoscape-qtip.js" type="text/javascript"></script>');
 define('QTIP_CSS', '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.1/jquery.qtip.min.css" integrity="sha256-ETJXPMaFFQmwk7vArlWKUK3Pr/s84J3zfiXC83Pi2xg=" crossorigin="anonymous" />');
 define('QTIP_JS', '<script src="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.1/jquery.qtip.min.js" integrity="sha256-Mir9XErZ/xEi1+rIQUpp7nFnZLsJfUS325iUvHDUpyY=" crossorigin="anonymous"></script>');
+define('TYPEAHEAD_JS', '<script src="js/typeahead.bundle.js" type="text/javascript"></script>');
 
 // Global data_definitions
 define('YANG_CATALOG_URL', 'http://yangcatalog.org/api/operational');
@@ -58,7 +59,7 @@ define('REST_TIMEOUT', 300);
 define('RESTCONF_JSON_MIME_TYPE', 'application/vnd.yang.data+json');
 define('OPENCONFIG_CATALOG_MOD_NS', 'openconfig-module-catalog:module');
 define('LOCKF', '/tmp/webhook.lock');
-define('CHANGE_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
+define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
 
 // Global variables
 $COLOR_UNKNOWN = '#F5A45D';
