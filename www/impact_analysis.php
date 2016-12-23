@@ -252,6 +252,8 @@ if (!isset($_GET['modules'])) {
 
     <?=BOOTSTRAP_TAGINPUT_CSS?>
 
+    <?=QTIP_CSS?>
+
     <style>
 
     /* Style taken from https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/assets/app.css */
@@ -305,8 +307,6 @@ if (!isset($_GET['modules'])) {
   background-color: #428bca;
 }
     </style>
-
-    <?=QTIP_CSS?>
 
 		<?=JQUERY_JS?>
 
@@ -427,24 +427,6 @@ function reloadPage() {
 }
 
 $(document).ready(function() {
-  /*$('#modtags').on('itemAdded', function(e) {
-    reloadPage();
-  });
-  $('#orgtags').on('itemAdded', function(e) {
-    reloadPage();
-  });
-  $('#modtags').on('itemRemoved', function(e) {
-    reloadPage();
-  });
-  $('#orgtags').on('itemRemoved', function(e) {
-    reloadPage();
-  });
-  $('#recursion').on('change', function(e) {
-    reloadPage();
-  });
-  $('#show_rfcs').on('change', function(e) {
-    reloadPage();
-  });*/
   $('#graph_commit').on('click', function(e) {
     reloadPage();
   });
@@ -554,6 +536,7 @@ foreach ($alerts as $alert) {
           </div>
         </div>
       </div>
+    </div>
     </div>
     <script language="javascript">
     var orgCompletions = new Bloodhound({
