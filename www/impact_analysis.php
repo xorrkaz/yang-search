@@ -479,7 +479,7 @@ foreach ($alerts as $alert) {
     <div class="page-header">
       <h3><?=$title?></h3>
     </div>
-    <div class="panel panel-default">
+    <div class="panel panel-default" id="impactOptions">
       <div class="panel-heading">
         <label for="impactOptions" class="panel-title">Graph Options</label>
         <span class="pull-right clickable" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-down"></i></span>
