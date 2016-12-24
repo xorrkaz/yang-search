@@ -153,7 +153,7 @@ if (isset($_POST['search_string'])) {
         'Maturity',
         'Description',
     ]; ?>
-		<script language="Javascript">
+		<script>
     var tableColumns = <?=json_encode($table_columns)?>;
     var prev_idx = -1;
     var dt;
@@ -272,7 +272,7 @@ if (isset($_POST['search_string'])) {
 
 } else {
     ?>
-    <script language="javascript">
+    <script>
 $(document).on('click', '.panel-heading span.clickable', function(e){
 	if(!$(this).hasClass('panel-collapsed')) {
 		$(this).parents('.panel').find('.panel-body').slideUp();
@@ -331,12 +331,12 @@ function verify() {
 
     <form method="POST" onSubmit="return verify();">
       <div class="form-group">
-        <label for="yangSearch">Enter your search term(s) below:</label>
+        <label for="search_string">Enter your search term(s) below:</label>
         <input type="text" name="search_string" id="search_string" class="form-control" placeholder="Search String">
       </div>
       <div class="panel panel-default">
         <div class="panel-heading">
-          <label for="searchOption" class="panel-title">Search Options</label>
+          <label class="panel-title">Search Options</label>
           <span class="pull-right clickable panel-collapsed" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-down"></i></span>
         </div>
         <div class="panel-body" style="display: none;">
@@ -346,7 +346,7 @@ function verify() {
                 <td>
                   <div class="checkbox">
                     <label for="caseSensitive">
-                      <input type="checkbox" name="case" style="margin-top: 0;" value="1"> Case-Sensitive
+                      <input id="caseSensitive" type="checkbox" name="case" style="margin-top: 0;" value="1"> Case-Sensitive
                     </label>
                   </div>
                 </td>
@@ -385,7 +385,7 @@ function verify() {
                 <td>
                   <div class="checkbox">
                     <label for="schema<?=$skey?>">
-                      <input type="checkbox" name="schemaTypes[]" class="yang-schema-select" style="margin-top: 0;" value="<?=$sval?>" checked> <?=$skey?>
+                      <input id="schema<?=$skey?>" type="checkbox" name="schemaTypes[]" class="yang-schema-select" style="margin-top: 0;" value="<?=$sval?>" checked> <?=$skey?>
                     </label>
                   </div>
                 </td>
