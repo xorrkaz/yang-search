@@ -324,7 +324,7 @@ if (!isset($_GET['modules'])) {
 
     <?=TYPEAHEAD_JS?>
 
-		<script language="javascript">
+		<script>
 $(function() {
 	$("#cy").cytoscape({
 		layout: {
@@ -538,7 +538,7 @@ foreach ($alerts as $alert) {
       </div>
     </div>
     </div>
-    <script language="javascript">
+    <script>
     var orgCompletions = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.whitespace,
       queryTokenizer: Bloodhound.tokenizers.whitespace,
