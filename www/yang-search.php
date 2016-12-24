@@ -45,7 +45,7 @@ $schema_types = [
     ['Typedef' => 'typedef', 'Grouping' => 'grouping', 'Feature' => 'feature'],
     ['Identity' => 'identity', 'Extension' => 'extension', 'RPC' => 'rpc'],
     ['Container' => 'container', 'List' => 'list', 'Leaf-List' => 'leaf-list'],
-    ['Leaf' => 'leaf', 'Notification' => 'notification'],
+    ['Leaf' => 'leaf', 'Notification' => 'notification', '__EMPTY__1' => '__EMPTY__'],
 ];
 
 $alerts = [];
@@ -367,7 +367,7 @@ function verify() {
               </tr>
             </tbody>
           </table>
-          <label for="schemaType">Schema Types</label>
+          <label>Schema Types</label>
           <div class="checkbox">
             <label for="schemaAll">
               <input type="checkbox" id="schemaAll" name="schemaAll" style="margin-top: 0;" value="1" checked> All
@@ -381,7 +381,12 @@ function verify() {
               <tr>
 <?php
         foreach ($srow as $skey => $sval) {
-            ?>
+            if ($sval == '__EMPTY__') {
+                ?>
+            <td>&nbsp;</td>
+            <?php
+            } else {
+                ?>
                 <td>
                   <div class="checkbox">
                     <label for="schema<?=$skey?>">
@@ -391,6 +396,7 @@ function verify() {
                 </td>
 <?php
 
+            }
         } ?>
               </tr>
 <?php
