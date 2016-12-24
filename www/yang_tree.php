@@ -198,7 +198,7 @@ if ($jstree_json !== null) {
         <a href="impact_analysis.php?modules[]=<?=$module?>">Impact Analysis</a> for <?=$module?></b>
     </div>
     <div id="yangtree"></div>
-    <script language="Javascript">
+    <script>
 $(document).ready(function () {
   $('#yangtree').jstree({
     plugins: ['themes', 'json', 'grid'],
