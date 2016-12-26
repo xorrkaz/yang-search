@@ -46,7 +46,7 @@ foreach ($json['commits'] as $commit) {
     $files = array_merge($commit['added'], $commit['modified']);
     foreach ($files as $file) {
         $dir = dirname($file);
-        if (array_search($dir, $changes_cache) == -1) {
+        if (array_search($dir, $changes_cache) !== false) {
             array_push($changes_cache, $dir);
         }
     }
