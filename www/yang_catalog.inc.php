@@ -178,6 +178,33 @@ function get_color($module, &$dbh, &$alerts)
 }
 
 /*
+ * Get the latest module@revision given a module name.
+ *
+ * Input:
+ *  $module : YANG module name
+ *  $dbh    : Pointer to the YANG index database handle
+ *  $alerts : Pointer to an array containing errors
+ * Output:
+ *  The latest module in module@revision format
+ */
+ function get_latest_mod($module, &$dbh, &$alerts)
+ {
+     try {
+         $sth = $dbh->prepare('SELECT revision FROM modules WHERE module=:mod ORDER BY revision LIMIT 1');
+         $sth->execute(['mod' => $module]);
+         $row = $sth->fetch();
+
+         if ($row && isset($row['revision'])) {
+             return "{$module}@{$row['revision']}";
+         }
+     } catch (Exception $e) {
+         push_exception("Failed to get revision for $module", $e, $alerts);
+     }
+
+     return $module;
+ }
+
+/*
  * Turn all PHP errors and warnings into exceptions.
  *
  * Input:

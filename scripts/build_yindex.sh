@@ -91,23 +91,31 @@ for m in ${modules}; do
         cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table ${m}"
         first_run=0
     fi
-    mod_name=$(pyang -p ${YANGREPO} -f name ${m} 2>/dev/null | cut -d' ' -f1)
+    mod_name_rev=$(pyang -p ${YANGREPO} -f name-revision ${m} 2>/dev/null | cut -d' ' -f1)
+    mod_name=$(echo ${mod_name_rev} | cut -d'@' -f1)
+    mod_rev=$(echo ${mod_name_rev} | cut -d'@' -f2)
     if [ ${update} = 1 ]; then
-        echo "DELETE FROM modules WHERE module='${mod_name}'; DELETE FROM yindex WHERE module='${mod_name}';" | sqlite3 ${TDBF}
+        echo "DELETE FROM modules WHERE module='${mod_name}' AND revision='${mod_rev}'; DELETE FROM yindex WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
     fi
     output=$(${cmd} 2> /dev/null)
 #    echo "XXX: '${output}'"
     echo ${output} | sqlite3 ${TDBF}
     if [ $? != 0 ]; then
-        echo "ERROR: Failed to update YANG DB for ${mod_name} (${m})!"
+        echo "ERROR: Failed to update YANG DB for ${mod_name}@${mod_rev} (${m})!"
         continue
     fi
 
-    # Generate YANG tree data.
-    pyang -p ${YANGREPO} -f json-tree -o "${YTREE_DIR}/${mod_name}.json" ${m}
+    echo "UPDATE modules SET file_path='${m}' WHERE module='${mod_name}' AND revision='${mod_rev}'" | sqlite3 ${TDBF}
     if [ $? != 0 ]; then
-        echo "WARNING: Failed to generate YANG tree data for ${mod_name} (${m})!"
+        echo "ERROR: Failed to update file path in YANG DB for ${mod_name}@${mod_rev} (${m})!"
     fi
+
+    # Generate YANG tree data.
+    pyang -p ${YANGREPO} -f json-tree -o "${YTREE_DIR}/${mod_name}@${mod_rev}.json" ${m}
+    if [ $? != 0 ]; then
+        echo "WARNING: Failed to generate YANG tree data for ${mod_name}@${mod_rev} (${m})!"
+    fi
+    # XXX Hmmm, this is lame as symd only looks for mod name and not mod@rev
     symd -r --rfc-repos ${RFCS_DIR} --draft-repos ${DRAFTS_DIR} --json-output ${YDEP_DIR}/${mod_name}.json --single-impact-analysis-json ${mod_name} 2>/dev/null
     if [ $? != 0 ]; then
         echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"

@@ -47,8 +47,8 @@ NS_MAP = {
 mods = {}
 
 MATURITY_MAP = {
-    "RFC": "http://www.claise.be/IETFYANGNoRevRFC.json",
-    "DRAFT": "http://www.claise.be/IETFYANGNoRevDraft.json"
+    "RFC": "http://www.claise.be/IETFYANGRFC.json",
+    "DRAFT": "http://www.claise.be/IETFYANGDraft.json"
 }
 
 for m, u in MATURITY_MAP.items():
@@ -82,15 +82,14 @@ except sqlite3.Error as e:
     sys.exit(1)
 
 for modn, props in mods.items():
-    sql = 'UPDATE modules SET maturity=:maturity, document=:document WHERE module=:modn'
+    [mod, rev] = modn.split('@')
+    sql = 'UPDATE modules SET maturity=:maturity, document=:document WHERE module=:modn AND revision=:rev'
     try:
         cur.execute(sql, {'maturity': props['maturity'], 'document': props[
-                    'document'], 'modn': modn})
-        con.commit()
+                    'document'], 'modn': mod, 'rev': rev})
     except sqlite3.Error as e:
         print("Failed to update module maturity for {}: {}".format(
             modn, e.args[0]))
-        sys.exit(1)
 
 for ns, org in NS_MAP.items():
     sql = 'UPDATE modules SET organization=:org WHERE namespace LIKE :ns'
@@ -98,6 +97,6 @@ for ns, org in NS_MAP.items():
         cur.execute(sql, {'org': org, 'ns': ns + '%'})
     except sqlite3.Error as e:
         print("Failed to get module data for {}: {}".format(modn, e.args[0]))
-        sys.exit(1)
 
+con.commit()
 con.close()
