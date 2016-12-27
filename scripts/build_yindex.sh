@@ -105,7 +105,7 @@ for m in ${modules}; do
         continue
     fi
 
-    echo "UPDATE modules SET file_path='${m}' WHERE module='${mod_name}' AND revision='${mod_rev}'" | sqlite3 ${TDBF}
+    echo "UPDATE modules SET file_path='${m}' WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
     if [ $? != 0 ]; then
         echo "ERROR: Failed to update file path in YANG DB for ${mod_name}@${mod_rev} (${m})!"
     fi
