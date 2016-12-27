@@ -145,6 +145,7 @@ foreach ($alerts as $alert) {
 if (isset($_POST['search_string'])) {
     $table_columns = [
         'Name',
+        'Revision',
         'Schema Type',
         'Path',
         'Module',
@@ -227,8 +228,8 @@ if (isset($_POST['search_string'])) {
             $organization = 'N/A';
             $maturity = 'N/A';
             try {
-                $mod_sth = $dbh->prepare('SELECT * FROM modules WHERE module=:mod');
-                $mod_sth->execute(['mod' => $row['module']]);
+                $mod_sth = $dbh->prepare('SELECT * FROM modules WHERE module=:mod AND revision=:rev');
+                $mod_sth->execute(['mod' => $row['module'], 'rev' => $row['revision']]);
                 $mod_row = $mod_sth->fetch();
                 $organization = $mod_row['organization'];
                 $maturity = $mod_row['maturity'];
@@ -243,19 +244,20 @@ if (isset($_POST['search_string'])) {
             } ?>
           <tr>
             <td><a href="show_node.php?module=<?=$row['module']?>&amp;path=<?=urlencode($row['path'])?>"><?=$row['argument']?></a></td>
+            <td><?=$row['revision']?></td>
             <td><?=$row['statement']?></td>
             <td><?=$row['path']?></td>
 <?php
-            if ((isset($modules[$row['module']]) && $modules[$row['module']] === true) || (!isset($modules[$row['module']]) && is_file(YTREES_DIR.'/'.$row['module'].'.json'))) {
+            if ((isset($modules[$row['module'].'@'.$row['revision']]) && $modules[$row['module'].'@'.$row['revision']] === true) || (!isset($modules[$row['module']]) && is_file(YTREES_DIR.'/'.$row['module'].'@'.$row['revision'].'.json'))) {
                 ?>
             <td><a href="yang_tree.php?module=<?=$row['module']?>"><?=$row['module']?></a> <span style="font-size: small">(<a href="impact_analysis.php?modules[]=<?=$row['module']?>">Impact Analysis</a>)</span></td>
 <?php
-                $modules[$row['module']] = true;
+                $modules[$row['module'].'@'.$row['revision']] = true;
             } else {
                 ?>
             <td><?=$row['module']?></td>
 <?php
-                $modules[$row['module']] = false;
+                $modules[$row['module'].'@'.$row['revision']] = false;
             } ?>
             <td><?=$origin?></td>
             <td><?=htmlentities($organization)?></td>
@@ -385,6 +387,7 @@ function verify() {
                 ?>
             <td>&nbsp;</td>
             <?php
+
             } else {
                 ?>
                 <td>

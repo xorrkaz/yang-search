@@ -133,6 +133,10 @@ if (!isset($_GET['module'])) {
         $module = '';
     } else {
         $title = "YANG Tree for Module: '$module'";
+        if (!preg_match('/@/', $module)) {
+            $module = get_latest_mod($module, $dbh, $alerts);
+        }
+        $modn = explode('@', $module)[0];
         $f = YTREES_DIR.'/'.$module.'.json';
         $color = get_color($module, $dbh, $alerts);
         if (is_file($f)) {
@@ -142,18 +146,18 @@ if (!isset($_GET['module'])) {
                 if ($json === null) {
                     array_push($alerts, 'Failed to decode JSON data: '.json_error_to_str(json_last_error()));
                 } else {
-                    $data_nodes = build_tree($json, $module);
+                    $data_nodes = build_tree($json, $modn);
                     $jstree_json = [];
                     $jstree_json['data'] = [$data_nodes];
                     if (isset($json['rpcs'])) {
                         $rpcs['name'] = $json['prefix'].':rpcs';
                         $rpcs['children'] = $json['rpcs'];
-                        array_push($jstree_json['data'], build_tree($rpcs, $module));
+                        array_push($jstree_json['data'], build_tree($rpcs, $modn));
                     }
                     if (isset($json['notifications'])) {
                         $notifs['name'] = $json['prefix'].':notifs';
                         $notifs['children'] = $json['notifications'];
-                        array_push($jstree_json['data'], build_tree($notifs, $module));
+                        array_push($jstree_json['data'], build_tree($notifs, $modn));
                     }
                 }
             } catch (Exception $e) {

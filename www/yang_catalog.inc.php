@@ -164,8 +164,14 @@ function get_color($module, &$dbh, &$alerts)
 
     $color = $COLOR_UNKNOWN;
     try {
-        $sth = $dbh->prepare('SELECT maturity FROM modules WHERE module=:mod');
-        $sth->execute(['mod' => $module]);
+        if (!preg_match('/@/', $module)) {
+            $module = get_latest_mod($module, $dbh, $alerts);
+        }
+        $mod_parts = explode('@', $module);
+        $modn = $mod_parts[0];
+        $rev = $mod_parts[1];
+        $sth = $dbh->prepare('SELECT maturity FROM modules WHERE module=:mod AND revision=:rev');
+        $sth->execute(['mod' => $modn, 'rev' => $rev]);
         $row = $sth->fetch();
         if (isset($CMAP[$row['maturity']])) {
             $color = $CMAP[$row['maturity']];

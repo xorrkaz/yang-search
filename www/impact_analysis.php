@@ -29,7 +29,7 @@ include_once 'yang_catalog.inc.php';
 function get_org(&$dbh, $module)
 {
     try {
-        $sth = $dbh->prepare('SELECT organization FROM modules WHERE module=:mod');
+        $sth = $dbh->prepare('SELECT organization FROM modules WHERE module=:mod ORDER BY revision LIMIT 1');
         $sth->execute(['mod' => $module]);
         $row = $sth->fetch();
 
@@ -44,19 +44,19 @@ function get_org(&$dbh, $module)
 function get_doc(&$dbh, $module)
 {
     try {
-        $sth = $dbh->prepare('SELECT document FROM modules WHERE module=:mod');
+        $sth = $dbh->prepare('SELECT document FROM modules WHERE module=:mod ORDER BY revision LIMIT 1');
         $sth->execute(['mod' => $module]);
         $row = $sth->fetch();
         if ($row['document'] === null) {
-            return 'unknown';
+            return 'N/A';
         }
 
         return $row['document'];
     } catch (Exception $e) {
-        return 'unknown';
+        return 'N/A';
     }
 
-    return 'unknown';
+    return 'N/A';
 }
 
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false)
@@ -204,6 +204,7 @@ if (!isset($_GET['modules'])) {
         } else {
             $module = str_replace('.yang', '', $module);
             $module = str_replace('.yin', '', $module);
+            // XXX: symd does not handle revisions yet.
             $module = explode('@', $module)[0];
             array_push($good_mods, $module);
             build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse);
