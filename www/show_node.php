@@ -54,14 +54,14 @@ $title = '';
 
 $dbh = yang_db_conn($alerts);
 
-if (!isset($_GET['path']) || !isset($_GET['module'])) {
-    array_push($alerts, 'Both module and path must be specified');
+if (!isset($_GET['path']) || !isset($_GET['module']) || !isset($_GET['revision'])) {
+    array_push($alerts, 'Module, revision and path must all be specified');
 } else {
     $title = "YANG Definition for '{$_GET['path']}'";
     try {
         if ($dbh !== null) {
-            $sth = $dbh->prepare('SELECT * FROM yindex WHERE path = :path AND module = :module');
-            $sth->execute(['path' => $_GET['path'], 'module' => $_GET['module']]);
+            $sth = $dbh->prepare('SELECT * FROM yindex WHERE path = :path AND module = :module AND revision=:rev');
+            $sth->execute(['path' => $_GET['path'], 'module' => $_GET['module'], 'rev' => $_GET['revision']]);
         }
     } catch (PDOException $e) {
         push_exception('', $e, $alerts);

@@ -243,7 +243,7 @@ if (isset($_POST['search_string'])) {
                 $origin = 'Vendor-Specific';
             } ?>
           <tr>
-            <td><a href="show_node.php?module=<?=$row['module']?>&amp;path=<?=urlencode($row['path'])?>"><?=$row['argument']?></a></td>
+            <td><a href="show_node.php?module=<?=$row['module']?>&amp;path=<?=urlencode($row['path'])?>&amp;revision=<?=$row['revision']?>"><?=$row['argument']?></a></td>
             <td><?=$row['revision']?></td>
             <td><?=$row['statement']?></td>
             <td><?=$row['path']?></td>
