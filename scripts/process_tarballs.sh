@@ -44,10 +44,15 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-cd ${YANGDIR}
-export DRAFTS_DIR=${YANGDIR}/tmp/DRAFT
-export RFCS_DIR=${YANGDIR}/tmp/RFC
-export YANGREPO=${YANGDIR}/tmp
+rm -rf ${YANGDIR}/standard/ietf/latest
+mkdir -p ${YANGDIR}/standard/ietf/latest
+mv -f ${YANGDIR}/tmp/DRAFT ${YANGDIR}/standard/ietf/latest
+mv -f ${YANGDIR}/tmp/RFC ${YANGDIR}/standard/ietf/latest
 
-${TOOLS_DIR}/build_yindex.sh ${YANGDIR}/tmp
+cd ${YANGDIR}
+export DRAFTS_DIR=${YANGDIR}/standard/ietf/latest/DRAFT
+export RFCS_DIR=${YANGDIR}/standard/ietf/latest/RFC
+export YANGREPO=${YANGDIR}/standard/ietf/latest
+
+${TOOLS_DIR}/build_yindex.sh ${YANGDIR}/standard/ietf/latest
 cleanup
