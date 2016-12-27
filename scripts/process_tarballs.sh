@@ -13,6 +13,7 @@ fi
 . ${YANG_INDEX_HOME}/yindex.env
 
 cd ${YANGDIR}
+LATEST_DIR=${YANGDIR}/standard/ietf/latest
 
 cleanup
 mkdir -p tmp/DRAFT
@@ -44,15 +45,15 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-rm -rf ${YANGDIR}/standard/ietf/latest
-mkdir -p ${YANGDIR}/standard/ietf/latest
-mv -f ${YANGDIR}/tmp/DRAFT ${YANGDIR}/standard/ietf/latest
-mv -f ${YANGDIR}/tmp/RFC ${YANGDIR}/standard/ietf/latest
+rm -rf ${LATEST_DIR}
+mkdir -p ${LATEST_DIR}
+mv -f ${YANGDIR}/tmp/DRAFT ${LATEST_DIR}
+mv -f ${YANGDIR}/tmp/RFC ${LATEST_DIR}
 
 cd ${YANGDIR}
-export DRAFTS_DIR=${YANGDIR}/standard/ietf/latest/DRAFT
-export RFCS_DIR=${YANGDIR}/standard/ietf/latest/RFC
-export YANGREPO=${YANGDIR}/standard/ietf/latest
+export DRAFTS_DIR=${LATEST_DIR}/DRAFT
+export RFCS_DIR=${LATEST_DIR}/RFC
+export YANGREPO=${LATEST_DIR}
 
-${TOOLS_DIR}/build_yindex.sh ${YANGDIR}/standard/ietf/latest
+${TOOLS_DIR}/build_yindex.sh ${LATEST_DIR}
 cleanup
