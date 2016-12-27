@@ -96,7 +96,7 @@ for ns, org in NS_MAP.items():
     try:
         cur.execute(sql, {'org': org, 'ns': ns + '%'})
     except sqlite3.Error as e:
-        print("Failed to get module data for {}: {}".format(modn, e.args[0]))
+        print("Failed to update namespace data for {} => {}: {}".format(ns, org, e.args[0]))
 
 con.commit()
 con.close()
