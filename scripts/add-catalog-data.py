@@ -82,7 +82,6 @@ except sqlite3.Error as e:
     sys.exit(1)
 
 for modn, props in mods.items():
-    [mod, rev] = modn.split('@')
     mod_parts = modn.split('@')
     mod = mod_parts[0]
     rev = ''
