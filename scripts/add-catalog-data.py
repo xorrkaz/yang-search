@@ -83,6 +83,12 @@ except sqlite3.Error as e:
 
 for modn, props in mods.items():
     [mod, rev] = modn.split('@')
+    mod_parts = modn.split('@')
+    mod = mod_parts[0]
+    rev = ''
+    if len(mod_parts) == 2:
+        rev = mod_parts[1]
+
     sql = 'UPDATE modules SET maturity=:maturity, document=:document WHERE module=:modn AND revision=:rev'
     try:
         cur.execute(sql, {'maturity': props['maturity'], 'document': props[
@@ -96,7 +102,8 @@ for ns, org in NS_MAP.items():
     try:
         cur.execute(sql, {'org': org, 'ns': ns + '%'})
     except sqlite3.Error as e:
-        print("Failed to update namespace data for {} => {}: {}".format(ns, org, e.args[0]))
+        print("Failed to update namespace data for {} => {}: {}".format(
+            ns, org, e.args[0]))
 
 con.commit()
 con.close()
