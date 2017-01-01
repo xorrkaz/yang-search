@@ -26,12 +26,22 @@
 
 include_once 'yang_catalog.inc.php';
 
+function unescape_str($str, $indent)
+{
+    $indent .= "\t";
+    $str = str_replace('\n', "\n$indent", $str);
+    $str = str_replace('\r', "\r", $str);
+    $str = str_replace('\t', "\t", $str);
+
+    return $str;
+}
+
 function print_properties($properties, $indent = "\t")
 {
     foreach ($properties as $property) {
         foreach ($property as $key => $val) {
             if ($val['value'] != '') {
-                echo "$indent<b>$key</b> ".htmlentities($val['value']);
+                echo "$indent<b>$key</b> ".htmlentities(unescape_str($val['value'], $indent));
             } else {
                 echo "$indent<b>$key</b> ";
             }
@@ -119,7 +129,7 @@ if ($properties !== null) {
         <h3><?=$title?></h3>
       </div>
       <pre>
-<i>// From : <?=$row['module']?></i>
+<i>// From : <?=$row['module']?>@<?=$row['revision']?></i>
 
 <b><?=$row['statement']?></b> <?=$row['argument']?> {
 <?php
