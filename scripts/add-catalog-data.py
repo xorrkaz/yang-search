@@ -62,6 +62,7 @@ for m, u in MATURITY_MAP.items():
     j = r.json()
 
     for mod, props in j.items():
+        mod = os.path.splitext(mod)[0]
         mods[mod] = {}
         mods[mod]['maturity'] = m
         reg = re.compile(r'<a.*?>(.*?)</a>', re.S | re.M)
