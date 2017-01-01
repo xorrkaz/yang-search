@@ -92,8 +92,12 @@ for m in ${modules}; do
         first_run=0
     fi
     mod_name_rev=$(pyang -p ${YANGREPO} -f name-revision ${m} 2>/dev/null | cut -d' ' -f1)
-    mod_name=$(echo ${mod_name_rev} | cut -d'@' -f1)
-    mod_rev=$(echo ${mod_name_rev} | cut -d'@' -f2)
+    old_IFS=${IFS}
+    IFS="@"
+    mod_parts=(${mod_name_rev})
+    mod_name=${mod_parts[0]}
+    mod_rev=${mod_parts[1]}
+    IFS=${old_IFS}
     if [ ${update} = 1 ]; then
         echo "DELETE FROM modules WHERE module='${mod_name}' AND revision='${mod_rev}'; DELETE FROM yindex WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
     fi
