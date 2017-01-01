@@ -1,6 +1,6 @@
 <?php
 
-// Copyright (c) 2016  Joe Clarke <jclarke@cisco.com>
+// Copyright (c) 2016-2017  Joe Clarke <jclarke@cisco.com>
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -54,14 +54,26 @@ $title = '';
 
 $dbh = yang_db_conn($alerts);
 
-if (!isset($_GET['path']) || !isset($_GET['module']) || !isset($_GET['revision'])) {
-    array_push($alerts, 'Module, revision and path must all be specified');
+if (!isset($_GET['path']) || !isset($_GET['module'])) {
+    array_push($alerts, 'Module and path must be specified');
 } else {
     $title = "YANG Definition for '{$_GET['path']}'";
+    $module = $_GET['module'];
+    $revision = '';
+    if (!isset($_GET['revision'])) {
+        $mod_rev = get_latest_mod($module, $dbh, $alerts);
+        $mod_parts = explode('@', $mod_rev);
+        $module = $mod_parts[0];
+        if (count($mod_parts) == 2) {
+            $revision = $mod_parts[1];
+        }
+    } else {
+        $revision = $_GET['revision'];
+    }
     try {
         if ($dbh !== null) {
             $sth = $dbh->prepare('SELECT * FROM yindex WHERE path = :path AND module = :module AND revision=:rev');
-            $sth->execute(['path' => $_GET['path'], 'module' => $_GET['module'], 'rev' => $_GET['revision']]);
+            $sth->execute(['path' => $_GET['path'], 'module' => $module, 'rev' => $revision]);
         }
     } catch (PDOException $e) {
         push_exception('', $e, $alerts);
