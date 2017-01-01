@@ -29,7 +29,7 @@ include_once 'yang_catalog.inc.php';
 function get_org(&$dbh, $module)
 {
     try {
-        $sth = $dbh->prepare('SELECT organization FROM modules WHERE module=:mod ORDER BY revision LIMIT 1');
+        $sth = $dbh->prepare('SELECT organization FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
         $sth->execute(['mod' => $module]);
         $row = $sth->fetch();
 
@@ -44,7 +44,7 @@ function get_org(&$dbh, $module)
 function get_doc(&$dbh, $module)
 {
     try {
-        $sth = $dbh->prepare('SELECT document FROM modules WHERE module=:mod ORDER BY revision LIMIT 1');
+        $sth = $dbh->prepare('SELECT document FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
         $sth->execute(['mod' => $module]);
         $row = $sth->fetch();
         if ($row['document'] === null) {

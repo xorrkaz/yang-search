@@ -196,7 +196,7 @@ function get_color($module, &$dbh, &$alerts)
  function get_latest_mod($module, &$dbh, &$alerts)
  {
      try {
-         $sth = $dbh->prepare('SELECT revision FROM modules WHERE module=:mod ORDER BY revision LIMIT 1');
+         $sth = $dbh->prepare('SELECT revision FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
          $sth->execute(['mod' => $module]);
          $row = $sth->fetch();
 
