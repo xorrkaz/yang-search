@@ -47,7 +47,7 @@ function get_doc(&$dbh, $module)
         $sth = $dbh->prepare('SELECT document FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
         $sth->execute(['mod' => $module]);
         $row = $sth->fetch();
-        if ($row['document'] === null) {
+        if ($row['document'] === null || $row['document'] == '') {
             return 'N/A';
         }
 
