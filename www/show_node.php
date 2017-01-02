@@ -32,6 +32,7 @@ function unescape_str($str, $indent)
     $str = str_replace('\n', "\n$indent", $str);
     $str = str_replace('\r', "\r", $str);
     $str = str_replace('\t', "\t", $str);
+    $str = str_replace('\\\\', '\\', $str);
 
     return $str;
 }
