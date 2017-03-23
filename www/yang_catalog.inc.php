@@ -80,6 +80,22 @@ $SDOS = [
   'odp' => 'odp',
 ];
 
+/*
+ * List of columns shown in the search results.
+ *
+*/
+$SEARCH_COLUMNS = [
+    'Name',
+    'Revision',
+    'Schema Type',
+    'Path',
+    'Module',
+    'Origin',
+    'Organization',
+    'Maturity',
+    'Description',
+];
+
 // Functions
 
 /*
@@ -177,7 +193,7 @@ function get_color($module, &$dbh, &$alerts)
             $color = $CMAP[$row['maturity']];
         }
     } catch (Exception $e) {
-        push_exception("Failed to get module maturity for $module", $e, $alerts);
+        push_exception("Failed to get module maturity for $module (perhaps it doesn't validate?)", $e, $alerts);
     }
 
     return $color;
