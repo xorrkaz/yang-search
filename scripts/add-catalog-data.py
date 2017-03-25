@@ -93,7 +93,7 @@ for modn, props in mods.items():
     params = {'maturity': props['maturity'],
               'document': props['document'], 'modn': mod}
     if rev != '':
-        sql += ' AND rev=:rev'
+        sql += ' AND revision=:rev'
         params['rev'] = rev
     try:
         cur.execute(sql, params)
