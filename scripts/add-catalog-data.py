@@ -89,10 +89,14 @@ for modn, props in mods.items():
     if len(mod_parts) == 2:
         rev = mod_parts[1]
 
-    sql = 'UPDATE modules SET maturity=:maturity, document=:document WHERE module=:modn AND revision=:rev'
+    sql = 'UPDATE modules SET maturity=:maturity, document=:document WHERE module=:modn'
+    params = {'maturity': props['maturity'],
+              'document': props['document'], 'modn': mod}
+    if rev != '':
+        sql += ' AND rev=:rev'
+        params['rev'] = rev
     try:
-        cur.execute(sql, {'maturity': props['maturity'], 'document': props[
-                    'document'], 'modn': mod, 'rev': rev})
+        cur.execute(sql, params)
     except sqlite3.Error as e:
         print("Failed to update module maturity for {}: {}".format(
             modn, e.args[0]))
