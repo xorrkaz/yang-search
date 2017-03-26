@@ -124,6 +124,12 @@ for m in ${modules}; do
     if [ $? != 0 ]; then
         echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
     fi
+
+    if [ -n "${YANG_EXPLORER_DIR}" ]; then
+      pyang -p ${YANGREPO} -f cxml ${m} > "${YANG_EXPLORER_DIR}/server/data/users/guest/${mod_name}@${mod_rev}.xml"
+      if [ $? != 0 ]; then
+        echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
+      fi
 done
 
 ${TOOLS_DIR}/add-catalog-data.py ${TDBF}
