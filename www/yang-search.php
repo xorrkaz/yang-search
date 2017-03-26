@@ -1,6 +1,6 @@
 <?php
 
-// Copyright (c) 2016  Joe Clarke <jclarke@cisco.com>
+// Copyright (c) 2016-2017  Joe Clarke <jclarke@cisco.com>
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -143,19 +143,9 @@ foreach ($alerts as $alert) {
     </div>
 <?php
 if (isset($_POST['search_string'])) {
-    $table_columns = [
-        'Name',
-        'Revision',
-        'Schema Type',
-        'Path',
-        'Module',
-        'Origin',
-        'Organization',
-        'Maturity',
-        'Description',
-    ]; ?>
+    ?>
 		<script>
-    var tableColumns = <?=json_encode($table_columns)?>;
+    var tableColumns = <?=json_encode($SEARCH_COLUMNS)?>;
     var prev_idx = -1;
     var dt;
 
@@ -212,7 +202,7 @@ if (isset($_POST['search_string'])) {
         <thead>
           <tr>
             <?php
-            foreach ($table_columns as $tc) {
+            foreach ($SEARCH_COLUMNS as $tc) {
                 ?>
               <th><?=$tc?></th>
               <?php
