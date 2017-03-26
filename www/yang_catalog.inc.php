@@ -63,10 +63,10 @@ define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
 
 // Global variables
 //$COLOR_UNKNOWN = '#F5A45D';
-/*$MATURITY_UNKNOWN = [
+$MATURITY_UNKNOWN = [
   'level' => 'UNKNOWN',
-  'color' => $COLOR_UNKNOWN,
-];*/
+  'color' => '#663300',
+];
 $SDO_CMAP = [
   'IETF' => [
     'N/A' => [
@@ -90,8 +90,20 @@ $SDO_CMAP = [
     'N/A' => [
       'level' => 'UNKNOWN',
       'color' => '#FFCC99',
-    ]
-  ]
+    ],
+    'PERSONAL' => [
+      'level' => 'IDRAFT',
+      'color' => '#FF99FF',
+    ],
+    'DRAFT' => [
+      'level' => 'WGDRAFT',
+      'color' => '#00FF99',
+    ],
+    'STANDARD' => [
+      'level' => 'STANDARD',
+      'color' => '#3366FF',
+    ],
+  ],
 ];
 
 /*$CMAP = [
@@ -206,9 +218,9 @@ function yang_db_conn(&$alerts)
  */
 function get_maturity($module, &$dbh, &$alerts)
 {
-    global $SDO_CMAP;
+    global $SDO_CMAP, $MATURITY_UNKNOWN;
 
-    $maturity = None;
+    $maturity = $MATURITY_UNKNOWN;
     try {
         if (!preg_match('/@/', $module)) {
             $module = get_latest_mod($module, $dbh, $alerts);
