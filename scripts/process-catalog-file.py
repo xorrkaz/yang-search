@@ -96,7 +96,7 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
                 match = reg.search(module['document'])
                 if match:
                     document = match.groups()[0].strip(
-                    ) + '|' + '<a href="{}">{}</a>'.format(match.groups()[1].strip, match.groups()[0].strip)
+                    ) + '|' + '<a href="{}">{}</a>'.format(match.groups()[1].strip(), match.groups()[0].strip())
                 else:
                     document = module['document']
         file_path = ''
