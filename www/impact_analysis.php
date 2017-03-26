@@ -82,7 +82,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
             return;
         }
     }
-    array_push($found_orgs, $org);
+    $found_orgs[$org] = true;
     $f = YDEPS_DIR.'/'.$module.'.json';
     if (is_file($f)) {
         try {
@@ -113,7 +113,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                                 continue;
                             }
                         }
-                        array_push($found_orgs, $org);
+                        $found_orgs[$org] = true;
                         $maturity = get_maturity($mod, $dbh, $alerts);
                         if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
@@ -146,7 +146,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                                 continue;
                             }
                         }
-                        array_push($found_orgs, $org);
+                        $found_orgs[$org] = true;
                         $maturity = get_maturity($mod, $dbh, $alerts);
                         if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
@@ -509,7 +509,7 @@ foreach ($alerts as $alert) {
                 <td>Status: N/A</td>
               </tr>
             <?php
-            foreach ($found_orgs as $fo) {
+            foreach ($found_orgs as $fo => $val) {
                 $fo = strtoupper($fo);
                 if (!isset($SDO_CMAP[$fo])) {
                     continue;
