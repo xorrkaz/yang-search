@@ -62,16 +62,16 @@ define('LOCKF', '/tmp/webhook.lock');
 define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
 
 // Global variables
-$COLOR_UNKNOWN = '#F5A45D';
-$MATURITY_UNKNOWN = [
+//$COLOR_UNKNOWN = '#F5A45D';
+/*$MATURITY_UNKNOWN = [
   'level' => 'UNKNOWN',
   'color' => $COLOR_UNKNOWN,
-];
+];*/
 $SDO_CMAP = [
   'IETF' => [
     'N/A' => [
       'level' => 'UNKNOWN',
-      'color' => $COLOR_UNKNOWN,
+      'color' => '#F5A45D',
     ],
     'RFC' => [
       'level' => 'STANDARD',
@@ -86,13 +86,19 @@ $SDO_CMAP = [
       'color' => '#86B342',
     ],
   ],
+  'BBF' => [
+    'N/A' => [
+      'level' => 'UNKNOWN',
+      'color' => '#FFCC99',
+    ]
+  ]
 ];
 
-$CMAP = [
+/*$CMAP = [
     'N/A' => $COLOR_UNKNOWN,
     'RFC' => '#FA0528',
     'DRAFT' => '#86B342',
-];
+];*/
 
 /*
  * Mapping table of URN to catalog org tree name for Standards Definition
@@ -200,9 +206,9 @@ function yang_db_conn(&$alerts)
  */
 function get_maturity($module, &$dbh, &$alerts)
 {
-    global $SDO_CMAP, $CMAP, $COLOR_UNKNOWN;
+    global $SDO_CMAP;
 
-    $maturity = $COLOR_UNKNOWN;
+    $maturity = None;
     try {
         if (!preg_match('/@/', $module)) {
             $module = get_latest_mod($module, $dbh, $alerts);
