@@ -32,18 +32,15 @@ import os
 import sys
 import json
 
-if len(sys.argv) != 3:
-    print("Usage: {} <Catalog file> <DB file>".format(sys.argv[0]))
+if len(sys.argv) != 4:
+    print("Usage: {} <Catalog file> <DB file> <YDEP_DIR>".format(sys.argv[0]))
     sys.exit(1)
 
 catf = sys.argv[1]
 dbf = sys.argv[2]
+YDEP_DIR = sys.argv[3]
 
 catalog = None
-
-if 'YDEP_DIR' not in os.environ:
-    print("ERROR: YDEP_DIR variable not defined; please set this to the path to the yindex.env file.")
-    sys.exit(1)
 
 try:
     fd = open(catf, 'r')
@@ -76,7 +73,7 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
             belongs_to = module['module-hierarchy']['module-parent']
         if 'dependencies' in module and 'required-module' in module['dependencies']:
             try:
-                fd = open('{}/{}.json'.format(os.environ['YDEP_DIR'], mname))
+                fd = open('{}/{}.json'.format(YDEP_DIR, mname))
                 ydep = {}
                 ydep['impacting_modules'] = {}
                 ydep['impacting_modules'][mname] = module[
