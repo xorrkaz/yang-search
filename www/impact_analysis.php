@@ -58,6 +58,7 @@ function get_doc(&$dbh, $module)
         if (preg_match('/\|/', $document)) {
             $doc_parts = explode('|', $document);
             $document = $doc_parts[1];
+            $document = preg_replace('/>/', ' target="_new">', $document);
         }
 
         return $document;
