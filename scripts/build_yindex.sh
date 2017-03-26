@@ -130,6 +130,7 @@ for m in ${modules}; do
       if [ $? != 0 ]; then
         echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
       fi
+    fi
 done
 
 ${TOOLS_DIR}/add-catalog-data.py ${TDBF}
