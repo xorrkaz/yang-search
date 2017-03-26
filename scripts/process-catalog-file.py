@@ -92,7 +92,7 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
                 document = match.groups()[1].strip(
                 ) + '|' + match.groups()[0].strip()
             else:
-                reg = re.compile(r'([\w]+)[^<]+<([^>]+)>', re.S | re.M)
+                reg = re.compile(r'([\w\-\.]+)[^<]+<([^>]+)>', re.S | re.M)
                 match = reg.search(module['document'])
                 if match:
                     document = match.groups()[0].strip(
