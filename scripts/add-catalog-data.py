@@ -64,13 +64,7 @@ for m, u in MATURITY_MAP.items():
     for mod, props in j.items():
         mod = os.path.splitext(mod)[0]
         mods[mod] = {}
-        if m == 'DRAFT':
-            if re.search(r'^draft-ietf-', mod):
-                mods[mod]['maturity'] = 'WG DRAFT'
-            else:
-                mods[mod]['maturity'] = 'INDIVIDUAL DRAFT'
-        else:
-            mods[mod]['maturity'] = m
+
         reg = re.compile(r'<a.*?>(.*?)</a>', re.S | re.M)
         doc_tag = props
         if isinstance(props, list):
@@ -79,8 +73,19 @@ for m, u in MATURITY_MAP.items():
         if match:
             mods[mod]['document'] = match.groups()[0].strip()
             mods[mod]['doc_url'] = doc_tag
+            if m == 'DRAFT':
+                if re.search(r'^draft-ietf-', mods[mod]['document']):
+                    mods[mod]['maturity'] = 'WG DRAFT'
+                else:
+                    mods[mod]['maturity'] = 'INDIVIDUAL DRAFT'
+            else:
+                mods[mod]['maturity'] = m
         else:
             mods[mod]['document'] = ''
+            if m == 'DRAFT':
+                mods[mod]['maturity'] = 'UNKNOWN'
+            else:
+                mods[mod]['maturity'] = m
 
 try:
     con = sqlite3.connect(dbf)
