@@ -107,13 +107,13 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             continue;
                         }
                         $eseen["mod_$module:mod_$mod"] = true;
+                        $org = get_org($dbh, $mod);
                         if (count($orgs) > 0) {
-                            $org = get_org($dbh, $mod);
                             if (array_search($org, $orgs) === false) {
                                 continue;
                             }
-                            array_push($found_orgs, $org);
                         }
+                        array_push($found_orgs, $org);
                         $maturity = get_maturity($mod, $dbh, $alerts);
                         if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
@@ -140,13 +140,13 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             array_push($alerts, "Loop found $module <=> $mod");
                         }
                         $eseen["mod_$mod:mod_$module"] = true;
+                        $org = get_org($dbh, $mod);
                         if (count($orgs) > 0) {
-                            $org = get_org($dbh, $mod);
                             if (array_search($org, $orgs) === false) {
                                 continue;
                             }
-                            array_push($found_orgs, $org);
                         }
+                        array_push($found_orgs, $org);
                         $maturity = get_maturity($mod, $dbh, $alerts);
                         if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
@@ -504,6 +504,10 @@ foreach ($alerts as $alert) {
           <label>Legend</label>
           <table border="0">
             <tbody>
+              <tr>
+                <td style="background-color: <?=$MATURITY_UNKNOWN['color']?>">&nbsp;&nbsp;</td>
+                <td>Status: N/A</td>
+              </tr>
             <?php
             foreach ($found_orgs as $fo) {
                 $fo = strtoupper($fo);
