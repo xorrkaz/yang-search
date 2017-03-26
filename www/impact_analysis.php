@@ -107,6 +107,11 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             continue;
                         }
                         $eseen["mod_$module:mod_$mod"] = true;
+                        $maturity = get_maturity($mod, $dbh, $alerts);
+                        if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
+                            continue;
+                        }
+
                         $org = get_org($dbh, $mod);
                         if (count($orgs) > 0) {
                             if (array_search($org, $orgs) === false) {
@@ -114,10 +119,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $found_orgs[$org] = true;
-                        $maturity = get_maturity($mod, $dbh, $alerts);
-                        if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
-                            continue;
-                        }
+
                         if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
                             ++$edge_counts[$module];
                         }
@@ -140,6 +142,11 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             array_push($alerts, "Loop found $module <=> $mod");
                         }
                         $eseen["mod_$mod:mod_$module"] = true;
+                        $maturity = get_maturity($mod, $dbh, $alerts);
+                        if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
+                            continue;
+                        }
+
                         $org = get_org($dbh, $mod);
                         if (count($orgs) > 0) {
                             if (array_search($org, $orgs) === false) {
@@ -147,10 +154,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         $found_orgs[$org] = true;
-                        $maturity = get_maturity($mod, $dbh, $alerts);
-                        if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
-                            continue;
-                        }
+
                         if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
                             if (!isset($edge_counts[$mod])) {
                                 $edge_counts[$mod] = 1;
