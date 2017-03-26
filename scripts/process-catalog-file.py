@@ -86,7 +86,19 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
                     mname, e.args[0]))
         document = ''
         if 'document' in module:
-            document = module['document']
+            reg = re.compile(r'(<a.*?>(.*?)</a>)', re.S | re.M)
+            match = reg.match(module['document'])
+            if match:
+                document = match.groups()[1].strip(
+                ) + '|' + match.groups()[0].strip()
+            else:
+                reg = re.compile(r'([^<]+)<([^>]+)>', re.S | re.M)
+                match = reg.search(module['document'])
+                if match:
+                    document = match.groups()[0].strip(
+                    ) + '|' + '<a href="{}">{}</a>'.format(match.groups()[1].strip, match.groups()[0].strip)
+                else:
+                    document = module['document']
         file_path = ''
 
         maturity = ''
