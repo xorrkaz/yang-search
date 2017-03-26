@@ -73,13 +73,13 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
             belongs_to = module['module-hierarchy']['module-parent']
         if 'dependencies' in module and 'required-module' in module['dependencies']:
             try:
-                fd = open('{}/{}.json'.format(YDEP_DIR, mname))
+                fd = open('{}/{}.json'.format(YDEP_DIR, mname), 'w')
                 ydep = {}
                 ydep['impacting_modules'] = {}
                 ydep['impacting_modules'][mname] = module[
                     'dependencies']['required-module']
                 ydep['impacted_module'] = {}
-                json.dump(fd, ydep, indent=4)
+                json.dump(ydep, fd, indent=4)
                 fd.close()
             except Exception as e:
                 print("Failed to dump dependencies for {}: {}".format(
