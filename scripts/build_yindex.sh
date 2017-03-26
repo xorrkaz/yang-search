@@ -140,5 +140,12 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
+for cf in ${YANG_CATALOG_FILES}; do
+  ${TOOLS_DIR}/process-catalog-file.py ${cf} ${TDBF} ${YDEP_DIR}
+  if [ $? != 0 ]; then
+    echo "WARNING: Failed to process YANG catalog file for ${cf}!"
+  fi
+done
+
 mv -f ${TDBF} ${DBF}
 chmod 0644 ${DBF}
