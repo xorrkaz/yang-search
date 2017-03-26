@@ -545,7 +545,7 @@ foreach ($alerts as $alert) {
                   </tr>
                   <tr>
                     <td><b>Recursion Levels:</b>&nbsp;&nbsp;&nbsp;<input type="text" id="recursion" size="2" value="<?=$recurse?>"></td>
-                    <td><b>Include RFCs?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
+                    <td><b>Include Standards?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
                   </tr>
                   <tr>
                     <td><button type="button" class="btn btn-primary" id="graph_commit">Generate</button></td>
