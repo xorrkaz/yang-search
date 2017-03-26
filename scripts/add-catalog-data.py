@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2016  Joe Clarke <jclarke@cisco.com>
+# Copyright (c) 2016-2017  Joe Clarke <jclarke@cisco.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,7 @@ for m, u in MATURITY_MAP.items():
         match = reg.match(doc_tag)
         if match:
             mods[mod]['document'] = match.groups()[0].strip()
+            mods[mod]['doc_url'] = doc_tag
         else:
             mods[mod]['document'] = ''
 
@@ -97,7 +98,7 @@ for modn, props in mods.items():
 
     sql = 'UPDATE modules SET maturity=:maturity, document=:document WHERE module=:modn'
     params = {'maturity': props['maturity'],
-              'document': props['document'], 'modn': mod}
+              'document': props['document'] + '|' + props['doc_url'], 'modn': mod}
     if rev != '':
         sql += ' AND revision=:rev'
         params['rev'] = rev

@@ -53,7 +53,14 @@ function get_doc(&$dbh, $module)
             return 'N/A';
         }
 
-        return $row['document'];
+        $document = $row['document'];
+
+        if (preg_match('/\|/', $document)) {
+            $doc_parts = explode('|', $document);
+            $document = $doc_parts[1];
+        }
+
+        return $document;
     } catch (Exception $e) {
         return 'N/A';
     }
@@ -390,7 +397,8 @@ $(function() {
           event: 'mouseover'
         },
         hide: {
-          event: 'mouseout'
+          when: 'mouseout',
+          fixed: true
         },
         style: {
           classes: 'qtip-bootstrap',
