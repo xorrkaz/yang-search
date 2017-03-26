@@ -505,6 +505,10 @@ foreach ($alerts as $alert) {
             <tbody>
             <?php
             foreach ($found_orgs as $fo) {
+                $fo = strtoupper($fo);
+                if (!isset($SDO_CMAP[$fo])) {
+                    continue;
+                }
                 foreach ($SDO_CMAP[$fo] as $des => $mat) {
                     ?>
                 <tr>

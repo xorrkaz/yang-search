@@ -215,7 +215,7 @@ function get_maturity($module, &$dbh, &$alerts)
         $row = $sth->fetch();
         $organization = strtoupper($row['organization']);
         $mmat = strtoupper($row['maturity']);
-        if (isset($SDO_CMAP[$organization][$mmat])) {
+        if (isset($SDO_CMAP[$organization]) && isset($SDO_CMAP[$organization][$mmat])) {
             $maturity = $SDO_CMAP[$organization][$mmat];
         }
     } catch (Exception $e) {
