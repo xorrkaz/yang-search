@@ -109,3 +109,6 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
             print('Failed to insert new module data for {}: {}'.format(
                 mname, e.args[0]))
             continue
+
+con.commit()
+con.close()
