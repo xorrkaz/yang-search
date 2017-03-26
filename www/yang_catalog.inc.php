@@ -63,6 +63,31 @@ define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
 
 // Global variables
 $COLOR_UNKNOWN = '#F5A45D';
+$MATURITY_UNKNOWN = [
+  'level' => 'UNKNOWN',
+  'color' => $COLOR_UNKNOWN,
+];
+$SDO_CMAP = [
+  'IETF' => [
+    'N/A' => [
+      'level' => 'UNKNOWN',
+      'color' => $COLOR_UNKNOWN,
+    ],
+    'RFC' => [
+      'level' => 'STANDARD',
+      'color' => '#0066FF',
+    ],
+    'INDIVIDUAL DRAFT' => [
+      'level' => 'IDRAFT',
+      'color' => '#FF0066',
+    ],
+    'WG DRAFT' => [
+      'level' => 'WGDRAFT',
+      'color' => '#86B342',
+    ],
+  ],
+];
+
 $CMAP = [
     'N/A' => $COLOR_UNKNOWN,
     'RFC' => '#FA0528',
@@ -164,21 +189,20 @@ function yang_db_conn(&$alerts)
 }
 
 /*
- * This function gets an object's color using the same methodology as
- * symd.
+ * This function gets an object's maturity.
  *
  * Input:
  *  $module : YANG module name
  *  $dbh    : Pointer to the YANG index database handle
  *  $alerts : Pointer to an array containing errors
  * Output:
- *  The HTML color code of the module
+ *  The maturity level and color for the given module
  */
-function get_color($module, &$dbh, &$alerts)
+function get_maturity($module, &$dbh, &$alerts)
 {
-    global $CMAP, $COLOR_UNKNOWN;
+    global $SDO_CMAP, $CMAP, $COLOR_UNKNOWN;
 
-    $color = $COLOR_UNKNOWN;
+    $maturity = $COLOR_UNKNOWN;
     try {
         if (!preg_match('/@/', $module)) {
             $module = get_latest_mod($module, $dbh, $alerts);
@@ -186,17 +210,19 @@ function get_color($module, &$dbh, &$alerts)
         $mod_parts = explode('@', $module);
         $modn = $mod_parts[0];
         $rev = $mod_parts[1];
-        $sth = $dbh->prepare('SELECT maturity FROM modules WHERE module=:mod AND revision=:rev');
+        $sth = $dbh->prepare('SELECT maturity, organization FROM modules WHERE module=:mod AND revision=:rev');
         $sth->execute(['mod' => $modn, 'rev' => $rev]);
         $row = $sth->fetch();
-        if (isset($CMAP[$row['maturity']])) {
-            $color = $CMAP[$row['maturity']];
+        $organization = strtoupper($row['organization']);
+        $mmat = strtoupper($row['maturity']);
+        if (isset($SDO_CMAP[$organization][$mmat])) {
+            $maturity = $SDO_CMAP[$organization][$mmat];
         }
     } catch (Exception $e) {
         push_exception("Failed to get module maturity for $module (perhaps it doesn't validate?)", $e, $alerts);
     }
 
-    return $color;
+    return $maturity;
 }
 
 /*

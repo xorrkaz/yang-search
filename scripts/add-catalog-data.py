@@ -64,7 +64,13 @@ for m, u in MATURITY_MAP.items():
     for mod, props in j.items():
         mod = os.path.splitext(mod)[0]
         mods[mod] = {}
-        mods[mod]['maturity'] = m
+        if m == 'DRAFT':
+            if re.search(r'^draft-ietf-', mod):
+                mods[mod]['maturity'] = 'WG DRAFT'
+            else:
+                mods[mod]['maturity'] = 'INDIVIDUAL DRAFT'
+        else:
+            mods[mod]['maturity'] = m
         reg = re.compile(r'<a.*?>(.*?)</a>', re.S | re.M)
         doc_tag = props
         if isinstance(props, list):

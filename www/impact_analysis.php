@@ -26,6 +26,8 @@
 
 include_once 'yang_catalog.inc.php';
 
+$found_orgs = [];
+
 function get_org(&$dbh, $module)
 {
     try {
@@ -61,17 +63,18 @@ function get_doc(&$dbh, $module)
 
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false)
 {
-    global $CMAP;
+    global $found_orgs;
 
     if (isset($nseen[$module])) {
         return;
     }
+    $org = get_org($dbh, $module);
     if (count($orgs) > 0 && !(count($orgs) == 1 && $orgs[0] == '')) {
-        $org = get_org($dbh, $module);
         if (array_search($org, $orgs) === false) {
             return;
         }
     }
+    array_push($found_orgs, $org);
     $f = YDEPS_DIR.'/'.$module.'.json';
     if (is_file($f)) {
         try {
@@ -80,12 +83,12 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
             if ($json === null) {
                 array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
             } else {
-                $mcolor = get_color($module, $dbh, $alerts);
-                if ($nested && $mcolor == $CMAP['RFC'] && !$show_rfcs) {
+                $mmat = get_maturity($module, $dbh, $alerts);
+                if ($nested && $mmat['level'] == 'STANDARD' && !$show_rfcs) {
                     return;
                 }
                 $document = get_doc($dbh, $module);
-                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $mcolor, 'document' => $document]]);
+                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $mmat['color'], 'document' => $document]]);
                 if (!isset($edge_counts[$module])) {
                     $edge_counts[$module] = 0;
                 }
@@ -101,21 +104,22 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             if (array_search($org, $orgs) === false) {
                                 continue;
                             }
+                            array_push($found_orgs, $org);
                         }
-                        $color = get_color($mod, $dbh, $alerts);
-                        if ($color == $CMAP['RFC'] && !$show_rfcs) {
+                        $maturity = get_maturity($mod, $dbh, $alerts);
+                        if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
                         }
-                        if ($mcolor == $CMAP['DRAFT']) {
+                        if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
                             ++$edge_counts[$module];
                         }
-                        array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $color]]);
+                        array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $maturity['color']]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                         } else {
                             $document = get_doc($dbh, $mod);
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $maturity['color'], 'document' => $document]]);
                         }
                     }
                 }
@@ -133,12 +137,13 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             if (array_search($org, $orgs) === false) {
                                 continue;
                             }
+                            array_push($found_orgs, $org);
                         }
-                        $color = get_color($mod, $dbh, $alerts);
-                        if ($color == $CMAP['RFC'] && !$show_rfcs) {
+                        $maturity = get_maturity($mod, $dbh, $alerts);
+                        if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
                         }
-                        if ($color == $CMAP['DRAFT']) {
+                        if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
                             if (!isset($edge_counts[$mod])) {
                                 $edge_counts[$mod] = 1;
                             } else {
@@ -146,14 +151,14 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         if (!$nested) {
-                            array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $color]]);
+                            array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $maturity['color']]]);
                         }
                         if ($nested && ($recurse > 0 || $recurse < 0)) {
                             $r = $recurse - 1;
                             //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                         } elseif (!$nested) {
                             $document = get_doc($dbh, $mod);
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $color, 'document' => $document]]);
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $maturity['color'], 'document' => $document]]);
                         }
                     }
                 }
@@ -229,8 +234,8 @@ if (!isset($_GET['modules'])) {
         foreach ($edges as $edge) {
             if ($edge['data']['target'] == "mod_{$bn}") {
                 $mn = str_replace('mod_', '', $edge['data']['source']);
-                $color = get_color($mn, $dbh, $alerts);
-                if ($color == $CMAP['DRAFT']) {
+                $maturity = get_maturity($mn, $dbh, $alerts);
+                if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
                     array_push($bottlenecks, "node#{$edge['data']['source']}");
                     $found_dep = true;
                 }
@@ -491,14 +496,16 @@ foreach ($alerts as $alert) {
           <table border="0">
             <tbody>
             <?php
-            foreach ($CMAP as $des => $col) {
-                ?>
+            foreach ($found_orgs as $fo) {
+                foreach ($SDO_CMAP[$fo] as $des => $mat) {
+                    ?>
                 <tr>
-                  <td style="background-color: <?=$col?>">&nbsp;&nbsp;</td>
-                  <td>Status: <?=$des?></td>
+                  <td style="background-color: <?=$mat['color']?>">&nbsp;&nbsp;</td>
+                  <td>Status: <?=$fo?>:<?=$des?></td>
                 </tr>
               <?php
 
+                }
             } ?>
             </tbody>
           </table>
