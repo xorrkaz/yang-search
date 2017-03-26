@@ -138,7 +138,7 @@ if (!isset($_GET['module'])) {
         }
         $modn = explode('@', $module)[0];
         $f = YTREES_DIR.'/'.$module.'.json';
-        $color = get_color($module, $dbh, $alerts);
+        $maturity = get_maturity($module, $dbh, $alerts);
         if (is_file($f)) {
             try {
                 $contents = file_get_contents($f);
@@ -198,7 +198,7 @@ foreach ($alerts as $alert) {
 if ($jstree_json !== null) {
     ?>
     <div style="margin-bottom: 10px;">
-      <b>Module: <span style="color: <?=$color?>;"><?=$module?></span>, Namespace: <span style="color: <?=$color?>;"><?=$json['namespace']?></span>, Prefix: <span style="color: <?=$color?>;"><?=$json['prefix']?></span><br/>
+      <b>Module: <span style="color: <?=$maturity['color']?>;"><?=$module?></span>, Namespace: <span style="color: <?=$maturity['color']?>;"><?=$json['namespace']?></span>, Prefix: <span style="color: <?=$maturity['color']?>;"><?=$json['prefix']?></span><br/>
         <a href="impact_analysis.php?modules[]=<?=$module?>">Impact Analysis</a> for <?=$module?></b>
     </div>
     <div id="yangtree"></div>
