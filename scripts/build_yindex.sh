@@ -136,6 +136,7 @@ done
 ${TOOLS_DIR}/add-catalog-data.py ${TDBF}
 if [ $? != 0 ]; then
     echo "WARNING: Failed to add YANG catalog data!"
+    rm -f ${TDBF}
     exit 1
 fi
 
