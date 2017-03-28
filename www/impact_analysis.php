@@ -72,7 +72,7 @@ function get_doc(&$dbh, $module)
 
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false)
 {
-    global $found_orgs;
+    global $found_orgs, $found_mats;
 
     if (isset($nseen[$module])) {
         return;
