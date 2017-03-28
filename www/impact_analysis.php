@@ -27,6 +27,7 @@
 include_once 'yang_catalog.inc.php';
 
 $found_orgs = [];
+$found_mats = [];
 
 function get_org(&$dbh, $module)
 {
@@ -95,6 +96,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 if ($nested && $mmat['level'] == 'STANDARD' && !$show_rfcs) {
                     return;
                 }
+                $found_mats[strtoupper($org).':'.$mmat['level']] = true;
                 $document = get_doc($dbh, $module);
                 array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $mmat['color'], 'document' => $document]]);
                 if (!isset($edge_counts[$module])) {
@@ -113,6 +115,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
 
                         $org = get_org($dbh, $mod);
+                        $found_mats[strtoupper($org).':'.$maturity['level']] = true;
                         if (count($orgs) > 0) {
                             if (array_search($org, $orgs) === false) {
                                 continue;
@@ -148,6 +151,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
 
                         $org = get_org($dbh, $mod);
+                        $found_mats[strtoupper($org).':'.$maturity['level']] = true;
                         if (count($orgs) > 0) {
                             if (array_search($org, $orgs) === false) {
                                 continue;
@@ -508,18 +512,25 @@ foreach ($alerts as $alert) {
           <label>Legend</label>
           <table border="0">
             <tbody>
+              <?php
+              if (isset($found_mats[':UNKNOWN'])) {
+                  ?>
               <tr>
                 <td style="background-color: <?=$MATURITY_UNKNOWN['color']?>">&nbsp;&nbsp;</td>
                 <td>Status: N/A</td>
               </tr>
+              <?php
+              } ?>
             <?php
             foreach ($found_orgs as $fo => $val) {
                 $fo = strtoupper($fo);
                 if (!isset($SDO_CMAP[$fo])) {
                     continue;
                 }
-                foreach ($SDO_CMAP[$fo] as $des => $mat) {
-                    ?>
+                foreach (ksort($SDO_CMAP[$fo]) as $des => $mat) {
+                    if (!isset($found_mats[$fo.':'.$mat['level']])) {
+                        continue;
+                    } ?>
                 <tr>
                   <td style="background-color: <?=$mat['color']?>">&nbsp;&nbsp;</td>
                   <td>Status: <?=$fo?>:<?=$des?></td>
