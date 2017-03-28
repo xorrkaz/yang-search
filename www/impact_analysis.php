@@ -520,6 +520,7 @@ foreach ($alerts as $alert) {
                 <td>Status: N/A</td>
               </tr>
               <?php
+
               } ?>
             <?php
             foreach ($found_orgs as $fo => $val) {
@@ -527,7 +528,9 @@ foreach ($alerts as $alert) {
                 if (!isset($SDO_CMAP[$fo])) {
                     continue;
                 }
-                foreach (ksort($SDO_CMAP[$fo]) as $des => $mat) {
+                $omats = $SDO_CMAP[$fo];
+                ksort($omats);
+                foreach ($omats as $des => $mat) {
                     if (!isset($found_mats[$fo.':'.$mat['level']])) {
                         continue;
                     } ?>
