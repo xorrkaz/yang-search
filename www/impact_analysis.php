@@ -96,7 +96,11 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 if ($nested && $mmat['level'] == 'STANDARD' && !$show_rfcs) {
                     return;
                 }
-                $found_mats[strtoupper($org).':'.$mmat['level']] = true;
+                if (!isset($SDO_CMAP[strtoupper($org)])) {
+                    $found_mats[':'.$maturity['level']] = true;
+                } else {
+                    $found_mats[strtoupper($org).':'.$mmat['level']] = true;
+                }
                 $document = get_doc($dbh, $module);
                 array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $mmat['color'], 'document' => $document]]);
                 if (!isset($edge_counts[$module])) {
@@ -115,7 +119,11 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
 
                         $org = get_org($dbh, $mod);
-                        $found_mats[strtoupper($org).':'.$maturity['level']] = true;
+                        if (!isset($SDO_CMAP[strtoupper($org)])) {
+                            $found_mats[':'.$maturity['level']] = true;
+                        } else {
+                            $found_mats[strtoupper($org).':'.$maturity['level']] = true;
+                        }
                         if (count($orgs) > 0) {
                             if (array_search($org, $orgs) === false) {
                                 continue;
@@ -151,7 +159,11 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
 
                         $org = get_org($dbh, $mod);
-                        $found_mats[strtoupper($org).':'.$maturity['level']] = true;
+                        if (!isset($SDO_CMAP[strtoupper($org)])) {
+                            $found_mats[':'.$maturity['level']] = true;
+                        } else {
+                            $found_mats[strtoupper($org).':'.$maturity['level']] = true;
+                        }
                         if (count($orgs) > 0) {
                             if (array_search($org, $orgs) === false) {
                                 continue;
