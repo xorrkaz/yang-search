@@ -72,7 +72,7 @@ function get_doc(&$dbh, $module)
 
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false)
 {
-    global $found_orgs, $found_mats;
+    global $found_orgs, $found_mats, $SDO_CMAP;
 
     if (isset($nseen[$module])) {
         return;
@@ -97,7 +97,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                     return;
                 }
                 if (!isset($SDO_CMAP[strtoupper($org)])) {
-                    $found_mats[':'.$maturity['level']] = true;
+                    $found_mats[':'.$mmat['level']] = true;
                 } else {
                     $found_mats[strtoupper($org).':'.$mmat['level']] = true;
                 }
