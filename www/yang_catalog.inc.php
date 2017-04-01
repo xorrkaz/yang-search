@@ -240,6 +240,11 @@ function get_maturity($module, &$dbh, &$alerts)
             $mname = array_search($mmat, array_column($SDO_CMAP[$organization], 'name'));
             if ($mname !== false) {
                 $maturity = $SDO_CMAP[$organization][$mname];
+            } else {
+                $mname = array_search('UNKNOWN', array_column($SDO_CMAP[$organization], 'level'));
+                if ($mname !== false) {
+                    $maturity = $SDO_CMAP[$organization][$mname];
+                }
             }
         }
     } catch (Exception $e) {
