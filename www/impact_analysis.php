@@ -540,15 +540,13 @@ foreach ($alerts as $alert) {
                 if (!isset($SDO_CMAP[$fo])) {
                     continue;
                 }
-                $omats = $SDO_CMAP[$fo];
-                ksort($omats);
-                foreach ($omats as $des => $mat) {
+                foreach ($SDO_CMAP[$fo] as $mat) {
                     if (!isset($found_mats[$fo.':'.$mat['level']])) {
                         continue;
                     } ?>
                 <tr>
                   <td style="background-color: <?=$mat['color']?>">&nbsp;&nbsp;</td>
-                  <td>Status: <?=$fo?>:<?=$des?></td>
+                  <td>Status: <?=$fo?>:<?=$mat['name']?></td>
                 </tr>
               <?php
 

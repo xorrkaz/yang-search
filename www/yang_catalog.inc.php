@@ -66,51 +66,54 @@ define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
 $MATURITY_UNKNOWN = [
   'level' => 'UNKNOWN',
   'color' => '#663300',
+  'name' => 'N/A',
 ];
 $SDO_CMAP = [
   'IETF' => [
-    'N/A' => [
+    [
       'level' => 'UNKNOWN',
       'color' => '#F5A45D',
+      'name' => 'N/A',
     ],
-    'RFC' => [
-      'level' => 'STANDARD',
-      'color' => '#0066FF',
-    ],
-    'INDIVIDUAL DRAFT' => [
+    [
       'level' => 'IDRAFT',
       'color' => '#FF0066',
+      'name' => 'INDIVIDUAL DRAFT',
     ],
-    'WG DRAFT' => [
+    [
       'level' => 'WGDRAFT',
       'color' => '#86B342',
+      'name' => 'WG DRAFT',
+    ],
+    [
+      'level' => 'STANDARD',
+      'color' => '#0066FF',
+      'name' => 'RFC',
     ],
   ],
   'BBF' => [
-    'N/A' => [
+    [
       'level' => 'UNKNOWN',
       'color' => '#FFCC99',
+      'name' => 'N/A',
     ],
-    'PERSONAL' => [
+    [
       'level' => 'IDRAFT',
       'color' => '#FF99FF',
+      'name' => 'PERSONAL',
     ],
-    'DRAFT' => [
+    [
       'level' => 'WGDRAFT',
       'color' => '#00FF99',
+      'name' => 'DRAFT',
     ],
-    'STANDARD' => [
+    [
       'level' => 'STANDARD',
       'color' => '#3366FF',
+      'name' => 'STANDARD',
     ],
   ],
 ];
-
-/*$CMAP = [
-    'N/A' => $COLOR_UNKNOWN,
-    'RFC' => '#FA0528',
-    'DRAFT' => '#86B342',
-];*/
 
 /*
  * Mapping table of URN to catalog org tree name for Standards Definition
@@ -233,8 +236,11 @@ function get_maturity($module, &$dbh, &$alerts)
         $row = $sth->fetch();
         $organization = strtoupper($row['organization']);
         $mmat = strtoupper($row['maturity']);
-        if (isset($SDO_CMAP[$organization]) && isset($SDO_CMAP[$organization][$mmat])) {
-            $maturity = $SDO_CMAP[$organization][$mmat];
+        if (isset($SDO_CMAP[$organization])) {
+            $mname = array_search($mmat, array_column($SDO_CMAP[$organization], 'name'));
+            if ($mname !== false) {
+                $maturity = $SDO_CMAP[$organization][$mname];
+            }
         }
     } catch (Exception $e) {
         push_exception("Failed to get module maturity for $module (perhaps it doesn't validate?)", $e, $alerts);
