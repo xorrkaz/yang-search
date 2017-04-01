@@ -556,7 +556,7 @@ foreach ($alerts as $alert) {
           </table>
           <?php if ($found_bottleneck) {
                 ?>
-          <p><b>NOTE:</b> Highlighted node(s) represent bottleneck(s)</p>
+          <p><b>NOTE:</b> Unselected node(s) with a black rim represent bottleneck(s)</p>
           <?php
 
             } ?>
