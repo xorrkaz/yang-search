@@ -44,6 +44,10 @@ TDBF=$(mktemp -q)
 mkdir -p ${YTREE_DIR}
 mkdir -p ${YDEP_DIR}
 mkdir -p $(dirname ${DBF})
+if [ -n "${YANG_EXPLORER_DIR}" ];
+    mkdir -p "${YANG_EXPLORER_DIR}/server/data/users/guest/yang"
+    mkdir -p "${YANG_EXPLORER_DIR}/server/data/users/guest/cxml"
+fi
 
 if [ -z "${DRAFTS_DIR}" ]; then
     DRAFTS_DIR=${YANGDIR}
@@ -154,6 +158,10 @@ for cf in ${YANG_CATALOG_FILES}; do
     echo "WARNING: Failed to process YANG catalog file for ${cf}!"
   fi
 done
+
+if [ -n "${YANG_EXPLORER_DIR}" ]; then
+    ${YANG_EXPLORER_DIR}/reload.sh
+fi
 
 mv -f ${TDBF} ${DBF}
 chmod 0644 ${DBF}
