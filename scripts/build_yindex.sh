@@ -39,7 +39,7 @@ fi
 
 . ${YANG_INDEX_HOME}/yindex.env
 
-TDBF=$(mktemp)
+TDBF=$(mktemp -q)
 
 mkdir -p ${YTREE_DIR}
 mkdir -p ${YDEP_DIR}
@@ -103,7 +103,7 @@ for m in ${modules}; do
     else
         # Do not process duplicate modules
         output=$(echo "SELECT module FROM modules WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF})
-        if [ -n "${output}" ]; then
+        if [ $? = 0 -a -n "${output}" ]; then
             continue
         fi
     fi
