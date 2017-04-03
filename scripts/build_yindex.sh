@@ -32,6 +32,15 @@
 # The file yindex.env must be sourced into the environment prior to running
 # this script.
 
+update_progress() {
+    mtotal=$1
+    mcur=$2
+
+    perc=$(bc -l <<< "scale=2; (${mcur} / ${mtotal}) * 100")
+
+    echo "Processing module ${mcur} of ${mtotal} (${perc}%)"
+}
+
 if [ -z "${YANG_INDEX_HOME}" ]; then
     echo "ERROR: YANG_INDEX_HOME environment variable not defined; please set this to the path to the yindex.env file"
     exit 1
@@ -89,7 +98,13 @@ else
     first_run=0
 fi
 
+mtotal=$(echo ${modules} | wc -w)
+mcur=0
+
+trap -- "update_progress ${mtotal} ${mcur}" 10 16 29 30
+
 for m in ${modules}; do
+    mcur=$((${mcur} + 1))
     cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table --yang-index-no-schema ${m}"
     if [ ${first_run} = 1 ]; then
         cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table ${m}"
