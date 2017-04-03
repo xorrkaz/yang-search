@@ -100,6 +100,12 @@ for m in ${modules}; do
     IFS=${old_IFS}
     if [ ${update} = 1 ]; then
         echo "DELETE FROM modules WHERE module='${mod_name}' AND revision='${mod_rev}'; DELETE FROM yindex WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
+    else
+        # Do not process duplicate modules
+        output=$(echo "SELECT module FROM modules WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF})
+        if [ -n "${output}" ]; then
+            continue
+        fi
     fi
     output=$(${cmd} 2> /dev/null)
 #    echo "XXX: '${output}'"
