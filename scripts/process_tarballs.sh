@@ -43,13 +43,13 @@ cleanup
 mkdir -p tmp/DRAFT
 mkdir -p tmp/RFC
 
-curl -O http://www.claise.be/YANG-drafts.tar
+curl -LO http://www.claise.be/YANG-drafts.tar
 if [ $? != 0 ]; then
     echo "ERROR: Failed to download drafts tarball"
     exit 1
 fi
 
-curl -O http://www.claise.be/YANG-RFC.tar
+curl -LO http://www.claise.be/YANG-RFC.tar
 if [ $? != 0 ]; then
     echo "ERROR: Failed to download RFC tarball"
     exit 1
