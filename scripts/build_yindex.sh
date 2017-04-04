@@ -53,7 +53,7 @@ TDBF=$(mktemp -q)
 mkdir -p ${YTREE_DIR}
 mkdir -p ${YDEP_DIR}
 mkdir -p $(dirname ${DBF})
-if [ -n "${YANG_EXPLORER_DIR}" ];
+if [ -n "${YANG_EXPLORER_DIR}" ]; then
     mkdir -p "${YANG_EXPLORER_DIR}/server/data/users/guest/yang"
     mkdir -p "${YANG_EXPLORER_DIR}/server/data/users/guest/cxml"
 fi
