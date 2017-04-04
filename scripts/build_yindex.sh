@@ -101,7 +101,7 @@ fi
 mtotal=$(echo ${modules} | wc -w)
 mcur=0
 
-trap -- "update_progress ${mtotal} ${mcur}" 10 16 29 30
+trap -- 'update_progress ${mtotal} ${mcur}' 10 16 29 30
 
 for m in ${modules}; do
     mcur=$((${mcur} + 1))
