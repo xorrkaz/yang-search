@@ -110,6 +110,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 if ($nested && $mmat['level'] == 'STANDARD' && !$show_rfcs) {
                     return;
                 }
+                $color = $mmat['color'];
                 if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
                     $cstatus = get_compile_status($dbh, $module);
                     if ($cstatus == 'FAILED') {
