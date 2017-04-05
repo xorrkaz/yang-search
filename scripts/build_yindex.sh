@@ -34,11 +34,12 @@
 
 update_progress() {
     mtotal=$1
-    mcur=$2
+    cur_mod=$2
+    mcur=$3
 
     perc=$(bc -l <<< "scale=2; (${mcur} / ${mtotal}) * 100")
 
-    echo "Processing module ${mcur} of ${mtotal} (${perc}%)"
+    echo "Processing module ${cur_mod} (${mcur} of ${mtotal} [${perc}%])"
 }
 
 if [ -z "${YANG_INDEX_HOME}" ]; then
@@ -100,11 +101,13 @@ fi
 
 mtotal=$(echo ${modules} | wc -w)
 mcur=0
+cur_mod=""
 
-trap -- 'update_progress ${mtotal} ${mcur}' 10 16 29 30
+trap -- 'update_progress ${mtotal} ${cur_mod} ${mcur}' 10 16 29 30
 
 for m in ${modules}; do
     mcur=$((${mcur} + 1))
+    cur_mod="${m}"
     cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table --yang-index-no-schema ${m}"
     if [ ${first_run} = 1 ]; then
         cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table ${m}"
