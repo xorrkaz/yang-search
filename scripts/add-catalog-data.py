@@ -80,7 +80,7 @@ for m, u in MATURITY_MAP.items():
                 else:
                     mods[mod]['maturity'] = 'INDIVIDUAL DRAFT'
                 if isinstance(props, list):
-                    mods[mod]['cstatus'] = props[4]
+                    mods[mod]['cstatus'] = props[3]
             else:
                 mods[mod]['maturity'] = m
         else:
