@@ -173,7 +173,8 @@ for cf in ${YANG_CATALOG_FILES}; do
 done
 
 if [ -n "${YANG_EXPLORER_DIR}" ]; then
-    ${YANG_EXPLORER_DIR}/reload.sh
+    cd ${YANG_EXPLORER_DIR}
+    ./reload.sh
 fi
 
 mv -f ${TDBF} ${DBF}

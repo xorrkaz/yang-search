@@ -67,6 +67,7 @@ for m, u in MATURITY_MAP.items():
 
         reg = re.compile(r'<a.*?>(.*?)</a>', re.S | re.M)
         doc_tag = props
+        mods[mod]['cstatus'] = ''
         if isinstance(props, list):
             doc_tag = props[0]
         match = reg.match(doc_tag)
@@ -78,6 +79,8 @@ for m, u in MATURITY_MAP.items():
                     mods[mod]['maturity'] = 'WG DRAFT'
                 else:
                     mods[mod]['maturity'] = 'INDIVIDUAL DRAFT'
+                if isinstance(props, list):
+                    mods[mod]['cstatus'] = props[4]
             else:
                 mods[mod]['maturity'] = m
         else:
@@ -101,9 +104,9 @@ for modn, props in mods.items():
     if len(mod_parts) == 2:
         rev = mod_parts[1]
 
-    sql = 'UPDATE modules SET maturity=:maturity, document=:document WHERE module=:modn'
+    sql = 'UPDATE modules SET maturity=:maturity, document=:document, compiler_status=:cstatus WHERE module=:modn'
     params = {'maturity': props['maturity'],
-              'document': props['document'] + '|' + props['doc_url'], 'modn': mod}
+              'document': props['document'] + '|' + props['doc_url'], 'cstatus': props['cstatus'], 'modn': mod}
     if rev != '':
         sql += ' AND revision=:rev'
         params['rev'] = rev

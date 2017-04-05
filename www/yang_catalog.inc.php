@@ -63,6 +63,7 @@ define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
 
 // Global variables
 //$COLOR_UNKNOWN = '#F5A45D';
+$COLOR_FAILED = 'red';
 $MATURITY_UNKNOWN = [
   'level' => 'UNKNOWN',
   'color' => '#663300',
@@ -77,7 +78,7 @@ $SDO_CMAP = [
     ],
     [
       'level' => 'IDRAFT',
-      'color' => '#FF0066',
+      'color' => '#c900ff',
       'name' => 'INDIVIDUAL DRAFT',
     ],
     [

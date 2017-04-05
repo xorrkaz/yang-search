@@ -28,6 +28,7 @@ include_once 'yang_catalog.inc.php';
 
 $found_orgs = [];
 $found_mats = [];
+$found_failed = false;
 
 function get_org(&$dbh, $module)
 {
@@ -70,9 +71,22 @@ function get_doc(&$dbh, $module)
     return 'N/A';
 }
 
+function get_compile_status(&$dbh, $module)
+{
+    try {
+        $sth = $dbh->prepare('SELECT compile_status FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
+        $sth->execute(['mod' => $module]);
+        $row = $sth->fetch();
+
+        return $row['compile_status'];
+    } catch (Exception $e) {
+        return '';
+    }
+}
+
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false)
 {
-    global $found_orgs, $found_mats, $SDO_CMAP;
+    global $found_orgs, $found_mats, $found_failed, $SDO_CMAP, $COLOR_FAILED;
 
     if (isset($nseen[$module])) {
         return;
@@ -96,13 +110,20 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 if ($nested && $mmat['level'] == 'STANDARD' && !$show_rfcs) {
                     return;
                 }
+                if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
+                    $cstatus = get_compile_status($dbh, $module);
+                    if ($cstatus == 'FAILED') {
+                        $color = $COLOR_FAILED;
+                        $found_failed = true;
+                    }
+                }
                 if (!isset($SDO_CMAP[strtoupper($org)])) {
                     $found_mats[':'.$mmat['level']] = true;
                 } else {
                     $found_mats[strtoupper($org).':'.$mmat['level']] = true;
                 }
                 $document = get_doc($dbh, $module);
-                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $mmat['color'], 'document' => $document]]);
+                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document]]);
                 if (!isset($edge_counts[$module])) {
                     $edge_counts[$module] = 0;
                 }
@@ -116,6 +137,15 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         $maturity = get_maturity($mod, $dbh, $alerts);
                         if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
+                        }
+
+                        $mcolor = $maturity['color'];
+                        if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
+                            $cstatus = get_compile_status($dbh, $mod);
+                            if ($cstatus == 'FAILED') {
+                                $mcolor = $COLOR_FAILED;
+                                $found_failed = true;
+                            }
                         }
 
                         $org = get_org($dbh, $mod);
@@ -134,13 +164,13 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
                             ++$edge_counts[$module];
                         }
-                        array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $maturity['color']]]);
+                        array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                         } else {
                             $document = get_doc($dbh, $mod);
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $maturity['color'], 'document' => $document]]);
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document]]);
                         }
                     }
                 }
@@ -171,7 +201,13 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
                         $found_orgs[$org] = true;
 
+                        $mcolor = $maturity['color'];
                         if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
+                            $cstatus = get_compile_status($dbh, $mod);
+                            if ($cstatus == 'FAILED') {
+                                $mcolor = $COLOR_FAILED;
+                                $found_failed = true;
+                            }
                             if (!isset($edge_counts[$mod])) {
                                 $edge_counts[$mod] = 1;
                             } else {
@@ -179,14 +215,14 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         if (!$nested) {
-                            array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $maturity['color']]]);
+                            array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor]]);
                         }
                         if ($nested && ($recurse > 0 || $recurse < 0)) {
                             $r = $recurse - 1;
                             //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                         } elseif (!$nested) {
                             $document = get_doc($dbh, $mod);
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $maturity['color'], 'document' => $document]]);
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document]]);
                         }
                     }
                 }
@@ -378,7 +414,7 @@ $(function() {
 		  .selector(':selected')
 		    .css({
 		      'border-width' : 3,
-		      'border-color' : '#333'
+		      'border-color' : '#2c1ec1'
 		    })
 		  .selector('edge')
 		    .css({
@@ -532,6 +568,15 @@ foreach ($alerts as $alert) {
                 <td>Status: N/A</td>
               </tr>
               <?php
+
+              }
+              if ($found_failed) {
+                  ?>
+              <tr>
+                <td style="background-color: <?=$COLOR_FAILED?>">&nbsp;&nbsp;</td>
+                <td>Status: Compilation Failed</td>
+              </tr>
+            <?php
 
               } ?>
             <?php
