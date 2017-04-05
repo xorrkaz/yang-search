@@ -104,7 +104,7 @@ for modn, props in mods.items():
     if len(mod_parts) == 2:
         rev = mod_parts[1]
 
-    sql = 'UPDATE modules SET maturity=:maturity, document=:document, compiler_status=:cstatus WHERE module=:modn'
+    sql = 'UPDATE modules SET maturity=:maturity, document=:document, compile_status=:cstatus WHERE module=:modn'
     params = {'maturity': props['maturity'],
               'document': props['document'] + '|' + props['doc_url'], 'cstatus': props['cstatus'], 'modn': mod}
     if rev != '':
