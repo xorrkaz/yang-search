@@ -32,27 +32,35 @@ $json = json_decode($payload, true);
 while (file_exists(LOCKF)) {
     sleep(3);
 }
-$res = touch(LOCKF);
-if (!$res) {
-    throw new Exception('Failed to obtain lock '.LOCKF);
-}
+try {
+    $res = touch(LOCKF);
+    if (!$res) {
+        throw new Exception('Failed to obtain lock '.LOCKF);
+    }
 
-$changes_cache = [];
-if (file_exists(CHANGES_CACHE)) {
-    $changes_cache = json_decode(file_get_contents(CHANGES_CACHE), true);
-}
+    $changes_cache = [];
+    if (file_exists(CHANGES_CACHE)) {
+        $changes_cache = json_decode(file_get_contents(CHANGES_CACHE), true);
+    }
 
-foreach ($json['commits'] as $commit) {
-    $files = array_merge($commit['added'], $commit['modified']);
-    foreach ($files as $file) {
-        $dir = dirname($file);
-        if (array_search($dir, $changes_cache) !== false) {
-            array_push($changes_cache, $dir);
+    if (!isset($json['commits'])) {
+        $json['commits'] = [];
+    }
+
+    foreach ($json['commits'] as $commit) {
+        $files = array_merge($commit['added'], $commit['modified']);
+        foreach ($files as $file) {
+            $dir = dirname($file);
+            if (array_search($dir, $changes_cache) !== false) {
+                array_push($changes_cache, $dir);
+            }
         }
     }
-}
 
-$fd = fopen(CHANGE_CACHE, 'w');
-fwrite($fd, json_encode($changes_cache));
-fclose($fd);
+    $fd = fopen(CHANGE_CACHE, 'w');
+    fwrite($fd, json_encode($changes_cache));
+    fclose($fd);
+} catch (Exception $e) {
+    error_log("Caught exception $e");
+}
 unlink(LOCKF);
