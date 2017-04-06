@@ -111,6 +111,8 @@ if ($dbh !== null && $search_string !== null) {
             $sql .= ')';
         }
 
+        $sql .= ' GROUP BY yi.module, yi.revision';
+
         $sth = $dbh->prepare($sql);
         $sth->execute($qparams);
     } catch (Exception $e) {
