@@ -60,6 +60,7 @@ define('RESTCONF_JSON_MIME_TYPE', 'application/vnd.yang.data+json');
 define('OPENCONFIG_CATALOG_MOD_NS', 'openconfig-module-catalog:module');
 define('LOCKF', '/tmp/webhook.lock');
 define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
+define('YANG_REPO_ID', 17985602);
 
 // Global variables
 //$COLOR_UNKNOWN = '#F5A45D';

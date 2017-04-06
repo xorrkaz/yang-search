@@ -43,6 +43,10 @@ try {
         $changes_cache = json_decode(file_get_contents(CHANGES_CACHE), true);
     }
 
+    if ($json['repository']['id'] != YANG_REPO_ID) {
+        throw new Exception('Bad repository ID: '.$json['repository']['id']);
+    }
+
     if (!isset($json['commits'])) {
         $json['commits'] = [];
     }
