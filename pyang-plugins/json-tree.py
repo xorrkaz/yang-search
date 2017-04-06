@@ -53,6 +53,18 @@ def emit_tree(modules, fd, ctx):
                if ch.keyword in statements.data_definition_keywords]
         mod_out['children'] = get_children(chs, module, mod_out['prefix'], ctx)
 
+        mods = [module]
+        for i in module.search('include'):
+            subm = ctx.get_module(i.arg)
+            if subm is not None:
+                mods.append(subm)
+        for m in mods:
+            for augment in m.search('augment'):
+                if (hasattr(augment.i_target_node, 'i_module') and
+                        augment.i_target_node.i_module not in modules + mods):
+                    mod_out['augments'] = get_children(
+                        augment.i_children, module, ' ', ctx)
+
         rpcs = module.search('rpc')
         if len(rpcs) > 0:
             mod_out['rpcs'] = get_children(rpcs, module, ' ', ctx)
@@ -181,8 +193,10 @@ def get_typename(s):
     else:
         return ''
 
+
 def json_escape(s):
     return s.replace("\\", r"\\").replace("\n", r"\n").replace("\t", r"\t").replace("\"", r"\"")
+
 
 def typestring(node):
 

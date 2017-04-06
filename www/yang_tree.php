@@ -159,6 +159,11 @@ if (!isset($_GET['module'])) {
                         $notifs['children'] = $json['notifications'];
                         array_push($jstree_json['data'], build_tree($notifs, $modn));
                     }
+                    if (isset($json['augments'])) {
+                        $augments['name'] = $json['prefix'].':augments';
+                        $augments['children'] = $json['augments'];
+                        array_push($jstree_json['data'], build_tree($augments, $modn));
+                    }
                 }
             } catch (Exception $e) {
                 push_exception("Failed to read YANG tree data for $module", $e, $alerts);
