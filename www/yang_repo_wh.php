@@ -27,10 +27,16 @@
 include_once 'yang_catalog.inc.php';
 
 $payload = file_get_contents('php://input');
-$json = json_decode($payload, true);
+
+$lock_count = 0;
 
 while (file_exists(LOCKF)) {
+    if ($lock_count > 20) {
+        http_response_code(500);
+        die('Failed to get lock.');
+    }
     sleep(3);
+    ++$lock_count;
 }
 try {
     $res = touch(LOCKF);
@@ -38,10 +44,26 @@ try {
         throw new Exception('Failed to obtain lock '.LOCKF);
     }
 
+    $signature = hash_hmac('sha1', $payload, WEBHOOK_SECRET);
+
+    if (!isset($_SERVER['HTTP_REQUEST_METHOD']) || $_SERVER['HTTP_REQUEST_METHOD'] != 'POST') {
+        throw new Exception('Invalid request method');
+    }
+
+    if (!isset($_SERVER['HTTP_X_GITHUB_EVENT']) || $_SERVER['HTTP_X_GITHUB_EVENT'] != 'push') {
+        throw new Exception('Invalid GitHub event');
+    }
+
+    if (!isset($_SERVER['HTTP_X_HUB_SIGNATURE']) || $_SERVER['HTTP_X_HUB_SIGNATURE'] != 'sha='.$signature) {
+        throw new Exception('Invalid message signature');
+    }
+
     $changes_cache = [];
-    if (file_exists(CHANGES_CACHE)) {
+    if (file_exists(CHANGES_CACHE) && filesize(CHANGES_FILE) > 0) {
         $changes_cache = json_decode(file_get_contents(CHANGES_CACHE), true);
     }
+
+    $json = json_decode($payload, true);
 
     if ($json['repository']['id'] != YANG_REPO_ID) {
         throw new Exception('Bad repository ID: '.$json['repository']['id']);
@@ -66,5 +88,8 @@ try {
     fclose($fd);
 } catch (Exception $e) {
     error_log("Caught exception $e");
+    unlink(LOCKF);
+    http_response_code(403);
+    die('Forbidden');
 }
 unlink(LOCKF);
