@@ -80,7 +80,7 @@ try {
                 continue;
             }
             //$dir = dirname($file);
-            if (array_search($file, $changes_cache) !== false) {
+            if (array_search($file, $changes_cache) === false) {
                 array_push($changes_cache, $file);
             }
         }
