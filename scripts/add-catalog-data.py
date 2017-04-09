@@ -41,7 +41,8 @@ dbf = sys.argv[1]
 
 # Map propietary namespaces to known org strings.
 NS_MAP = {
-    "http://cisco.com/ns/yang/": "cisco"
+    "http://cisco.com/ns/yang/": "cisco",
+    "http://www.huawei.com/netconf": "huawei"
 }
 
 mods = {}
