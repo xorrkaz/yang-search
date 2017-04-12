@@ -46,7 +46,7 @@ try {
 
     $signature = hash_hmac('sha1', $payload, WEBHOOK_SECRET);
 
-    if (!isset($_SERVER['HTTP_REQUEST_METHOD']) || $_SERVER['HTTP_REQUEST_METHOD'] != 'POST') {
+    if (!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] != 'POST') {
         throw new Exception('Invalid request method');
     }
 
