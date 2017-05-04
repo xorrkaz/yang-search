@@ -256,7 +256,11 @@ $dbh = yang_db_conn($alerts);
 if (!isset($_GET['modules'])) {
     array_push($alerts, 'Modules were not specified');
 } else {
-    $modules = $_GET['modules'];
+    if (is_array($_GET['modules'])) {
+        $modules = $_GET['modules'];
+    } else {
+        array_push($modules, $_GET['modules']);
+    }
     if (isset($_GET['orgs'])) {
         $orgs = $_GET['orgs'];
     }
