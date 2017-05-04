@@ -54,12 +54,12 @@ try {
         throw new Exception('Invalid GitHub event');
     }
 
-    if (!isset($_SERVER['HTTP_X_HUB_SIGNATURE']) || $_SERVER['HTTP_X_HUB_SIGNATURE'] != 'sha='.$signature) {
+    if (!isset($_SERVER['HTTP_X_HUB_SIGNATURE']) || $_SERVER['HTTP_X_HUB_SIGNATURE'] != 'sha1='.$signature) {
         throw new Exception('Invalid message signature');
     }
 
     $changes_cache = [];
-    if (file_exists(CHANGES_CACHE) && filesize(CHANGES_FILE) > 0) {
+    if (file_exists(CHANGES_CACHE) && filesize(CHANGES_CACHE) > 0) {
         $changes_cache = json_decode(file_get_contents(CHANGES_CACHE), true);
     }
 
@@ -86,7 +86,7 @@ try {
         }
     }
 
-    $fd = fopen(CHANGE_CACHE, 'w');
+    $fd = fopen(CHANGES_CACHE, 'w');
     fwrite($fd, json_encode($changes_cache));
     fclose($fd);
 } catch (Exception $e) {
