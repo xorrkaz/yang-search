@@ -143,6 +143,9 @@ if (!isset($_GET['module'])) {
             try {
                 $contents = file_get_contents($f);
                 $json = json_decode($contents, true);
+                if (!isset($json['namespace'])) {
+                    $json['namespace'] = '';
+                }
                 if ($json === null) {
                     array_push($alerts, 'Failed to decode JSON data: '.json_error_to_str(json_last_error()));
                 } else {
