@@ -84,15 +84,38 @@ function get_compile_status(&$dbh, $module)
     }
 }
 
-function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false)
+function get_parent(&$dbh, $module)
+{
+    try {
+        $sth = $dbh->prepare('SELECT belongs_to FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
+        $sth->execute(['mod' => $module]);
+        $row = $sth->fetch();
+
+        if ($row['belongs_to'] === null || $row['belongs_to'] == '') {
+            return $module;
+        }
+
+        return $row['belongs_to'];
+    } catch (Exception $e) {
+        return $module;
+    }
+}
+
+function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true)
 {
     global $found_orgs, $found_mats, $found_failed, $SDO_CMAP, $COLOR_FAILED;
+
+    if (!$show_subm && $nested) {
+        $module = get_parent($dbh, $module);
+    }
 
     if (isset($nseen[$module])) {
         return;
     }
+
     $org = get_org($dbh, $module);
-    if (count($orgs) > 0 && !(count($orgs) == 1 && $orgs[0] == '')) {
+
+    if ($nested > 0 && count($orgs) > 0 && !(count($orgs) == 1 && $orgs[0] == '')) {
         if (array_search($org, $orgs) === false) {
             return;
         }
@@ -131,6 +154,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 $nseen[$module] = true;
                 if (isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
+                        if (!$show_subm) {
+                            $mod = get_parent($dbh, $mod);
+                        }
                         if (isset($eseen["mod_$module:mod_$mod"])) {
                             continue;
                         }
@@ -168,7 +194,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor]]);
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm);
                         } else {
                             $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document]]);
@@ -177,6 +203,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 }
                 if (isset($json['impacting_modules'][$module])) {
                     foreach ($json['impacting_modules'][$module] as $mod) {
+                        if (!$show_subm) {
+                            $mod = get_parent($dbh, $mod);
+                        }
                         if (isset($eseen["mod_$mod:mod_$module"])) {
                             continue;
                         }
@@ -247,6 +276,7 @@ $good_mods = [];
 $orgs = [];
 $show_rfcs = true;
 $recurse = 0;
+$show_subm = true;
 $found_bottleneck = false;
 $bottlenecks = [];
 $title = 'Empty Impact Graph';
@@ -270,6 +300,9 @@ if (!isset($_GET['modules'])) {
     if (isset($_GET['rfcs']) && $_GET['rfcs'] == 0) {
         $show_rfcs = false;
     }
+    if (isset($_GET['show_subm']) && $_GET['show_subm'] == 0) {
+        $show_subm = false;
+    }
     foreach ($modules as $module) {
         $nmodule = basename($module);
         if ($nmodule != $module) {
@@ -281,7 +314,7 @@ if (!isset($_GET['modules'])) {
             // XXX: symd does not handle revisions yet.
             $module = explode('@', $module)[0];
             array_push($good_mods, $module);
-            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse);
+            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, $show_subm);
         }
     }
     if (count($good_mods) > 0) {
@@ -628,6 +661,7 @@ foreach ($alerts as $alert) {
                   <tr>
                     <td><b>Recursion Levels:</b>&nbsp;&nbsp;&nbsp;<input type="text" id="recursion" size="2" value="<?=$recurse?>"></td>
                     <td><b>Include Standards?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
+                    <td><b>Include Sub-modules?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_subm" value="1" <?=($show_subm) ? 'checked' : ''?>></td>
                   </tr>
                   <tr>
                     <td><button type="button" class="btn btn-primary" id="graph_commit">Generate</button></td>
