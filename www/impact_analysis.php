@@ -314,7 +314,7 @@ if (!isset($_GET['modules'])) {
             // XXX: symd does not handle revisions yet.
             $module = explode('@', $module)[0];
             array_push($good_mods, $module);
-            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, $show_subm);
+            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm);
         }
     }
     if (count($good_mods) > 0) {
