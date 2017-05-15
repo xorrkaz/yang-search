@@ -530,6 +530,11 @@ function reloadPage() {
   } else {
     uargs.push("rfcs=0");
   }
+  if ($('#show_subm').is(':checked')) {
+    uargs.push("show_subm=1");
+  } else {
+    uargs.push("show_subm=0");
+  }
   url += uargs.join("&");
 
   window.location.href = url;
