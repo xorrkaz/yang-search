@@ -34,7 +34,7 @@ try:
     mod_list = json.load(fd)
     fd.close()
 except Exception as e:
-    print('Failed to read cache file ', e)
+    print('Failed to read cache file {}'.format(e))
     sys.exit(1)
 
 args = ['./build_yindex.sh'] + \
