@@ -30,8 +30,10 @@ import os
 from subprocess import call
 
 try:
-    fd = open(os.environ['YANG_CACHE_FILE'], 'r')
+    fd = open(os.environ['YANG_CACHE_FILE'], 'r+')
     mod_list = json.load(fd)
+    fd.seek(0)
+    fd.truncate()
     fd.close()
 except Exception as e:
     print('Failed to read cache file {}'.format(e))
@@ -42,5 +44,3 @@ args = ['./build_yindex.sh'] + \
 
 os.chdir(os.environ['TOOLS_DIR'])
 call(args)
-
-os.remove(os.environ['YANG_CACHE_FILE'])
