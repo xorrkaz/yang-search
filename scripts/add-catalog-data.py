@@ -43,7 +43,8 @@ dbf = sys.argv[1]
 NS_MAP = {
     "http://cisco.com/ns/yang/": "cisco",
     "http://www.huawei.com/netconf": "huawei",
-    "http://openconfig.net/yang": "openconfig"
+    "http://openconfig.net/yang": "openconfig",
+    "http://tail-f.com/": "tail-f"
 }
 
 mods = {}
