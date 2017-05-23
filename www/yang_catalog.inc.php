@@ -141,6 +141,7 @@ $SEARCH_COLUMNS = [
     'Origin',
     'Organization',
     'Maturity',
+    'Compilation Status',
     'Description',
 ];
 
