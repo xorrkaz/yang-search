@@ -101,12 +101,33 @@ function get_parent(&$dbh, $module)
     }
 }
 
+function is_submod(&$dbh, $module)
+{
+    try {
+        $sth = $dbh->prepare('SELECT belongs_to FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
+        $sth->execute(['mod' => $module]);
+        $row = $sth->fetch();
+
+        if ($row['belongs_to'] === null || $row['belongs_to'] == '') {
+            return false;
+        }
+
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
 function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true)
 {
     global $found_orgs, $found_mats, $found_failed, $SDO_CMAP, $COLOR_FAILED;
 
+    $is_subm = false;
+
     if (!$show_subm && $nested) {
         $module = get_parent($dbh, $module);
+    } elseif ($show_subm) {
+        $is_subm = is_submod($dbh, $module);
     }
 
     if (isset($nseen[$module])) {
@@ -147,15 +168,18 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                     $found_mats[strtoupper($org).':'.$mmat['level']] = true;
                 }
                 $document = get_doc($dbh, $module);
-                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document]]);
+                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm]]);
                 if (!isset($edge_counts[$module])) {
                     $edge_counts[$module] = 0;
                 }
                 $nseen[$module] = true;
                 if (isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
+                        $is_msubm = false;
                         if (!$show_subm) {
                             $mod = get_parent($dbh, $mod);
+                        } else {
+                            $is_msubm = is_submod($dbh, $mod);
                         }
                         if (isset($eseen["mod_$module:mod_$mod"])) {
                             continue;
@@ -197,14 +221,17 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm);
                         } else {
                             $document = get_doc($dbh, $mod);
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document]]);
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
                         }
                     }
                 }
                 if (isset($json['impacting_modules'][$module])) {
                     foreach ($json['impacting_modules'][$module] as $mod) {
+                        $is_msubm = false;
                         if (!$show_subm) {
                             $mod = get_parent($dbh, $mod);
+                        } else {
+                            $is_msubm = is_submod($dbh, $mod);
                         }
                         if (isset($eseen["mod_$mod:mod_$module"])) {
                             continue;
@@ -252,7 +279,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                         } elseif (!$nested) {
                             $document = get_doc($dbh, $mod);
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document]]);
+                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
                         }
                     }
                 }
@@ -481,7 +508,16 @@ $(function() {
       this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
       <?php
 
-      }?>
+      }
+      foreach ($nodes as $node) {
+          if ($node['data']['sub_mod'] === true) {
+              ?>
+      this.elements('node[name = "<?=$node['data']['name']?>"]').data('name', 'sub-module: ' + this.elements('node[name = "<?=$node['data']['name']?>"]').data('name')).css({'font-size': '8px'});
+      <?php
+
+          }
+      }
+      ?>
       window.cy.nodes().qtip({
         content: function() { return 'Document ' + this.data('document') },
         position: {
