@@ -547,17 +547,17 @@ function reloadPage() {
   var url = "<?=$_SERVER['PHP_SELF']?>?";
   var uargs = [];
   $.each($('#modtags').val().split(","), function(k, v) {
-    if (v != '') {
+    if (v !== '') {
       uargs.push("modules[]=" + v);
     }
   });
   $.each($('#orgtags').val().split(","), function(k, v) {
-    if (v != '') {
+    if (v !== '') {
       uargs.push("orgs[]=" + v);
     }
   });
   var recursion = $('#recursion').val();
-  if (recursion == '') {
+  if (recursion === '') {
     recusrion = 0;
   }
   uargs.push("recurse=" + recursion);
