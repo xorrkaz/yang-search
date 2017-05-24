@@ -225,6 +225,7 @@ if (isset($_POST['search_string'])) {
                 $mod_row = $mod_sth->fetch();
                 $organization = $mod_row['organization'];
                 $maturity = $mod_row['maturity'];
+                $compile_status = $mod_row['compile_status'];
             } catch (Exception $e) {
             }
 
@@ -254,7 +255,7 @@ if (isset($_POST['search_string'])) {
             <td><?=$origin?></td>
             <td><?=htmlentities($organization)?></td>
             <td><?=$maturity?></td>
-            <td><?=($row['compile_status'] != '' ? $row['compile_status'] : 'N/A')?></td>
+            <td><?=($compile_status != '' ? $compile_status : 'N/A')?></td>
             <td><?=htmlentities($row['description'])?></td>
           </tr>
 <?php
