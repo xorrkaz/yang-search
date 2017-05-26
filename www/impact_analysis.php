@@ -130,7 +130,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
         $is_subm = is_submod($dbh, $module);
     }
 
-    if (isset($nseen[$module])) {
+    if ($nested && isset($nseen[$module])) {
         return;
     }
 
@@ -215,7 +215,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
                             ++$edge_counts[$module];
                         }
-                        array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor]]);
+                        if ("mod_$module" != "mod_$mod") {
+                            array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor]]);
+                        }
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
                             build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm);
@@ -272,7 +274,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             }
                         }
                         if (!$nested) {
-                            array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor]]);
+                            if ("mod_$mod" != "mod_$module") {
+                                array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor]]);
+                            }
                         }
                         if ($nested && ($recurse > 0 || $recurse < 0)) {
                             $r = $recurse - 1;
