@@ -315,7 +315,7 @@ $title = 'Empty Impact Graph';
 $dbh = yang_db_conn($alerts);
 
 if (!isset($_GET['modules'])) {
-    array_push($alerts, 'Modules were not specified');
+    //array_push($alerts, 'Modules were not specified');
 } else {
     if (is_array($_GET['modules'])) {
         $modules = $_GET['modules'];
@@ -614,6 +614,20 @@ $(document).on('click', '.panel-heading span.clickable', function(e){
     <div class="container" role="main">
     <div style="margin-top:20px;" id="alert_container">
 <?php
+
+if (!isset($_GET['modules'])) {
+    ?>
+  <div class="row">
+    <div class="col-sm-8">
+      <div class="alert alert-info alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        Please specify at least one module to generate the impact analysis.
+      </div>
+    </div>
+  </div>
+  <?php
+
+}
 
 foreach ($alerts as $alert) {
     ?>
