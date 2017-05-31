@@ -91,6 +91,9 @@ else
         if [ -d ${m} ]; then
             mods=$(find ${m} -type f -name "*.yang")
             modules="${modules} ${mods}"
+            YANGREPO=${YANGREPO}:${m}
+            DRAFTS_DIR="${DRAFTS_DIR} ${m}"
+            RFCS_DIR="${RFCS_DIR} ${m}"
         else
             modules="${modules} ${m}"
         fi
