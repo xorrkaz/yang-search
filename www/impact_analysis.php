@@ -426,6 +426,8 @@ if (!isset($_GET['modules'])) {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     background-clip: padding-box;
     cursor: pointer;
+    max-height: 150px;
+    y-overflow: auto;
 }
 
 .tt-suggestion {
