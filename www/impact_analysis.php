@@ -735,10 +735,10 @@ foreach ($alerts as $alert) {
     </div>
     </div>
     <script>
-    var orgCompletions = new Bloodhound({
+    /*var orgCompletions = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.whitespace,
       queryTokenizer: Bloodhound.tokenizers.whitespace,
-      local: <?php echo json_encode(array_values($SDOS)); ?>,
+      local: <?php //echo json_encode(array_values($SDOS)); ?>,
       remote: {
         url: 'completions.php?type=org&pattern=%QUERY',
         wildcard: '%QUERY'
@@ -755,11 +755,12 @@ foreach ($alerts as $alert) {
         wildcard: '%QUERY'
       }
     });
-    moduleCompletions.initialize();
+    moduleCompletions.initialize();*/
 
     $('#orgtags').tagsinput({
       typeaheadjs: {
         name: 'org_completions',
+        limit: 100,
         source: function (query, syncResults, asyncResults) {
           $.get('completions.php?type=org&pattern=' + query, function (data) {
             asyncResults(data);
@@ -771,6 +772,7 @@ foreach ($alerts as $alert) {
     $('#modtags').tagsinput({
       typeaheadjs: {
         name: 'mod_completions',
+        limit: 100,
         source: function (query, syncResults, asyncResults) {
           $.get('completions.php?type=module&pattern=' + query, function (data) {
             asyncResults(data);
