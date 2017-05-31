@@ -427,7 +427,7 @@ if (!isset($_GET['modules'])) {
     background-clip: padding-box;
     cursor: pointer;
     max-height: 150px;
-    y-overflow: auto;
+    overflow-y: auto;
 }
 
 .tt-suggestion {
