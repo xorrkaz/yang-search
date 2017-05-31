@@ -760,14 +760,22 @@ foreach ($alerts as $alert) {
     $('#orgtags').tagsinput({
       typeaheadjs: {
         name: 'org_completions',
-        source: orgCompletions.ttAdapter()
+        source: function (query, syncResults, asyncResults) {
+          $.get('completions.php?type=org&pattern=' + query, function (data) {
+            asyncResults(data);
+          });
+        }
       }
     });
 
     $('#modtags').tagsinput({
       typeaheadjs: {
         name: 'mod_completions',
-        source: moduleCompletions.ttAdapter()
+        source: function (query, syncResults, asyncResults) {
+          $.get('completions.php?type=module&pattern=' + query, function (data) {
+            asyncResults(data);
+          });
+        }
       }
     });
     </script>
