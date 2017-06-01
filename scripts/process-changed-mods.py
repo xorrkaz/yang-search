@@ -33,6 +33,13 @@ try:
     if os.path.getsize(os.environ['YANG_CACHE_FILE']) > 0:
         fd = open(os.environ['YANG_CACHE_FILE'], 'r+')
         mod_list = json.load(fd)
+
+        # Backup the contents just in case.
+        bfd = open(os.environ['YANG_CACHE_FILE'] + '.bak', 'w')
+        json.dump(mod_list, bfd)
+        bfd.close()
+
+        # Zero out the main file.
         fd.seek(0)
         fd.truncate()
         fd.close()
