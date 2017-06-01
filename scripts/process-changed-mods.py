@@ -30,11 +30,12 @@ import os
 from subprocess import call
 
 try:
-    fd = open(os.environ['YANG_CACHE_FILE'], 'r+')
-    mod_list = json.load(fd)
-    fd.seek(0)
-    fd.truncate()
-    fd.close()
+    if os.path.getsize(os.environ['YANG_CACHE_FILE']) > 0:
+        fd = open(os.environ['YANG_CACHE_FILE'], 'r+')
+        mod_list = json.load(fd)
+        fd.seek(0)
+        fd.truncate()
+        fd.close()
 except Exception as e:
     print('Failed to read cache file {}'.format(e))
     sys.exit(1)
