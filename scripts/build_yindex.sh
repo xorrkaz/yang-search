@@ -73,7 +73,7 @@ fi
 
 if [ ${update_yang_repo} = 1 ]; then
     cd ${YANGDIR}
-    git pull >/dev/null 2>&1
+    git pull --recurse-submodules=yes >/dev/null 2>&1
     if [ $? != 0 ]; then
         echo "WARNING: Failed to update YANG repo!"
     fi
