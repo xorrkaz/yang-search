@@ -69,7 +69,7 @@ try {
         throw new Exception('Bad repository ID: '.$json['repository']['id']);
     }
 
-    if ($json['ref'] != 'refs/head/master') {
+    if ($json['ref'] != 'refs/heads/master') {
         error_log("Not processing commit on ref {$json['ref']}");
         exit(0);
     }
