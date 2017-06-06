@@ -29,6 +29,8 @@ import sys
 import os
 from subprocess import call
 
+mod_list = []
+
 try:
     if os.path.getsize(os.environ['YANG_CACHE_FILE']) > 0:
         fd = open(os.environ['YANG_CACHE_FILE'], 'r+')
