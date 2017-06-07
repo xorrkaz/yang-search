@@ -255,6 +255,17 @@ if (isset($_POST['search_string'])) {
             <td><?=$origin?></td>
             <td><?=htmlentities($organization)?></td>
             <td><?=$maturity?></td>
+            <?php
+            if (is_file(YDEPS_DIR.'/'.$row['module'].'.json')) {
+                try {
+                    $deps = json_decode(file_get_contents(YDEPS_DIR.'/'.$row['module'].'.json'));
+                    echo "<td>" . (count($deps['impacted_modules'][$row['module']])) . "</td>\n";
+                } catch (Exception $e) {
+                    echo "<td>N/A</td>\n";
+                }
+            } else {
+                echo "<td>N/A</td>\n";
+            } ?>
             <td><?=($compile_status != '' ? $compile_status : 'N/A')?></td>
             <td><?=htmlentities($row['description'])?></td>
           </tr>
