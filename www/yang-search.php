@@ -187,7 +187,11 @@ if (isset($_POST['search_string'])) {
     }
 
 		$(document).ready(function() {
-			dt = $('#datatable').DataTable();
+			dt = $('#datatable').DataTable({
+        "columnDefs": [
+          { "type": "num", "targets": 8 }
+        ]
+      });
 
       var newHtml = '<select id="column_filter" name="column_filter" onChange="do_search(this);"><option value="-1">Entire Table</option>';
       $.each(tableColumns, function(key, val) {
@@ -261,10 +265,10 @@ if (isset($_POST['search_string'])) {
                     $deps = json_decode(file_get_contents(YDEPS_DIR.'/'.$row['module'].'.json'), true);
                     echo "<td>" . (count($deps['impacted_modules'][$row['module']])) . "</td>\n";
                 } catch (Exception $e) {
-                    echo "<td>N/A</td>\n";
+                    echo "<td>0</td>\n";
                 }
             } else {
-                echo "<td>N/A</td>\n";
+                echo "<td>0</td>\n";
             } ?>
             <td><?=($compile_status != '' ? $compile_status : 'N/A')?></td>
             <td><?=htmlentities($row['description'])?></td>
