@@ -124,7 +124,7 @@ if ($dbh !== null && $search_string !== null) {
 print_header($title, [DATATABLES_BOOTSTRAP_CSS], [DATATABLES_JS, DATATABLES_BOOTSTRAP_JS]);
 ?>
   <body>
-    <div class="container" role="main">
+    <div class="container" role="main" style="width: 100%;">
     <div style="margin-top:20px;" id="alert_container">
 <?php
 
@@ -258,7 +258,7 @@ if (isset($_POST['search_string'])) {
             <?php
             if (is_file(YDEPS_DIR.'/'.$row['module'].'.json')) {
                 try {
-                    $deps = json_decode(file_get_contents(YDEPS_DIR.'/'.$row['module'].'.json'));
+                    $deps = json_decode(file_get_contents(YDEPS_DIR.'/'.$row['module'].'.json'), true);
                     echo "<td>" . (count($deps['impacted_modules'][$row['module']])) . "</td>\n";
                 } catch (Exception $e) {
                     echo "<td>N/A</td>\n";
