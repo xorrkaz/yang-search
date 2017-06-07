@@ -27,9 +27,20 @@
 import json
 import sys
 import os
+import argparse
 from subprocess import call
 
 mod_list = []
+find_args = []
+
+parser = argparse.ArgumentParser(
+    description="Process changed modules in a git repo")
+parser.add_argument('--time', type=str,
+                    help='Modified time argument to find(1)', required=False)
+args = parser.parse_args()
+
+if args.time:
+    find_args = ['-f', args.time]
 
 try:
     if os.path.getsize(os.environ['YANG_CACHE_FILE']) > 0:
@@ -49,7 +60,7 @@ except Exception as e:
     print('Failed to read cache file {}'.format(e))
     sys.exit(1)
 
-args = ['./build_yindex.sh'] + \
+args = ['./build_yindex.sh'] + find_args \
     [os.environ['YANGDIR'] + '/' + m for m in mod_list]
 
 os.chdir(os.environ['TOOLS_DIR'])
