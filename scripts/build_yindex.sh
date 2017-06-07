@@ -73,7 +73,7 @@ fi
 
 if [ ${update_yang_repo} = 1 ]; then
     cd ${YANGDIR}
-    git pull --recurse-submodules=yes >/dev/null 2>&1
+    git pull -q --recurse-submodules=yes >/dev/null 2>&1
     if [ $? != 0 ]; then
         echo "WARNING: Failed to update YANG repo!"
     fi
@@ -82,20 +82,39 @@ fi
 modules=""
 update=0
 first_run=1
+find_args=""
+
+while getopts ":f:" opt; do
+  case $opt in
+    f)
+      if echo -- $OPTARG | grep -qE -- 'm$'; then
+          find_args="-mmin $(echo $OPTARG | sed -E -e 's|m$||')"
+      else
+          find_args="-mtime $OPTARG"
+      fi
+      shift 2
+      ;;
+    \?)
+      shift
+      ;;
+  esac
+done
 
 if [ $# = 0 ]; then
-    modules=$(find ${TYANGDIR} -type f -name "*.yang")
+    modules=$(find ${TYANGDIR} -type f -name "*.yang" ${find_args})
 else
     cp -f ${DBF} ${TDBF}
     for m in $*; do
         if [ -d ${m} ]; then
-            mods=$(find ${m} -type f -name "*.yang")
+            mods=$(find ${m} -type f -name "*.yang" ${find_args})
             modules="${modules} ${mods}"
             YANGREPO=${YANGREPO}:${m}
             DRAFTS_DIR="${DRAFTS_DIR} ${m}"
             RFCS_DIR="${RFCS_DIR} ${m}"
         else
-            modules="${modules} ${m}"
+            if echo ${m} | grep -qE '\.yang$'; then
+                modules="${modules} ${m}"
+            fi
         fi
     done
     update=1

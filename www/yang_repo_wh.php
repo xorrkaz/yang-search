@@ -81,9 +81,6 @@ try {
     foreach ($json['commits'] as $commit) {
         $files = array_merge($commit['added'], $commit['modified']);
         foreach ($files as $file) {
-            if (!preg_match('/\.yang$/', $file)) {
-                continue;
-            }
             //$dir = dirname($file);
             if (array_search($file, $changes_cache) === false) {
                 array_push($changes_cache, $file);
