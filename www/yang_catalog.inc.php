@@ -141,6 +141,7 @@ $SEARCH_COLUMNS = [
     'Origin',
     'Organization',
     'Maturity',
+    'Imported By # Modules',
     'Compilation Status',
     'Description',
 ];
