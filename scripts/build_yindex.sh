@@ -185,17 +185,17 @@ for m in ${modules}; do
     fi
 done
 
-${TOOLS_DIR}/add-catalog-data.py ${TDBF}
-if [ $? != 0 ]; then
-    echo "WARNING: Failed to add YANG catalog data!"
-fi
-
 for cf in ${YANG_CATALOG_FILES}; do
   ${TOOLS_DIR}/process-catalog-file.py ${cf} ${TDBF} ${YDEP_DIR}
   if [ $? != 0 ]; then
     echo "WARNING: Failed to process YANG catalog file for ${cf}!"
   fi
 done
+
+${TOOLS_DIR}/add-catalog-data.py ${TDBF}
+if [ $? != 0 ]; then
+    echo "WARNING: Failed to add YANG catalog data!"
+fi
 
 if [ -n "${YANG_EXPLORER_DIR}" ]; then
     cd ${YANG_EXPLORER_DIR}
