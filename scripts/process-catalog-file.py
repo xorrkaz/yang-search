@@ -68,6 +68,13 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
         revision = module['revision']
         prefix = module['prefix']
         namespace = module['namespace']
+
+        # Normalize organizations
+        moname = oname
+        m = re.search(r"urn:([^:]+):", params[ns_idx])
+        if m:
+            moname = m.group(1)
+
         belongs_to = ''
         if 'module-hierarchy' in module and 'module-parent' in module['module-hierarchy']:
             belongs_to = module['module-hierarchy']['module-parent']
@@ -116,7 +123,7 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
         sql = 'INSERT INTO modules (module, revision, belongs_to, namespace, prefix, organization, maturity, document, file_path) VALUES (:mod, :rev, :bt, :ns, :prefix, :org, :mat, :doc, :fp)'
         try:
             cur.execute(sql, {'mod': mname, 'rev': revision, 'bt': belongs_to, 'ns': namespace,
-                              'prefix': prefix, 'org': oname, 'mat': maturity, 'doc': document, 'fp': file_path})
+                              'prefix': prefix, 'org': moname, 'mat': maturity, 'doc': document, 'fp': file_path})
         except sqlite3.Error as e:
             print('Failed to insert new module data for {}: {}'.format(
                 mname, e.args[0]))
