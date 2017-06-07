@@ -60,6 +60,9 @@ except Exception as e:
     print('Failed to read cache file {}'.format(e))
     sys.exit(1)
 
+if len(mod_list) == 0:
+    sys.exit(0)
+
 args = ['./build_yindex.sh'] + find_args + \
     [os.environ['YANGDIR'] + '/' + m for m in mod_list]
 
