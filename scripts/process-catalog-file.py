@@ -71,7 +71,7 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
 
         # Normalize organizations
         moname = oname
-        m = re.search(r"urn:([^:]+):", params[ns_idx])
+        m = re.search(r"urn:([^:]+):", namespace)
         if m:
             moname = m.group(1)
 
