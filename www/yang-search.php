@@ -410,7 +410,7 @@ function verify() {
                       <td>
                         <div class="checkbox">
                           <label for="ver_<?=$ver?>">
-                            <input id="ver_<?=$ver?>" type="checkbox" name="yangVersions[]" class="yang-schema-select" style="margin-top: 0;" value="<?=$ver?>" checked> <?=$ver?>
+                            <input id="ver_<?=$ver?>" type="checkbox" name="yangVersions[]" style="margin-top: 0;" value="<?=$ver?>" checked> <?=$ver?>
                           </label>
                         </div>
                       </td>
