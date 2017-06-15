@@ -45,7 +45,7 @@ $schema_types = [
     ['Typedef' => 'typedef', 'Grouping' => 'grouping', 'Feature' => 'feature'],
     ['Identity' => 'identity', 'Extension' => 'extension', 'RPC' => 'rpc'],
     ['Container' => 'container', 'List' => 'list', 'Leaf-List' => 'leaf-list'],
-    ['Leaf' => 'leaf', 'Notification' => 'notification', '__EMPTY__1' => '__EMPTY__'],
+    ['Leaf' => 'leaf', 'Notification' => 'notification', 'Action' => 'action'],
 ];
 
 $alerts = [];
