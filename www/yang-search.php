@@ -114,6 +114,15 @@ if ($dbh !== null && $search_string !== null) {
             $sql .= implode(' OR ', $queries);
             $sql .= ')';
         }
+        if (isset($_POST['yangVersions']) && count($_POST['yangVersions']) > 0) {
+            $queries = [];
+            $sql .= ' AND (';
+            foreach ($_POST['yangVersions'] as $yv) {
+                array_push($queries, "mo.yang_version = '$vy'");
+            }
+            $sql .= implode(' OR ', $queries);
+            $sql .= ')';
+        }
 
         $sql .= ' GROUP BY yi.module, yi.revision';
 
