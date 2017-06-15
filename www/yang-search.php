@@ -48,6 +48,10 @@ $schema_types = [
     ['Leaf' => 'leaf', 'Notification' => 'notification', 'Action' => 'action'],
 ];
 
+$yang_versions = [
+    ['1.0', '1.1'],
+];
+
 $alerts = [];
 $sth = null;
 $title = 'YANG DB Search';
@@ -376,6 +380,39 @@ function verify() {
                   </div>
                 </td>
               </tr>
+            </tbody>
+          </table>
+          <label>YANG Versions</label>
+          <table class="table table-bordered">
+            <tbody>
+              <?php
+              foreach ($yang_versions as $vrow) {
+                  ?>
+                <tr>
+                  <?php
+                  foreach ($vrow as $ver) {
+                      if ($ver == '__EMPTY__') {
+                          ?>
+                      <td>&nbsp;</td>
+                      <?php
+
+                      } else {
+                          ?>
+                      <td>
+                        <div class="checkbox">
+                          <label for="ver_<?=$ver?>">
+                            <input id="ver_<?=$ver?>" type="checkbox" name="yangVersions[]" class="yang-schema-select" style="margin-top: 0;" value="<?=$ver?>" checked> <?=$ver?>
+                          </label>
+                        </div>
+                      </td>
+                      <?php
+
+                      }
+                  } ?>
+                </tr>
+                <?php
+
+              } ?>
             </tbody>
           </table>
           <label>Schema Types</label>
