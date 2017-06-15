@@ -118,7 +118,7 @@ if ($dbh !== null && $search_string !== null) {
             $queries = [];
             $sql .= ' AND (';
             foreach ($_POST['yangVersions'] as $yv) {
-                array_push($queries, "mo.yang_version = '$vy'");
+                array_push($queries, "mo.yang_version = '$yv'");
             }
             $sql .= implode(' OR ', $queries);
             $sql .= ')';
