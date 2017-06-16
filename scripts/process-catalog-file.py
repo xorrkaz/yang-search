@@ -80,14 +80,16 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
             belongs_to = module['module-hierarchy']['module-parent']
         if 'dependencies' in module and 'required-module' in module['dependencies']:
             try:
-                fd = open('{}/{}.json'.format(YDEP_DIR, mname), 'w')
-                ydep = {}
-                ydep['impacting_modules'] = {}
-                ydep['impacting_modules'][mname] = module[
-                    'dependencies']['required-module']
-                ydep['impacted_module'] = {}
-                json.dump(ydep, fd, indent=4)
-                fd.close()
+                dep_file = '{}/{}.json'.format(YDEP_DIR, mname)
+                if not os.path.exists(dep_file):
+                    fd = open(dep_file, 'w')
+                    ydep = {}
+                    ydep['impacting_modules'] = {}
+                    ydep['impacting_modules'][mname] = module[
+                        'dependencies']['required-module']
+                    ydep['impacted_module'] = {}
+                    json.dump(ydep, fd, indent=4)
+                    fd.close()
             except Exception as e:
                 print("Failed to dump dependencies for {}: {}".format(
                     mname, e.args[0]))
@@ -112,22 +114,24 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
         if 'maturity' in module:
             maturity = module['maturity']
 
-        sql = 'DELETE FROM modules WHERE module=:mod and revision=:rev'
+        sql = 'UPDATE modules SET maturity = :mat, document = :doc WHERE module = :mod AND revision = :rev'
         try:
-            cur.execute(sql, {'mod': mname, 'rev': revision})
+            cur.execute(sql, {'mod': mname, 'rev': revision,
+                              'mat': maturity, 'doc': document})
         except sqlite3.Error as e:
-            print('Failed to remove old module entry for {} (rev: {}): {}'.format(
-                mname, revision, e.args[0]))
-            continue
-
-        sql = 'INSERT INTO modules (module, revision, belongs_to, namespace, prefix, organization, maturity, document, file_path) VALUES (:mod, :rev, :bt, :ns, :prefix, :org, :mat, :doc, :fp)'
-        try:
-            cur.execute(sql, {'mod': mname, 'rev': revision, 'bt': belongs_to, 'ns': namespace,
-                              'prefix': prefix, 'org': moname, 'mat': maturity, 'doc': document, 'fp': file_path})
-        except sqlite3.Error as e:
-            print('Failed to insert new module data for {}: {}'.format(
+            print('Failed to update module data for {}: {}'.format(
                 mname, e.args[0]))
             continue
+
+        if cur.rowcount == 0:
+            sql = 'INSERT INTO modules (module, revision, belongs_to, namespace, prefix, organization, maturity, document, file_path) VALUES (:mod, :rev, :bt, :ns, :prefix, :org, :mat, :doc, :fp)'
+            try:
+                cur.execute(sql, {'mod': mname, 'rev': revision, 'bt': belongs_to, 'ns': namespace,
+                                  'prefix': prefix, 'org': moname, 'mat': maturity, 'doc': document, 'fp': file_path})
+            except sqlite3.Error as e:
+                print('Failed to insert new module data for {}: {}'.format(
+                    mname, e.args[0]))
+                continue
 
 con.commit()
 con.close()
