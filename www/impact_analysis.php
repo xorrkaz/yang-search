@@ -30,6 +30,10 @@ $found_orgs = [];
 $found_mats = [];
 $found_failed = false;
 
+$DIR_HELP_TEXT = 'Both: Show a graph that consists of both dependencies (modules imported by the target module(s)) and dependents (modules that import the target module(s))\n' .
+                 'Dependencies Only: Only show those modules that are imported by the target module(s)\n' .
+                 'Dependents Only: Only show those modules that depend on the target module(s)';
+
 function get_org(&$dbh, $module)
 {
     try {
@@ -118,7 +122,7 @@ function is_submod(&$dbh, $module)
     }
 }
 
-function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true)
+function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true, $show_dir = 'both')
 {
     global $found_orgs, $found_mats, $found_failed, $SDO_CMAP, $COLOR_FAILED;
 
@@ -173,7 +177,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                     $edge_counts[$module] = 0;
                 }
                 $nseen[$module] = true;
-                if (isset($json['impacted_modules'][$module])) {
+                if (($show_dir == 'both' || $show_dir == 'dependencies') && isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
                         $is_msubm = false;
                         if (!$show_subm) {
@@ -220,14 +224,14 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm);
+                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm, $show_dir);
                         } else {
                             $document = get_doc($dbh, $mod);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
                         }
                     }
                 }
-                if (isset($json['impacting_modules'][$module])) {
+                if (($show_dir == 'both' || $show_dir == 'dependents') && isset($json['impacting_modules'][$module])) {
                     foreach ($json['impacting_modules'][$module] as $mod) {
                         $is_msubm = false;
                         if (!$show_subm) {
@@ -308,6 +312,7 @@ $orgs = [];
 $show_rfcs = true;
 $recurse = 0;
 $show_subm = true;
+$show_dir = 'both';
 $found_bottleneck = false;
 $bottlenecks = [];
 $title = 'Empty Impact Graph';
@@ -334,6 +339,12 @@ if (!isset($_GET['modules'])) {
     if (isset($_GET['show_subm']) && $_GET['show_subm'] == 0) {
         $show_subm = false;
     }
+    if (isset($_GET['show_dir'])) {
+        $show_dir = $_GET['show_dir'];
+        if ($show_dir != 'both' && $show_dir != 'dependencies' && $show_dir != 'dependents') {
+            $show_dir = 'both';
+        }
+    }
     foreach ($modules as $module) {
         $nmodule = basename($module);
         if ($nmodule != $module) {
@@ -345,7 +356,7 @@ if (!isset($_GET['modules'])) {
             // XXX: symd does not handle revisions yet.
             $module = explode('@', $module)[0];
             array_push($good_mods, $module);
-            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm);
+            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
         }
     }
     if (count($good_mods) > 0) {
@@ -446,6 +457,10 @@ if (!isset($_GET['modules'])) {
   text-decoration: none;
   outline: 0;
   background-color: #428bca;
+}
+
+table.controls {
+  border-collapse: separate; border-spacing: 5px;
 }
     </style>
 
@@ -594,6 +609,8 @@ $(document).ready(function() {
     var win = window.open("");
     win.document.write(img.outerHTML);
   });
+
+  $('[data-toggle="tooltip"]').tooltip();
 });
 
 $(document).on('click', '.panel-heading span.clickable', function(e){
@@ -657,7 +674,7 @@ foreach ($alerts as $alert) {
       <div class="panel-body">
         <fieldset>
           <label>Legend</label>
-          <table border="0">
+          <table border="0" class="controls">
             <tbody>
               <?php
               if (isset($found_mats[':UNKNOWN'])) {
@@ -709,7 +726,7 @@ foreach ($alerts as $alert) {
         <div>
           <div>
             <form>
-              <table border="0">
+              <table border="0" class="controls">
                 <tbody>
                   <tr>
                     <td><b>Modules:</b></td>
@@ -723,6 +740,11 @@ foreach ($alerts as $alert) {
                     <td><b>Recursion Levels:</b>&nbsp;&nbsp;&nbsp;<input type="text" id="recursion" size="2" value="<?=$recurse?>"></td>
                     <td><b>Include Standards?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
                     <td><b>Include Sub-modules?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_subm" value="1" <?=($show_subm) ? 'checked' : ''?>></td>
+                    <td><b>Show Graph Direction:</b>&nbsp;&nbsp;&nbsp;<select id="show_dir" data-toggle="tooltip" title="<?=$DIR_HELP_TEXT?>">
+                      <option value="both" <?=($show_dir == 'both') ? 'selected' : ''?>>Both</option>
+                      <option value="dependencies" <?=($show_dir == 'dependencies') ? 'selected' : ''?>>Dependencies Only</option>
+                      <option value="dependents" <?=($show_dir == 'dependents') ? 'selected' : ''?>>Dependents Only</option>
+                    </select></td>
                   </tr>
                   <tr>
                     <td><button type="button" class="btn btn-primary" id="graph_commit">Generate</button></td>
@@ -740,7 +762,7 @@ foreach ($alerts as $alert) {
     /*var orgCompletions = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.whitespace,
       queryTokenizer: Bloodhound.tokenizers.whitespace,
-      local: <?php //echo json_encode(array_values($SDOS)); ?>,
+      local: <?php //echo json_encode(array_values($SDOS));?>,
       remote: {
         url: 'completions.php?type=org&pattern=%QUERY',
         wildcard: '%QUERY'
