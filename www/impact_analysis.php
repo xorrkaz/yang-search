@@ -30,9 +30,9 @@ $found_orgs = [];
 $found_mats = [];
 $found_failed = false;
 
-$DIR_HELP_TEXT = 'Both: Show a graph that consists of both dependencies (modules imported by the target module(s)) and dependents (modules that import the target module(s))\n' .
-                 'Dependencies Only: Only show those modules that are imported by the target module(s)\n' .
-                 'Dependents Only: Only show those modules that depend on the target module(s)';
+$DIR_HELP_TEXT = "<span style=\"text-align: left\"><b>Both:</b> Show a graph that consists of both dependencies (modules imported by the target module(s)) and dependents (modules that import the target module(s))\n" .
+                 "<b>Dependencies Only:</b> Only show those modules that are imported by the target module(s)\n" .
+                 '<b>Dependents Only:</b> Only show those modules that depend on the target module(s)</span>';
 
 function get_org(&$dbh, $module)
 {
@@ -592,6 +592,8 @@ function reloadPage() {
   } else {
     uargs.push("show_subm=0");
   }
+  uargs.push("show_dir=" + $('#show_dir').val());
+  
   url += uargs.join("&");
 
   window.location.href = url;
@@ -740,7 +742,7 @@ foreach ($alerts as $alert) {
                     <td><b>Recursion Levels:</b>&nbsp;&nbsp;&nbsp;<input type="text" id="recursion" size="2" value="<?=$recurse?>"></td>
                     <td><b>Include Standards?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
                     <td><b>Include Sub-modules?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_subm" value="1" <?=($show_subm) ? 'checked' : ''?>></td>
-                    <td><b>Show Graph Direction:</b>&nbsp;&nbsp;&nbsp;<select id="show_dir" data-toggle="tooltip" title="<?=$DIR_HELP_TEXT?>">
+                    <td><b>Show Graph Direction:</b>&nbsp;&nbsp;&nbsp;<select id="show_dir" data-html="true" data-toggle="tooltip" title="<?=$DIR_HELP_TEXT?>">
                       <option value="both" <?=($show_dir == 'both') ? 'selected' : ''?>>Both</option>
                       <option value="dependencies" <?=($show_dir == 'dependencies') ? 'selected' : ''?>>Dependencies Only</option>
                       <option value="dependents" <?=($show_dir == 'dependents') ? 'selected' : ''?>>Dependents Only</option>
