@@ -30,8 +30,8 @@ $found_orgs = [];
 $found_mats = [];
 $found_failed = false;
 
-$DIR_HELP_TEXT = "<b>Both:</b> Show a graph that consists of both dependencies (modules imported by the target module(s)) and dependents (modules that import the target module(s))\n" .
-                 "<b>Dependencies Only:</b> Only show those modules that are imported by the target module(s)\n" .
+$DIR_HELP_TEXT = "<b>Both:</b> Show a graph that consists of both dependencies (modules imported by the target module(s)) and dependents (modules that import the target module(s))<br/>&nbsp;<br/>\n" .
+                 "<b>Dependencies Only:</b> Only show those modules that are imported by the target module(s)<br/>&nbsp;<br/>\n" .
                  '<b>Dependents Only:</b> Only show those modules that depend on the target module(s)';
 
 function get_org(&$dbh, $module)
@@ -461,6 +461,10 @@ if (!isset($_GET['modules'])) {
 
 table.controls {
   border-collapse: separate; border-spacing: 5px;
+}
+
+.tooltip-inner {
+  text-align: left;
 }
     </style>
 
