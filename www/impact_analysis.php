@@ -30,9 +30,9 @@ $found_orgs = [];
 $found_mats = [];
 $found_failed = false;
 
-$DIR_HELP_TEXT = "<span style=\"text-align: left\"><b>Both:</b> Show a graph that consists of both dependencies (modules imported by the target module(s)) and dependents (modules that import the target module(s))\n" .
+$DIR_HELP_TEXT = "<b>Both:</b> Show a graph that consists of both dependencies (modules imported by the target module(s)) and dependents (modules that import the target module(s))\n" .
                  "<b>Dependencies Only:</b> Only show those modules that are imported by the target module(s)\n" .
-                 '<b>Dependents Only:</b> Only show those modules that depend on the target module(s)</span>';
+                 '<b>Dependents Only:</b> Only show those modules that depend on the target module(s)';
 
 function get_org(&$dbh, $module)
 {
@@ -177,7 +177,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                     $edge_counts[$module] = 0;
                 }
                 $nseen[$module] = true;
-                if (($show_dir == 'both' || $show_dir == 'dependencies') && isset($json['impacted_modules'][$module])) {
+                if (($show_dir == 'both' || $show_dir == 'dependents') && isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
                         $is_msubm = false;
                         if (!$show_subm) {
@@ -231,7 +231,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
                     }
                 }
-                if (($show_dir == 'both' || $show_dir == 'dependents') && isset($json['impacting_modules'][$module])) {
+                if (($show_dir == 'both' || $show_dir == 'dependencies') && isset($json['impacting_modules'][$module])) {
                     foreach ($json['impacting_modules'][$module] as $mod) {
                         $is_msubm = false;
                         if (!$show_subm) {
@@ -593,7 +593,7 @@ function reloadPage() {
     uargs.push("show_subm=0");
   }
   uargs.push("show_dir=" + $('#show_dir').val());
-  
+
   url += uargs.join("&");
 
   window.location.href = url;
