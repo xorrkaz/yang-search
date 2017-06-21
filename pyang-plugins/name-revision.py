@@ -25,11 +25,11 @@ class NameRevisionPlugin(plugin.PyangPlugin):
 def emit_name(ctx, modules, fd):
     for module in modules:
         bstr = ""
-        rstr = "NA"
+        rstr = ""
         b = module.search_one('belongs-to')
         r = module.search_one('revision')
         if b is not None:
             bstr = " (belongs-to %s)" % b.arg
         if r is not None:
-            rstr = r.arg
-        fd.write("%s@%s%s\n" % (module.arg, rstr, bstr))
+            rstr = '@%s' % r.arg
+        fd.write("%s%s%s\n" % (module.arg, rstr, bstr))
