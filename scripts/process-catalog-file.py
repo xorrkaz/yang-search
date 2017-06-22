@@ -114,6 +114,10 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
         if 'maturity' in module:
             maturity = module['maturity']
 
+        yang_version = '1.0'
+        if 'yang-version' in module:
+            yang_version = module['yang-version']
+
         sql = 'UPDATE modules SET maturity = :mat, document = :doc WHERE module = :mod AND revision = :rev'
         try:
             cur.execute(sql, {'mod': mname, 'rev': revision,
@@ -124,9 +128,9 @@ for organization in catalog['openconfig-module-catalog:organizations']['organiza
             continue
 
         if cur.rowcount == 0:
-            sql = 'INSERT INTO modules (module, revision, belongs_to, namespace, prefix, organization, maturity, document, file_path) VALUES (:mod, :rev, :bt, :ns, :prefix, :org, :mat, :doc, :fp)'
+            sql = 'INSERT INTO modules (module, revision, yang_version, belongs_to, namespace, prefix, organization, maturity, document, file_path) VALUES (:mod, :rev, :yver, :bt, :ns, :prefix, :org, :mat, :doc, :fp)'
             try:
-                cur.execute(sql, {'mod': mname, 'rev': revision, 'bt': belongs_to, 'ns': namespace,
+                cur.execute(sql, {'mod': mname, 'rev': revision, 'yver': yang_version, 'bt': belongs_to, 'ns': namespace,
                                   'prefix': prefix, 'org': moname, 'mat': maturity, 'doc': document, 'fp': file_path})
             except sqlite3.Error as e:
                 print('Failed to insert new module data for {}: {}'.format(
