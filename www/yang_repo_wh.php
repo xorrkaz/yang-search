@@ -71,6 +71,7 @@ try {
 
     if ($json['ref'] != 'refs/heads/master') {
         error_log("Not processing commit on ref {$json['ref']}");
+        unlink(LOCKF);
         exit(0);
     }
 
