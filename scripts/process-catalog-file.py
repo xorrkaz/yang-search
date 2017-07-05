@@ -63,6 +63,10 @@ except sqlite3.Error as e:
 
 for organization in catalog['openconfig-module-catalog:organizations']['organization']:
     oname = organization['name']
+    if oname == 'ietf' or oname == 'iana':
+        # We handle the IETF separately.
+        continue
+
     for module in organization['modules']['module']:
         mname = module['name']
         revision = module['revision']
