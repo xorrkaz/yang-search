@@ -34,6 +34,10 @@ function unescape_str($str, $indent)
     $str = str_replace('\t', "\t", $str);
     $str = str_replace('\\\\', '\\', $str);
 
+    if (preg_match('/\s/', $str)) {
+        $str = '"' . $str . '"';
+    }
+
     return $str;
 }
 
