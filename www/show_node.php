@@ -34,9 +34,9 @@ function unescape_str($str, $indent)
     $str = str_replace('\t', "\t", $str);
     $str = str_replace('\\\\', '\\', $str);
 
-    if (preg_match('/\\/', $str) && !strstr($str, "'")) {
+    if (preg_match('/[\\\\^\|\{\}\?\+\*\[\]]/', $str) && !strstr($str, "'")) {
         $str = "'" . $str . "'";
-    } elseif (preg_match('/\s/', $str) || (strstr($str, "'") && preg_match('/\\/', $str))) {
+    } elseif (preg_match('/\s/', $str) || (strstr($str, "'") && preg_match('/[\\\\^\|\{\}\?\+\*\[\]]/', $str))) {
         $str = '"' . $str . '"';
     }
 
