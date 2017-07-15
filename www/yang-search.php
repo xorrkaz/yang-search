@@ -52,6 +52,10 @@ $yang_versions = [
     ['1.0', '1.1'],
 ];
 
+$search_fields = [
+    ['Module Name' => 'module', 'Node Name' => 'argument', 'Node Description' => 'description'],
+];
+
 $alerts = [];
 $sth = null;
 $title = 'YANG DB Search';
@@ -96,11 +100,21 @@ if ($dbh !== null && $search_string !== null) {
 
         $sql = 'SELECT yi.* FROM yindex yi, modules mo WHERE ';
         $qparams['descr'] = $search_string;
-        if ($do_regexp) {
-            $sql .= " (REGEXP(:descr, yi.argument, '$modifiers') OR REGEXP(:descr, yi.description, '$modifiers'))";
-        } else {
-            $sql .= ' (yi.argument LIKE :descr OR yi.description LIKE :descr)';
+        $sts = ['argument', 'description', 'module'];
+        if (isset($_POST['searchFields']) && count($_POST['searchFields']) > 0) {
+            $sts = $_POST['searchFields'];
         }
+        $wclause = [];
+        if ($do_regexp) {
+            foreach ($sts as $field) {
+                array_push($wclause, "REGEXP(:descr, yi.{$field}");
+            }
+        } else {
+            foreach ($sts as $field) {
+                array_push($wclause, "yi.{$field} LIKE :descr");
+            }
+        }
+        $sql .= '('. implode(' OR ', $wclause) . ')';
         if (!isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1) {
             $sql .= ' AND (mo.module = yi.module AND mo.namespace NOT LIKE :mib)';
             $qparams['mib'] = '%yang:smiv2:%';
@@ -389,6 +403,39 @@ function verify() {
                   </div>
                 </td>
               </tr>
+            </tbody>
+          </table>
+          <label>Search Fields</label>
+          <table class="table table-bordered">
+            <tbody>
+              <?php
+              foreach ($search_fields as $vrow) {
+                  ?>
+                <tr>
+                  <?php
+                  foreach ($vrow as $vname => $vval) {
+                      if ($vname == '__EMPTY__') {
+                          ?>
+                      <td>&nbsp;</td>
+                      <?php
+
+                      } else {
+                          ?>
+                      <td>
+                        <div class="checkbox">
+                          <label for="field_<?=$vval?>">
+                            <input id="field_<?=$vval?>" type="checkbox" name="searchFields[]" style="margin-top: 0;" value="<?=$vval?>" checked> <?=$vname?>
+                          </label>
+                        </div>
+                      </td>
+                      <?php
+
+                      }
+                  } ?>
+                </tr>
+                <?php
+
+              } ?>
             </tbody>
           </table>
           <label>YANG Versions</label>
