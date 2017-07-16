@@ -107,7 +107,7 @@ if ($dbh !== null && $search_string !== null) {
         $wclause = [];
         if ($do_regexp) {
             foreach ($sts as $field) {
-                array_push($wclause, "REGEXP(:descr, yi.{$field}");
+                array_push($wclause, "REGEXP(:descr, yi.{$field})");
             }
         } else {
             foreach ($sts as $field) {
