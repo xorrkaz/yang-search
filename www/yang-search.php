@@ -248,7 +248,7 @@ if (isset($_POST['search_string'])) {
     if ($sth !== null) {
         $modules = [];
         while ($row = $sth->fetch()) {
-            if (!isset($_POST['onlyLatest']) || $_POST['onlyLatest'] == 1) {
+            if (isset($_POST['onlyLatest']) && $_POST['onlyLatest'] == 1) {
                 if ($row['latest_revision'] != $row['revision']) {
                     continue;
                 }
