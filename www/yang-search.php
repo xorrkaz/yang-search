@@ -98,7 +98,7 @@ if ($dbh !== null && $search_string !== null) {
             }
         }
 
-        $sql = 'SELECT yi.* FROM yindex yi, modules mo WHERE ';
+        $sql = 'SELECT yi.*, MAX(mo.revision) AS latest_revision FROM yindex yi, modules mo WHERE ';
         $qparams['descr'] = $search_string;
         $sts = ['argument', 'description', 'module'];
         if (isset($_POST['searchFields']) && count($_POST['searchFields']) > 0) {
@@ -138,7 +138,7 @@ if ($dbh !== null && $search_string !== null) {
             $sql .= ')';
         }
 
-        $sql .= ' GROUP BY yi.module, yi.revision';
+        $sql .= ' AND (mo.module = yi.module) GROUP BY yi.module, yi.revision';
 
         $sth = $dbh->prepare($sql);
         $sth->execute($qparams);
@@ -248,6 +248,11 @@ if (isset($_POST['search_string'])) {
     if ($sth !== null) {
         $modules = [];
         while ($row = $sth->fetch()) {
+            if (!isset($_POST['onlyLatest']) || $_POST['onlyLatest'] == 1) {
+                if ($row['latest_revision'] != $row['revision']) {
+                    continue;
+                }
+            }
             $organization = 'N/A';
             $maturity = 'N/A';
             try {
@@ -345,6 +350,29 @@ $(document).on('click', '.yang-schema-select', function(e) {
 		}
 	}
 });
+$(document).on('click', '#fieldsAll', function(e) {
+	if ($(this).is(':checked')) {
+		$('.yang-fields-select').prop('checked', true);
+	} else {
+		$('.yang-fields-select').prop('checked', false);
+	}
+});
+$(document).on('click', '.yang-fields-select', function(e) {
+	if (!$(this).is(':checked')) {
+		$('#fieldsAll').prop('checked', false);
+	} else {
+		var allChecked = true;
+		$('.yang-fields-select').each(function(i, e) {
+			if (!$(this).is(':checked')) {
+				allChecked = false;
+				return;
+			}
+		});
+		if (allChecked) {
+			$('#fieldsAll').prop('checked', true);
+		}
+	}
+});
 $(document).on('click', '#regexp', function(e) {
 	if ($(this).is(':checked')) {
 		$('#search_string').prop('placeholder', 'Search Pattern');
@@ -402,10 +430,22 @@ function verify() {
                     </label>
                   </div>
                 </td>
+                <td>
+                  <div class="checkbox">
+                    <label for="onlyLatest">
+                      <input id="onlyLatest" type="checkbox" name="onlyLatest" style="margin-top: 0;" value="1" checked> Only Show Latest Revisions
+                    </label>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
           <label>Search Fields</label>
+          <div class="checkbox">
+            <label for="fieldsAll">
+              <input type="checkbox" id="fieldsAll" name="fieldsAll" style="margin-top: 0;" value="1" checked> All
+            </label>
+          </div>
           <table class="table table-bordered">
             <tbody>
               <?php
@@ -424,7 +464,7 @@ function verify() {
                       <td>
                         <div class="checkbox">
                           <label for="field_<?=$vval?>">
-                            <input id="field_<?=$vval?>" type="checkbox" name="searchFields[]" style="margin-top: 0;" value="<?=$vval?>" checked> <?=$vname?>
+                            <input id="field_<?=$vval?>" type="checkbox" name="searchFields[]" class="yang-fields-select" style="margin-top: 0;" value="<?=$vval?>" checked> <?=$vname?>
                           </label>
                         </div>
                       </td>
