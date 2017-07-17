@@ -130,12 +130,12 @@ if ($dbh !== null && $search_string !== null) {
         }
         if (isset($_POST['yangVersions']) && count($_POST['yangVersions']) > 0) {
             $queries = [];
-            $sql .= ' AND (';
+            $sql .= ' AND (mo.module = yi.module AND (';
             foreach ($_POST['yangVersions'] as $yv) {
                 array_push($queries, "mo.yang_version = '$yv'");
             }
             $sql .= implode(' OR ', $queries);
-            $sql .= ')';
+            $sql .= '))';
         }
 
         $sql .= ' AND (mo.module = yi.module) GROUP BY yi.module, yi.revision';
