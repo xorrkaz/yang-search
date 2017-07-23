@@ -86,6 +86,10 @@ if ($dbh !== null && $search_string !== null) {
         $search_string = '%'.$search_string.'%';
     }
 
+    if (!isset($_POST['schemaAll']) && !isset($_POST['schemaTypes'])) {
+        $_POST['schemaAll'] = 1;
+    }
+
     $title = "YANG DB Search Results for '{$_POST['search_string']}'";
     try {
         if ($do_regexp) {
