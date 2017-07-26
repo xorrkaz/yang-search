@@ -73,7 +73,8 @@ fi
 
 if [ ${update_yang_repo} = 1 ]; then
     cd ${YANGDIR}
-    git pull -q --recurse-submodules=yes >/dev/null 2>&1
+    git pull -q  >/dev/null 2>&1
+    git submodule update -q --recursive --remote >/dev/null 2>&1
     if [ $? != 0 ]; then
         echo "WARNING: Failed to update YANG repo!"
     fi
