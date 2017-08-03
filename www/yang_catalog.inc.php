@@ -52,12 +52,8 @@ define('QTIP_JS', '<script src="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.1/jqu
 define('TYPEAHEAD_JS', '<script src="js/typeahead.bundle.js" type="text/javascript"></script>');
 
 // Global data_definitions
-define('YANG_CATALOG_URL', 'http://yangcatalog.org/api/operational');
-define('REST_USER', 'oper');
-define('REST_PASS', 'oper');
+define('YANG_CATALOG_URL', 'https://yangcatalog.org:8443');
 define('REST_TIMEOUT', 300);
-define('RESTCONF_JSON_MIME_TYPE', 'application/vnd.yang.data+json');
-define('OPENCONFIG_CATALOG_MOD_NS', 'openconfig-module-catalog:module');
 define('LOCKF', '/tmp/webhook.lock');
 define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
 define('YANG_REPO_ID', 17985602);
