@@ -51,7 +51,6 @@ class Module
     'implementations' => true
   ];
     private $rester;
-    private $error;
     private $initialized = false;
 
     private static $seen_modules = [];
@@ -59,7 +58,6 @@ class Module
     private function __construct($rester, $name, $revision, $organization, $attrs = [])
     {
         $this->rester = $rester;
-        $this->error = null;
 
         foreach (Module::$objectHash as $key => $value) {
             if (isset($attrs[$key])) {
@@ -122,7 +120,7 @@ class Module
 
     public function toArray()
     {
-        if ($this->initialized == false) {
+        if ($this->initialized === false) {
             $this->fetch();
         }
 
@@ -135,5 +133,13 @@ class Module
         }
 
         return $arr;
+    }
+
+    public function __destruct()
+    {
+        $mod_sig = "{$this->name}@{$this->revision}/{$this->organization}";
+        if (isset(Module::$seen_modules[$mod_sig])) {
+            unset(Module::$seen_modules[$mod_sig]);
+        }
     }
 }
