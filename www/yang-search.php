@@ -25,6 +25,8 @@
 // SUCH DAMAGE.
 
 include_once 'yang_catalog.inc.php';
+require_once 'Module.php';
+require_once 'Rester.php';
 
 function __sqlite_regexp($pattern, $buf, $modifiers = 'is')
 {
@@ -62,6 +64,7 @@ $title = 'YANG DB Search';
 $search_string = null;
 
 $dbh = yang_db_conn($alerts);
+$rester = new Rester(YANG_CATALOG_URL);
 
 if (isset($_POST['search_string'])) {
     $search_string = $_POST['search_string'];
@@ -260,12 +263,13 @@ if (isset($_POST['search_string'])) {
             $organization = 'N/A';
             $maturity = 'N/A';
             try {
-                $mod_sth = $dbh->prepare('SELECT * FROM modules WHERE module=:mod AND revision=:rev');
+                $mod_sth = $dbh->prepare('SELECT organization FROM modules WHERE module=:mod AND revision=:rev');
                 $mod_sth->execute(['mod' => $row['module'], 'rev' => $row['revision']]);
                 $mod_row = $mod_sth->fetch();
                 $organization = $mod_row['organization'];
-                $maturity = $mod_row['maturity'];
-                $compile_status = $mod_row['compile_status'];
+                $mod_obj = Module::moduleFactory($rester, $row['module'], $row['revision'], $organization);
+                $maturity = $mod_obj->get('maturity-level');
+                $compile_status = $mod_obj->get('compilation-status');
             } catch (Exception $e) {
             }
 
