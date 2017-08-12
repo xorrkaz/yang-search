@@ -92,7 +92,7 @@ class Module
             return;
         }
         $result = $this->rester->get("/search/modules/{$this->name},{$this->revision},{$this->organization}");
-        foreach ($result['module'] as $key => $value) {
+        foreach ($result['module'][0] as $key => $value) {
             if (isset(Module::$objectHash[$key])) {
                 $this->$key = $value;
             } else {
