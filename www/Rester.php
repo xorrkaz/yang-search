@@ -27,6 +27,22 @@
 include_once 'yang_catalog.inc.php';
 require_once 'httpful.phar';
 
+class RestException extends RuntimeException
+{
+    private $code;
+
+    public function __construct($msg, $code)
+    {
+        parent::__construct($msg);
+        $this->code = $code;
+    }
+
+    public function getResponseCode()
+    {
+        return $this->code;
+    }
+}
+
 class Rester
 {
     private $base;
@@ -44,8 +60,8 @@ class Rester
 
     private static function assertResponse($resp, $msg)
     {
-        if ($resp->code < 200 || $resp->code >= 300) {
-            throw new RuntimeException("Failed to $msg: {$resp->code}");
+        if ($resp->hasErrors()) {
+            throw new RestException("Failed to $msg: {$resp->raw_body}", $resp->code);
         }
     }
 
