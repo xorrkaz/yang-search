@@ -29,17 +29,17 @@ require_once 'httpful.phar';
 
 class RestException extends RuntimeException
 {
-    private $code;
+    protected $rcode;
 
     public function __construct($msg, $code)
     {
         parent::__construct($msg);
-        $this->code = $code;
+        $this->rcode = $code;
     }
 
     public function getResponseCode()
     {
-        return $this->code;
+        return $this->rcode;
     }
 }
 
