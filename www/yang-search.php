@@ -146,12 +146,12 @@ if ($dbh !== null && $search_string !== null) {
         $rejects = [];
         // Post-filter the returned data based on additional MD options.
       while ($row = $sth->fetch()) {
-          $mod_sig = $row['module'].'@'.$row['revision'].'/'.$row['organization'];
+          $mod_obj = Module::moduleFactory($rester, $row['module'], $row['revision'], $row['organization']);
+          $mod_sig = $mod_obj->getModSig();
           if (isset($rejects[$mod_sig])) {
               continue;
           }
           try {
-              $mod_obj = Module::moduleFactory($rester, $row['module'], $row['revision'], $row['organization']);
               if (!isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1) {
                   if (@preg_match('/yang:smiv2:/', $mod_obj->get('namespace'))) {
                       $rejects[$mod_sig] = true;
@@ -167,10 +167,19 @@ if ($dbh !== null && $search_string !== null) {
               $res_mod = $row;
               $res_mod['maturity'] = $mod_obj->get('maturity-level');
               $res_mod['compile_status'] = $mod_obj->get('compilation-status');
-              $res_mod['sig'] = $mod_obj->getModSig();
+              $res_mod['sig'] = $mod_sig;
               array_push($res_set, $res_mod);
+          } catch (RestException $re) {
+              if ($re->getCode() == 404) {
+                  array_push($alerts, "Metadata for {$mod_sig} was not found in the Catalog.");
+                  continue;
+              } else {
+                  push_exception('Failed to pull metadata from the API', $re, $alerts);
+                  break;
+              }
           } catch (Exception $e) {
-              push_exception('Failed to pull metadata from API', $e, $alerts);
+              push_exception('Failed to pull metadata from the API', $e, $alerts);
+              break;
           }
       }
     }

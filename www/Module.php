@@ -118,6 +118,11 @@ class Module
         return $this->$field;
     }
 
+    public function getModSig()
+    {
+        return "{$this->name}@{$this->revision}/{$this->organization}";
+    }
+
     public function toArray()
     {
         if ($this->initialized === false) {
