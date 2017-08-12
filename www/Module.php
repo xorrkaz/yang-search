@@ -92,14 +92,14 @@ class Module
             return;
         }
         $result = $this->rester->get("/search/modules/{$this->name},{$this->revision},{$this->organization}");
-        foreach ($result['yang-catalog:module'] as $key => $value) {
+        foreach ($result['module'] as $key => $value) {
             if (isset(Module::$objectHash[$key])) {
                 $this->$key = $value;
             } else {
                 throw new Exception("Failed to set key {$key}: not defined");
             }
         }
-        
+
         $this->initialized = true;
     }
 
