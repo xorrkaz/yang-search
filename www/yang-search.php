@@ -173,7 +173,7 @@ if ($dbh !== null && $search_string !== null) {
                 } else {
                     $try_checks = false;
                 }
-                if ($try_checks && !isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1) {
+                if ($try_checks && (!isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1)) {
                     if (@preg_match('/yang:smiv2:/', $mod_obj->get('namespace'))) {
                         $rejects[$mod_sig] = true;
                         continue;
