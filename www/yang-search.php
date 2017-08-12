@@ -144,44 +144,57 @@ if ($dbh !== null && $search_string !== null) {
     $res_set = [];
     if ($sth !== null) {
         $rejects = [];
-        // Post-filter the returned data based on additional MD options.
-      while ($row = $sth->fetch()) {
-          $mod_obj = Module::moduleFactory($rester, $row['module'], $row['revision'], $row['organization']);
-          $mod_sig = $mod_obj->getModSig();
-          if (isset($rejects[$mod_sig])) {
-              continue;
-          }
-          try {
-              if (!isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1) {
-                  if (@preg_match('/yang:smiv2:/', $mod_obj->get('namespace'))) {
-                      $rejects[$mod_sig] = true;
-                      continue;
-                  }
-              }
-              if (isset($_POST['yangVersions']) && count($_POST['yangVersions']) > 0) {
-                  if (array_search($mod_obj->get('yang-version'), $_POST['yangVersions']) === false) {
-                      $rejects[$mod_sig] = true;
-                      continue;
-                  }
-              }
-              $res_mod = $row;
-              $res_mod['maturity'] = $mod_obj->get('maturity-level');
-              $res_mod['compile_status'] = $mod_obj->get('compilation-status');
-              $res_mod['sig'] = $mod_sig;
-              array_push($res_set, $res_mod);
-          } catch (RestException $re) {
-              if ($re->getCode() == 404) {
-                  array_push($alerts, "Metadata for {$mod_sig} was not found in the Catalog.");
-                  continue;
-              } else {
-                  push_exception('Failed to pull metadata from the API', $re, $alerts);
-                  break;
-              }
-          } catch (Exception $e) {
-              push_exception('Failed to pull metadata from the API', $e, $alerts);
-              break;
-          }
-      }
+        $not_founds = [];
+        # Post-filter the returned data based on additional MD options.
+        while ($row = $sth->fetch()) {
+            $mod_obj = Module::moduleFactory($rester, $row['module'], $row['revision'], $row['organization']);
+            $mod_sig = $mod_obj->getModSig();
+            if (isset($rejects[$mod_sig])) {
+                continue;
+            }
+            $try_checks = true;
+            $maturity = '';
+            $comp_status = 'unknown';
+            try {
+                if (!isset($not_founds[$mod_sig])) {
+                    try {
+                        $maturity = $mod_obj->get('maturity-level');
+                        $comp_status = $mod_obj->get('compilation-status');
+                    } catch (RestException $re) {
+                        if ($re->getCode() == 404) {
+                            #array_push($alerts, "Metadata for {$mod_sig} was not found in the Catalog.");
+                          $try_checks = false;
+                            $not_founds[$mod_sig] = true;
+                        } else {
+                            push_exception('Failed to pull metadata from the API', $re, $alerts);
+                            break;
+                        }
+                    }
+                } else {
+                    $try_checks = false;
+                }
+                if ($try_checks && !isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1) {
+                    if (@preg_match('/yang:smiv2:/', $mod_obj->get('namespace'))) {
+                        $rejects[$mod_sig] = true;
+                        continue;
+                    }
+                }
+                if ($try_checks && isset($_POST['yangVersions']) && count($_POST['yangVersions']) > 0) {
+                    if (array_search($mod_obj->get('yang-version'), $_POST['yangVersions']) === false) {
+                        $rejects[$mod_sig] = true;
+                        continue;
+                    }
+                }
+                $res_mod = $row;
+                $res_mod['maturity'] = $maturity;
+                $res_mod['compile_status'] = $comp_status;
+                $res_mod['sig'] = $mod_sig;
+                array_push($res_set, $res_mod);
+            } catch (Exception $e) {
+                push_exception('Failed to pull metadata from the API', $e, $alerts);
+                break;
+            }
+        }
     }
 }
 

@@ -91,18 +91,15 @@ class Module
         if ($this->initialized === true) {
             return;
         }
-        try {
-            $result = $this->rester->get("/search/modules/{$this->name},{$this->revision},{$this->organization}");
-            foreach ($result['yang-catalog:module'] as $key => $value) {
-                if (isset(Module::$objectHash[$key])) {
-                    $this->$key = $value;
-                } else {
-                    throw new Exception("Failed to set key {$key}: not defined");
-                }
+        $result = $this->rester->get("/search/modules/{$this->name},{$this->revision},{$this->organization}");
+        foreach ($result['yang-catalog:module'] as $key => $value) {
+            if (isset(Module::$objectHash[$key])) {
+                $this->$key = $value;
+            } else {
+                throw new Exception("Failed to set key {$key}: not defined");
             }
-        } catch (Exception $e) {
-            throw new Exception("Failed to retrieve module {$this->name}@{$this->revision} for {$this->organization} from Catalog: {$e->getMessage()}");
         }
+        
         $this->initialized = true;
     }
 
