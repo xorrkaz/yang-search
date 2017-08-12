@@ -161,7 +161,7 @@ if ($dbh !== null && $search_string !== null) {
                         $maturity = $mod_obj->get('maturity-level');
                         $comp_status = $mod_obj->get('compilation-status');
                     } catch (RestException $re) {
-                        if ($re->getCode() == 404) {
+                        if ($re->getResponseCode() == 404) {
                             #array_push($alerts, "Metadata for {$mod_sig} was not found in the Catalog.");
                           $try_checks = false;
                             $not_founds[$mod_sig] = true;
