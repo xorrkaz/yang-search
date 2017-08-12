@@ -105,7 +105,7 @@ if ($dbh !== null && $search_string !== null) {
             }
         }
 
-        $sql = 'SELECT yia.*, MAX(yib.revision) AS latest_revision FROM yindex yia, yindex yib WHERE ';
+        $sql = 'SELECT yi.*, MAX(mo.revision) AS latest_revision FROM yindex yi, modules mo WHERE ';
         $qparams['descr'] = $search_string;
         $sts = ['argument', 'description', 'module'];
         if (isset($_POST['searchFields']) && count($_POST['searchFields']) > 0) {
@@ -114,11 +114,11 @@ if ($dbh !== null && $search_string !== null) {
         $wclause = [];
         if ($do_regexp) {
             foreach ($sts as $field) {
-                array_push($wclause, "REGEXP(:descr, yia.{$field})");
+                array_push($wclause, "REGEXP(:descr, yi.{$field})");
             }
         } else {
             foreach ($sts as $field) {
-                array_push($wclause, "yia.{$field} LIKE :descr");
+                array_push($wclause, "yi.{$field} LIKE :descr");
             }
         }
         $sql .= '('. implode(' OR ', $wclause) . ')';
@@ -126,13 +126,13 @@ if ($dbh !== null && $search_string !== null) {
             $queries = [];
             $sql .= ' AND (';
             foreach ($_POST['schemaTypes'] as $st) {
-                array_push($queries, "yia.statement = '$st'");
+                array_push($queries, "yi.statement = '$st'");
             }
             $sql .= implode(' OR ', $queries);
             $sql .= ')';
         }
 
-        $sql .= ' AND (yib.module = yia.module) GROUP BY yia.module, yia.revision';
+        $sql .= ' AND (mo.module = yi.module) GROUP BY yi.module, yi.revision';
 
         $sth = $dbh->prepare($sql);
         $sth->execute($qparams);

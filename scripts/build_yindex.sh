@@ -131,11 +131,9 @@ trap -- 'update_progress ${mtotal} ${cur_mod} ${mcur}' 10 16 29 30
 for m in ${modules}; do
     mcur=$((${mcur} + 1))
     cur_mod="${m}"
-    #cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table --yang-index-no-schema ${m}"
-    cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-no-schema ${m}"
+    cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table --yang-index-no-schema ${m}"
     if [ ${first_run} = 1 ]; then
-        #cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table ${m}"
-        cmd="pyang -p ${YANGREPO} -f yang-catalog-index ${m}"
+        cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table ${m}"
         first_run=0
     fi
     mod_name_rev=$(pyang -p ${YANGREPO} -f name-revision ${m} 2>/dev/null | cut -d' ' -f1)
@@ -146,10 +144,10 @@ for m in ${modules}; do
     mod_rev=${mod_parts[1]}
     IFS=${old_IFS}
     if [ ${update} = 1 ]; then
-        echo "DELETE FROM yindex WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
+        echo "DELETE FROM modules WHERE module='${mod_name}' AND revision='${mod_rev}'; DELETE FROM yindex WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
     else
         # Do not process duplicate modules
-        output=$(echo "SELECT module FROM yindex WHERE module='${mod_name}' AND revision='${mod_rev}' GROUP BY module, revision;" | sqlite3 ${TDBF})
+        output=$(echo "SELECT module FROM modules WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF})
         if [ $? = 0 -a -n "${output}" ]; then
             continue
         fi
@@ -162,10 +160,10 @@ for m in ${modules}; do
         continue
     fi
 
-    #echo "UPDATE modules SET file_path='${m}' WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
-    #if [ $? != 0 ]; then
-    #    echo "ERROR: Failed to update file path in YANG DB for ${mod_name}@${mod_rev} (${m})!"
-    #fi
+    echo "UPDATE modules SET file_path='${m}' WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
+    if [ $? != 0 ]; then
+        echo "ERROR: Failed to update file path in YANG DB for ${mod_name}@${mod_rev} (${m})!"
+    fi
 
     # Generate YANG tree data.
     pyang -p ${YANGREPO} -f json-tree -o "${YTREE_DIR}/${mod_name}@${mod_rev}.json" ${m}
@@ -188,17 +186,17 @@ for m in ${modules}; do
     fi
 done
 
-#for cf in ${YANG_CATALOG_FILES}; do
-#  ${TOOLS_DIR}/process-catalog-file.py ${cf} ${TDBF} ${YDEP_DIR}
-#  if [ $? != 0 ]; then
-#    echo "WARNING: Failed to process YANG catalog file for ${cf}!"
-#  fi
-#done
+for cf in ${YANG_CATALOG_FILES}; do
+  ${TOOLS_DIR}/process-catalog-file.py ${cf} ${TDBF} ${YDEP_DIR}
+  if [ $? != 0 ]; then
+    echo "WARNING: Failed to process YANG catalog file for ${cf}!"
+  fi
+done
 
-#${TOOLS_DIR}/add-catalog-data.py ${TDBF}
-#if [ $? != 0 ]; then
-#    echo "WARNING: Failed to add YANG catalog data!"
-#fi
+${TOOLS_DIR}/add-catalog-data.py ${TDBF}
+if [ $? != 0 ]; then
+    echo "WARNING: Failed to add YANG catalog data!"
+fi
 
 if [ -n "${YANG_EXPLORER_DIR}" ]; then
     cd ${YANG_EXPLORER_DIR}
