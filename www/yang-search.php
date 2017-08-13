@@ -319,7 +319,7 @@ if (isset($_POST['search_string'])) {
                 $origin = 'Vendor-Specific';
             } ?>
           <tr>
-            <td><a href="show_node.php?module=<?=$res_mod['module']?>&amp;path=<?=urlencode($res_mod['path'])?>&amp;revision=<?=$res_mod['revision']?>"><?=$row['argument']?></a></td>
+            <td><a href="show_node.php?module=<?=$res_mod['module']?>&amp;path=<?=urlencode($res_mod['path'])?>&amp;revision=<?=$res_mod['revision']?>"><?=$res_mod['argument']?></a></td>
             <td><?=$res_mod['revision']?></td>
             <td><?=$res_mod['statement']?></td>
             <td><?=$res_mod['path']?></td>
