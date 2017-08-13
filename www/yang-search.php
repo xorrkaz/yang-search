@@ -152,6 +152,12 @@ if ($dbh !== null && $search_string !== null) {
             if (isset($rejects[$mod_sig])) {
                 continue;
             }
+            if (isset($_POST['onlyLatest']) && $_POST['onlyLatest'] == 1) {
+                if ($row['latest_revision'] != $row['revision']) {
+                    $rejects[$mod_sig] = true;
+                    continue;
+                }
+            }
             $try_checks = true;
             $maturity = '';
             $comp_status = 'unknown';
@@ -185,19 +191,13 @@ if ($dbh !== null && $search_string !== null) {
                         continue;
                     }
                 }
-                if (isset($_POST['onlyLatest']) && $_POST['onlyLatest'] == 1) {
-                    if ($row['latest_revision'] != $row['revision']) {
-                        $rejects[$mod_sig] = true;
-                        continue;
-                    }
-                }
                 $res_mod = $row;
                 $res_mod['maturity'] = $maturity;
                 $res_mod['compile_status'] = $comp_status;
                 $res_mod['sig'] = $mod_sig;
                 array_push($res_set, $res_mod);
             } catch (Exception $e) {
-                push_exception('Failed to pull metadata from the API', $e, $alerts);
+                push_exception("Failed to pull metadata from the API (mod: {$mod_sig})", $e, $alerts);
                 break;
             }
         }
