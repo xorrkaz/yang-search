@@ -185,6 +185,12 @@ if ($dbh !== null && $search_string !== null) {
                         continue;
                     }
                 }
+                if (isset($_POST['onlyLatest']) && $_POST['onlyLatest'] == 1) {
+                    if ($row['latest_revision'] != $row['revision']) {
+                        $rejects[$mod_sig] = true;
+                        continue;
+                    }
+                }
                 $res_mod = $row;
                 $res_mod['maturity'] = $maturity;
                 $res_mod['compile_status'] = $comp_status;
@@ -298,11 +304,6 @@ if (isset($_POST['search_string'])) {
     if (count($res_set) > 0) {
         $modules = [];
         foreach ($res_set as $res_mod) {
-            if (isset($_POST['onlyLatest']) && $_POST['onlyLatest'] == 1) {
-                if ($res_mod['latest_revision'] != $res_mod['revision']) {
-                    continue;
-                }
-            }
             $organization = $res_mod['organization'];
             $maturity = $res_mod['maturity'];
             $compile_status = $res_mod['compile_status'];

@@ -76,10 +76,18 @@ class Module
         $this->organization = $organization;
     }
 
-    public static function moduleFactory($rester, $name, $revision, $organization, $attrs = [])
+    public static function moduleFactory($rester, $name, $revision, $organization, $override = false, $attrs = [])
     {
         $mod_sig = "{$name}@{$revision}/{$organization}";
+        $create_new = false;
         if (!isset(Module::$seen_modules[$mod_sig])) {
+            $create_new = true;
+        } elseif ($override) {
+            unset(Module::$seen_modules[$mod_sig]);
+            $create_new = true;
+        }
+
+        if ($create_new) {
             Module::$seen_modules[$mod_sig] = new Module($rester, $name, $revision, $organization, $attrs);
         }
 
