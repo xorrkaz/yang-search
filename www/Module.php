@@ -83,7 +83,7 @@ class Module
         if (!isset(Module::$seen_modules[$mod_sig])) {
             $create_new = true;
         } elseif ($override) {
-            unset(Module::$seen_modules[$mod_sig]);
+            Module::$seen_modules[$mod_sig] = null;
             $create_new = true;
         }
 
@@ -113,11 +113,12 @@ class Module
 
     public function get($field)
     {
-        if ($this->initialized === false) {
-            $this->fetch();
-        }
         if (!isset(Module::$objectHash[$field])) {
             throw new Exception("Field $field does not exist; please specify one of:\n\n".implode("\n", array_keys(Module::$objectHash)));
+        }
+
+        if ($this->initialized === false) {
+            $this->fetch();
         }
 
         return $this->$field;
@@ -147,7 +148,7 @@ class Module
 
     public function __destruct()
     {
-        $mod_sig = "{$this->name}@{$this->revision}/{$this->organization}";
+        $mod_sig = $this->getModSig();
         if (isset(Module::$seen_modules[$mod_sig])) {
             unset(Module::$seen_modules[$mod_sig]);
         }
