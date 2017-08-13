@@ -172,7 +172,7 @@ if ($dbh !== null && $search_string !== null) {
                           $try_checks = false;
                             $not_founds[$mod_sig] = true;
                         } else {
-                            push_exception('Failed to pull metadata from the API', $re, $alerts);
+                            push_exception("Failed to pull metadata from the API (mod: {$mod_sig})", $re, $alerts);
                             break;
                         }
                     }

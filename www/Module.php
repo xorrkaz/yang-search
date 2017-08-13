@@ -99,7 +99,7 @@ class Module
         if ($this->initialized === true) {
             return;
         }
-        $result = $this->rester->get("/search/modules/{$this->name},{$this->revision},{$this->organization}");
+        $result = $this->rester->get('/search/modules/'.urlencode($this->name).','.urlencode($this->revision).','.urlencode($this->organization));
         foreach ($result['module'][0] as $key => $value) {
             if (isset(Module::$objectHash[$key])) {
                 $this->$key = $value;
