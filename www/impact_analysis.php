@@ -361,7 +361,9 @@ if (!isset($_GET['modules'])) {
         foreach ($edges as $edge) {
             if ($edge['data']['target'] == "mod_{$bn}") {
                 $mn = str_replace('mod_', '', $edge['data']['source']);
-                $maturity = get_maturity($mn, $dbh, $alerts);
+                $rev_org = get_rev_org($mn, $dbh, $alerts);
+                $mo = new Module($rester, $mn, $rev_org['rev'], $rev_org['org']);
+                $maturity = get_maturity($mo, $alerts);
                 if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
                     array_push($bottlenecks, "node#{$edge['data']['source']}");
                     $found_dep = true;
