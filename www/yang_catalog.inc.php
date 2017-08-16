@@ -213,29 +213,20 @@ function yang_db_conn(&$alerts)
  * This function gets an object's maturity.
  *
  * Input:
- *  $module : YANG module name
+ *  $mod_obj : Instance of a Module object
  *  $dbh    : Pointer to the YANG index database handle
  *  $alerts : Pointer to an array containing errors
  * Output:
  *  The maturity level and color for the given module
  */
-function get_maturity($module, &$dbh, &$alerts)
+function get_maturity($mod_obj, &$alerts)
 {
     global $SDO_CMAP, $MATURITY_UNKNOWN;
 
     $maturity = $MATURITY_UNKNOWN;
     try {
-        if (!preg_match('/@/', $module)) {
-            $module = get_latest_mod($module, $dbh, $alerts);
-        }
-        $mod_parts = explode('@', $module);
-        $modn = $mod_parts[0];
-        $rev = $mod_parts[1];
-        $sth = $dbh->prepare('SELECT maturity, organization FROM modules WHERE module=:mod AND revision=:rev');
-        $sth->execute(['mod' => $modn, 'rev' => $rev]);
-        $row = $sth->fetch();
-        $organization = strtoupper($row['organization']);
-        $mmat = strtoupper($row['maturity']);
+        $organization = strtoupper($mod_obj->getOrganization());
+        $mmat = strtoupper($mod_obj->get('maturity-level'));
         if (isset($SDO_CMAP[$organization])) {
             $mname = array_search($mmat, array_column($SDO_CMAP[$organization], 'name'));
             if ($mname !== false) {
@@ -252,6 +243,40 @@ function get_maturity($module, &$dbh, &$alerts)
     }
 
     return $maturity;
+}
+
+/*
+ * Get a module's revision and organization given its name (or name@rev).
+ *
+ * Input:
+ *  $module : YANG module name or name@revision
+ *  $dbh    : Pointer to the YANG index database handle
+ *  $alerts : Pointer to an array containing errors
+ * Output:
+ *  A hash of org => organization, rev => revision
+ */
+function get_rev_org($module, &$dbh, $alerts)
+{
+    try {
+        if (preg_match('/@/', $module)) {
+            $mod_parts = explode('@', $module);
+            $modn = $mod_parts[0];
+            $rev = $mod_parts[1];
+            $sth = $dbh->prepare('SELECT revision, organization FROM modules WHERE module=:mod AND revision=:rev');
+            $sth->execute(['mod' => $modn, 'rev' => $rev]);
+        } else {
+            $sth = $dbh->prepare('SELECT revision, organization FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
+            $sth->execute(['mod' => $module]);
+        }
+
+        $row = $sth->fetch();
+
+        return ['org' => $row['organization'], 'rev' => $row['revision']];
+    } catch (Exception $e) {
+        push_exception("Failed to get module revision and organization for $module", $e, $alerts);
+    }
+
+    return ['org' => '', 'rev' => ''];
 }
 
 /*

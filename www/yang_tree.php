@@ -25,6 +25,8 @@
 // SUCH DAMAGE.
 
 include_once 'yang_catalog.inc.php';
+require_once 'Rester.php';
+require_once 'Module.php';
 
 function get_type_str($json)
 {
@@ -123,6 +125,8 @@ $title = 'YANG Tree';
 
 $dbh = yang_db_conn($alerts);
 
+$rester = new Rester(YANG_CATALOG_URL);
+
 if (!isset($_GET['module'])) {
     array_push($alerts, 'Module was not specified');
 } else {
@@ -133,12 +137,12 @@ if (!isset($_GET['module'])) {
         $module = '';
     } else {
         $title = "YANG Tree for Module: '$module'";
-        if (!preg_match('/@/', $module)) {
-            $module = get_latest_mod($module, $dbh, $alerts);
-        }
+        $rev_org = get_rev_org($module, $dbh, $alerts);
         $modn = explode('@', $module)[0];
+        $module = "{$modn}@{$rev_org['rev']}";
         $f = YTREES_DIR.'/'.$module.'.json';
-        $maturity = get_maturity($module, $dbh, $alerts);
+        $mod_obj = new Module($rester, $modn, $rev_org['rev'], $rev_org['org']);
+        $maturity = get_maturity($mod_obj, $alerts);
         if (is_file($f)) {
             try {
                 $contents = file_get_contents($f);

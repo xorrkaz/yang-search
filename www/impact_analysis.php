@@ -25,6 +25,8 @@
 // SUCH DAMAGE.
 
 include_once 'yang_catalog.inc.php';
+require_once 'Rester.php';
+require_once 'Module.php';
 
 $found_orgs = [];
 $found_mats = [];
@@ -34,55 +36,28 @@ $DIR_HELP_TEXT = "<b>Both:</b> Show a graph that consists of both dependencies (
                  "<b>Dependencies Only:</b> Only show those modules that are imported by the target module(s)<br/>&nbsp;<br/>\n" .
                  '<b>Dependents Only:</b> Only show those modules that depend on the target module(s)';
 
-function get_org(&$dbh, $module)
+function get_doc($mod_obj)
 {
     try {
-        $sth = $dbh->prepare('SELECT organization FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
-        $sth->execute(['mod' => $module]);
-        $row = $sth->fetch();
-
-        return $row['organization'];
-    } catch (Exception $e) {
-        return '';
-    }
-
-    return '';
-}
-
-function get_doc(&$dbh, $module)
-{
-    try {
-        $sth = $dbh->prepare('SELECT document FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
-        $sth->execute(['mod' => $module]);
-        $row = $sth->fetch();
-        if ($row['document'] === null || $row['document'] == '') {
-            return 'N/A';
+        $doc_name = $mod_obj->get('document-name');
+        $ref = $mod_obj->get('reference');
+        if ($ref != '' && $doc_name != '') {
+            return '<a href="' . $ref . '">' . $doc_name . '</a>';
+        } elseif ($ref != '') {
+            return '<a href="' . $ref . '">' . $ref . '</a>';
+        } elseif ($doc_name != '') {
+            return $doc_name;
         }
-
-        $document = $row['document'];
-
-        if (preg_match('/\|/', $document)) {
-            $doc_parts = explode('|', $document);
-            $document = $doc_parts[1];
-            $document = preg_replace('/>/', ' target="_new">', $document);
-        }
-
-        return $document;
     } catch (Exception $e) {
-        return 'N/A';
     }
 
     return 'N/A';
 }
 
-function get_compile_status(&$dbh, $module)
+function get_compile_status($mod_obj)
 {
     try {
-        $sth = $dbh->prepare('SELECT compile_status FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
-        $sth->execute(['mod' => $module]);
-        $row = $sth->fetch();
-
-        return $row['compile_status'];
+        return $mod_obj->get('compilation-status');
     } catch (Exception $e) {
         return '';
     }
@@ -122,7 +97,7 @@ function is_submod(&$dbh, $module)
     }
 }
 
-function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true, $show_dir = 'both')
+function build_graph($module, $mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true, $show_dir = 'both')
 {
     global $found_orgs, $found_mats, $found_failed, $SDO_CMAP, $COLOR_FAILED;
 
@@ -138,7 +113,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
         return;
     }
 
-    $org = get_org($dbh, $module);
+    $org = $mod_obj->getOrganization();
 
     if ($nested > 0 && count($orgs) > 0 && !(count($orgs) == 1 && $orgs[0] == '')) {
         if (array_search($org, $orgs) === false) {
@@ -154,13 +129,13 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
             if ($json === null) {
                 array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
             } else {
-                $mmat = get_maturity($module, $dbh, $alerts);
+                $mmat = get_maturity($mod_obj, $alerts);
                 if ($nested && $mmat['level'] == 'STANDARD' && !$show_rfcs) {
                     return;
                 }
                 $color = $mmat['color'];
                 if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
-                    $cstatus = get_compile_status($dbh, $module);
+                    $cstatus = get_compile_status($mod_obj);
                     if ($cstatus == 'FAILED') {
                         $color = $COLOR_FAILED;
                         $found_failed = true;
@@ -171,7 +146,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                 } else {
                     $found_mats[strtoupper($org).':'.$mmat['level']] = true;
                 }
-                $document = get_doc($dbh, $module);
+                $document = get_doc($mod_obj);
                 array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm]]);
                 if (!isset($edge_counts[$module])) {
                     $edge_counts[$module] = 0;
@@ -188,22 +163,24 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         if (isset($eseen["mod_$module:mod_$mod"])) {
                             continue;
                         }
+                        $mrev_org = get_rev_org($mod, $dbh, $alerts);
+                        $mobj = new Module($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
                         $eseen["mod_$module:mod_$mod"] = true;
-                        $maturity = get_maturity($mod, $dbh, $alerts);
+                        $maturity = get_maturity($mobj, $alerts);
                         if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
                         }
 
                         $mcolor = $maturity['color'];
                         if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
-                            $cstatus = get_compile_status($dbh, $mod);
+                            $cstatus = get_compile_status($mobj);
                             if ($cstatus == 'FAILED') {
                                 $mcolor = $COLOR_FAILED;
                                 $found_failed = true;
                             }
                         }
 
-                        $org = get_org($dbh, $mod);
+                        $org = $mrev_org['org'];
                         if (!isset($SDO_CMAP[strtoupper($org)])) {
                             $found_mats[':'.$maturity['level']] = true;
                         } else {
@@ -224,9 +201,9 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         }
                         if ($recurse > 0 || $recurse < 0) {
                             $r = $recurse - 1;
-                            build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm, $show_dir);
+                            build_graph($mod, $mobj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm, $show_dir);
                         } else {
-                            $document = get_doc($dbh, $mod);
+                            $document = get_doc($mobj);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
                         }
                     }
@@ -242,16 +219,18 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                         if (isset($eseen["mod_$mod:mod_$module"])) {
                             continue;
                         }
+                        $mrev_org = get_rev_org($mod, $dbh, $alerts);
+                        $mobj = new Module($module->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
                         if (isset($eseen["mod_$module:mod_$mod"])) {
                             array_push($alerts, "Loop found $module <=> $mod");
                         }
                         $eseen["mod_$mod:mod_$module"] = true;
-                        $maturity = get_maturity($mod, $dbh, $alerts);
+                        $maturity = get_maturity($mobj, $alerts);
                         if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
                             continue;
                         }
 
-                        $org = get_org($dbh, $mod);
+                        $org = $mrev_org['org'];
                         if (!isset($SDO_CMAP[strtoupper($org)])) {
                             $found_mats[':'.$maturity['level']] = true;
                         } else {
@@ -266,7 +245,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
 
                         $mcolor = $maturity['color'];
                         if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
-                            $cstatus = get_compile_status($dbh, $mod);
+                            $cstatus = get_compile_status($mobj);
                             if ($cstatus == 'FAILED') {
                                 $mcolor = $COLOR_FAILED;
                                 $found_failed = true;
@@ -286,7 +265,7 @@ function build_graph($module, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$n
                             $r = $recurse - 1;
                             //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                         } elseif (!$nested) {
-                            $document = get_doc($dbh, $mod);
+                            $document = get_doc($mobj);
                             array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
                         }
                     }
@@ -318,6 +297,8 @@ $bottlenecks = [];
 $title = 'Empty Impact Graph';
 
 $dbh = yang_db_conn($alerts);
+
+$rester = new Rester(YANG_CATALOG_URL);
 
 if (!isset($_GET['modules'])) {
     //array_push($alerts, 'Modules were not specified');
@@ -356,7 +337,9 @@ if (!isset($_GET['modules'])) {
             // XXX: symd does not handle revisions yet.
             $module = explode('@', $module)[0];
             array_push($good_mods, $module);
-            build_graph($module, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
+            $org_rev = get_rev_org($module, $dbh, $alerts);
+            $mob_obj = new Module($rester, $module, $org_rev['rev'], $org_rev['org']);
+            build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
         }
     }
     if (count($good_mods) > 0) {

@@ -124,6 +124,26 @@ class Module
         return $this->$field;
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getOrganization()
+    {
+        return $this->organization;
+    }
+
+    public function getRevision()
+    {
+        return $this->revision;
+    }
+
+    public function getRester()
+    {
+        return $this->rester;
+    }
+
     public function getModSig()
     {
         return "{$this->name}@{$this->revision}/{$this->organization}";
