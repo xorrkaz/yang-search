@@ -338,7 +338,7 @@ if (!isset($_GET['modules'])) {
             $module = explode('@', $module)[0];
             array_push($good_mods, $module);
             $org_rev = get_rev_org($module, $dbh, $alerts);
-            $mob_obj = Module::moduleFactory($rester, $module, $org_rev['rev'], $org_rev['org']);
+            $mod_obj = Module::moduleFactory($rester, $module, $org_rev['rev'], $org_rev['org']);
             build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
         }
     }
