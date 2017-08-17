@@ -36,7 +36,7 @@ $DIR_HELP_TEXT = "<b>Both:</b> Show a graph that consists of both dependencies (
                  "<b>Dependencies Only:</b> Only show those modules that are imported by the target module(s)<br/>&nbsp;<br/>\n" .
                  '<b>Dependents Only:</b> Only show those modules that depend on the target module(s)';
 
-function get_doc($mod_obj)
+function get_doc(&$mod_obj)
 {
     try {
         $doc_name = $mod_obj->get('document-name');
@@ -54,7 +54,7 @@ function get_doc($mod_obj)
     return 'N/A';
 }
 
-function get_compile_status($mod_obj)
+function get_compile_status(&$mod_obj)
 {
     try {
         return $mod_obj->get('compilation-status');
@@ -97,7 +97,7 @@ function is_submod(&$dbh, $module)
     }
 }
 
-function build_graph($module, $mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true, $show_dir = 'both')
+function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true, $show_dir = 'both')
 {
     global $found_orgs, $found_mats, $found_failed, $SDO_CMAP, $COLOR_FAILED;
 

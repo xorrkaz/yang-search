@@ -219,7 +219,7 @@ function yang_db_conn(&$alerts)
  * Output:
  *  The maturity level and color for the given module
  */
-function get_maturity($mod_obj, &$alerts)
+function get_maturity(&$mod_obj, &$alerts)
 {
     global $SDO_CMAP, $MATURITY_UNKNOWN;
 
@@ -256,7 +256,7 @@ function get_maturity($mod_obj, &$alerts)
  * Output:
  *  A hash of org => organization, rev => revision
  */
-function get_rev_org($module, &$dbh, $alerts)
+function get_rev_org($module, &$dbh, &$alerts)
 {
     try {
         if (preg_match('/@/', $module)) {
