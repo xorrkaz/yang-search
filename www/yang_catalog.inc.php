@@ -228,7 +228,7 @@ function get_maturity($mod_obj, &$alerts)
         $organization = strtoupper($mod_obj->getOrganization());
         $mmat = strtoupper($mod_obj->get('maturity-level'));
         if (isset($SDO_CMAP[$organization])) {
-            $mname = array_search($mmat, array_column($SDO_CMAP[$organization], 'name'));
+            $mname = array_search($mmat, array_column($SDO_CMAP[$organization], 'level'));
             if ($mname !== false) {
                 $maturity = $SDO_CMAP[$organization][$mname];
             } else {
@@ -239,6 +239,7 @@ function get_maturity($mod_obj, &$alerts)
             }
         }
     } catch (Exception $e) {
+
         push_exception("Failed to get module maturity for {$mod_obj->getName()}@{$mod_obj->getRevision()}/{$mod_obj->getOrganization()} (perhaps it doesn't validate?)", $e, $alerts);
     }
 
