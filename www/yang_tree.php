@@ -141,7 +141,7 @@ if (!isset($_GET['module'])) {
         $modn = explode('@', $module)[0];
         $module = "{$modn}@{$rev_org['rev']}";
         $f = YTREES_DIR.'/'.$module.'.json';
-        $mod_obj = new Module($rester, $modn, $rev_org['rev'], $rev_org['org']);
+        $mod_obj = Module::moduleFactory($rester, $modn, $rev_org['rev'], $rev_org['org']);
         $maturity = get_maturity($mod_obj, $alerts);
         if (is_file($f)) {
             try {

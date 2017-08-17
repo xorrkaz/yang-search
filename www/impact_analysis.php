@@ -164,7 +164,7 @@ function build_graph($module, $mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_c
                             continue;
                         }
                         $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                        $mobj = new Module($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+                        $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
                         $eseen["mod_$module:mod_$mod"] = true;
                         $maturity = get_maturity($mobj, $alerts);
                         if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
@@ -220,7 +220,7 @@ function build_graph($module, $mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_c
                             continue;
                         }
                         $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                        $mobj = new Module($module->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+                        $mobj = Module::moduleFactory($module->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
                         if (isset($eseen["mod_$module:mod_$mod"])) {
                             array_push($alerts, "Loop found $module <=> $mod");
                         }
@@ -338,7 +338,7 @@ if (!isset($_GET['modules'])) {
             $module = explode('@', $module)[0];
             array_push($good_mods, $module);
             $org_rev = get_rev_org($module, $dbh, $alerts);
-            $mob_obj = new Module($rester, $module, $org_rev['rev'], $org_rev['org']);
+            $mob_obj = Module::moduleFactory($rester, $module, $org_rev['rev'], $org_rev['org']);
             build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
         }
     }
@@ -362,7 +362,7 @@ if (!isset($_GET['modules'])) {
             if ($edge['data']['target'] == "mod_{$bn}") {
                 $mn = str_replace('mod_', '', $edge['data']['source']);
                 $rev_org = get_rev_org($mn, $dbh, $alerts);
-                $mo = new Module($rester, $mn, $rev_org['rev'], $rev_org['org']);
+                $mo = Module::moduleFactory($rester, $mn, $rev_org['rev'], $rev_org['org']);
                 $maturity = get_maturity($mo, $alerts);
                 if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
                     array_push($bottlenecks, "node#{$edge['data']['source']}");
