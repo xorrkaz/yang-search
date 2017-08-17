@@ -220,7 +220,7 @@ function build_graph($module, $mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_c
                             continue;
                         }
                         $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                        $mobj = Module::moduleFactory($module->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+                        $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
                         if (isset($eseen["mod_$module:mod_$mod"])) {
                             array_push($alerts, "Loop found $module <=> $mod");
                         }
