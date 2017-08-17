@@ -136,7 +136,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 $color = $mmat['color'];
                 if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
                     $cstatus = get_compile_status($mod_obj);
-                    if ($cstatus == 'FAILED') {
+                    if ($cstatus == 'failed') {
                         $color = $COLOR_FAILED;
                         $found_failed = true;
                     }
@@ -174,7 +174,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                         $mcolor = $maturity['color'];
                         if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
                             $cstatus = get_compile_status($mobj);
-                            if ($cstatus == 'FAILED') {
+                            if ($cstatus == 'failed') {
                                 $mcolor = $COLOR_FAILED;
                                 $found_failed = true;
                             }
@@ -246,7 +246,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                         $mcolor = $maturity['color'];
                         if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
                             $cstatus = get_compile_status($mobj);
-                            if ($cstatus == 'FAILED') {
+                            if ($cstatus == 'failed') {
                                 $mcolor = $COLOR_FAILED;
                                 $found_failed = true;
                             }
