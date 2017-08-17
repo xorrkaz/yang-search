@@ -130,11 +130,11 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
             } else {
                 $mmat = get_maturity($mod_obj, $alerts);
-                if ($nested && $mmat['level'] == 'STANDARD' && !$show_rfcs) {
+                if ($nested && $mmat['level'] == 'RATIFIED' && !$show_rfcs) {
                     return;
                 }
                 $color = $mmat['color'];
-                if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
+                if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
                     $cstatus = get_compile_status($mod_obj);
                     if ($cstatus == 'failed') {
                         $color = $COLOR_FAILED;
@@ -167,12 +167,12 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                         $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
                         $eseen["mod_$module:mod_$mod"] = true;
                         $maturity = get_maturity($mobj, $alerts);
-                        if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
+                        if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
                             continue;
                         }
 
                         $mcolor = $maturity['color'];
-                        if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
+                        if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
                             $cstatus = get_compile_status($mobj);
                             if ($cstatus == 'failed') {
                                 $mcolor = $COLOR_FAILED;
@@ -193,7 +193,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                         }
                         $found_orgs[$org] = true;
 
-                        if ($mmat['level'] == 'IDRAFT' || $mmat['level'] == 'WGDRAFT') {
+                        if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
                             ++$edge_counts[$module];
                         }
                         if ("mod_$module" != "mod_$mod") {
@@ -226,7 +226,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                         }
                         $eseen["mod_$mod:mod_$module"] = true;
                         $maturity = get_maturity($mobj, $alerts);
-                        if ($maturity['level'] == 'STANDARD' && !$show_rfcs) {
+                        if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
                             continue;
                         }
 
@@ -244,7 +244,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                         $found_orgs[$org] = true;
 
                         $mcolor = $maturity['color'];
-                        if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
+                        if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
                             $cstatus = get_compile_status($mobj);
                             if ($cstatus == 'failed') {
                                 $mcolor = $COLOR_FAILED;
@@ -364,7 +364,7 @@ if (!isset($_GET['modules'])) {
                 $rev_org = get_rev_org($mn, $dbh, $alerts);
                 $mo = Module::moduleFactory($rester, $mn, $rev_org['rev'], $rev_org['org']);
                 $maturity = get_maturity($mo, $alerts);
-                if ($maturity['level'] == 'IDRAFT' || $maturity['level'] == 'WGDRAFT') {
+                if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
                     array_push($bottlenecks, "node#{$edge['data']['source']}");
                     $found_dep = true;
                 }
