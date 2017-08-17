@@ -74,17 +74,17 @@ $SDO_CMAP = [
       'name' => 'N/A',
     ],
     [
-      'level' => 'IDRAFT',
+      'level' => 'INITIAL',
       'color' => '#c900ff',
       'name' => 'INDIVIDUAL DRAFT',
     ],
     [
-      'level' => 'WGDRAFT',
+      'level' => 'ADOPTED',
       'color' => '#86B342',
       'name' => 'WG DRAFT',
     ],
     [
-      'level' => 'STANDARD',
+      'level' => 'RATIFIED',
       'color' => '#0066FF',
       'name' => 'RFC',
     ],
@@ -96,17 +96,17 @@ $SDO_CMAP = [
       'name' => 'N/A',
     ],
     [
-      'level' => 'IDRAFT',
+      'level' => 'INITIAL',
       'color' => '#FF99FF',
       'name' => 'PERSONAL',
     ],
     [
-      'level' => 'WGDRAFT',
+      'level' => 'ADOPTED',
       'color' => '#00FF99',
       'name' => 'DRAFT',
     ],
     [
-      'level' => 'STANDARD',
+      'level' => 'RATIFIED',
       'color' => '#3366FF',
       'name' => 'STANDARD',
     ],
