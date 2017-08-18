@@ -294,17 +294,20 @@ foreach ($alerts as $alert) {
     <tbody>
       <?php
       foreach ($properties as $key => $val) {
-          ?>
+          if (!is_array($val)) {
+              ?>
         <tr>
           <td style="text-align: right"><b><?=$key?></b></td>
-          <td><?=(str_replace('\n', '<br/>', $val))?></td>
+          <td><?=(str_replace("\n", "<br/>\n", htmlentities($val))?></td>
         </tr>
         <?php
 
+          }
       } ?>
     </tbody>
   </table>
   <?php
+
   }?>
   </body>
 </html>
