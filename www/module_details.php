@@ -205,7 +205,7 @@ foreach ($alerts as $alert) {
     </div>
     <div class="panel panel-default">
       <div class="panel-heading">
-        <label class="panel-title">Spexify Module</label>
+        <label class="panel-title">Specify Module</label>
         <span class="pull-right clickable" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </div>
       <div class="panel-body">
@@ -217,7 +217,7 @@ foreach ($alerts as $alert) {
                 <tbody>
                   <tr>
                     <td><b>Module:</b></td>
-                    <td><input type="text" value="<?=$module?>" id="module" class="typeahead"></td>
+                    <td><input type="text" value="<?=(isset($module) ? $module : '')?>" id="module" class="typeahead"></td>
                   </tr>
                   <tr>
                     <td><button type="button" class="btn btn-primary" id="details_commit">Get Details</button></td>
