@@ -39,10 +39,16 @@ if (!isset($_GET['module'])) {
     $module = $_GET['module'];
     $module = str_replace('.yang', '', $module);
     $module = str_replace('.yin', '', $module);
-    $rev_org = get_rev_org($module, $dbh);
+    $rev_org = get_rev_org($module, $dbh, $alerts);
     $module = explode('@', $module)[0];
+    $properties = null;
 
     $mod_obj = Module::moduleFactory($rester, $module, $rev_org['rev'], $rev_org['org']);
+    try {
+        $properties = $mod_obj->toArray();
+    } catch (Exception $e) {
+        push_exception("Failed to get module details for {$mod_obj->getModSig()}", $e, $alerts);
+    }
 
     $title = "Module Details for {$module}@{$rev_org['rev']}/{$rev_org['org']}";
 }
@@ -134,6 +140,8 @@ table.controls {
 
 		<script>
 
+    var dt;
+
 function reloadPage() {
   var url = "<?=$_SERVER['PHP_SELF']?>?";
   var uargs = [];
@@ -148,6 +156,12 @@ $(document).ready(function() {
   $('#details_commit').on('click', function(e) {
     reloadPage();
   });
+  dt = $('#datatable').DataTable({
+    "scrollY": "600px",
+    "scrollCollapse": true,
+    "paging":false,
+    "searching": false
+  });
 });
 
 $(document).on('click', '.panel-heading span.clickable', function(e){
@@ -155,12 +169,10 @@ $(document).on('click', '.panel-heading span.clickable', function(e){
     $(this).parents('.panel').find('.panel-body').slideUp();
     $(this).addClass('panel-collapsed');
     $(this).find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-    window.cy.resize();
   } else {
     $(this).parents('.panel').find('.panel-body').slideDown();
     $(this).removeClass('panel-collapsed');
     $(this).find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-    window.cy.resize();
   }
 });
 </script>
@@ -264,5 +276,27 @@ foreach ($alerts as $alert) {
     });
     </script>
   </div>
+  <?php
+  if ($properties !== null) {
+      ?>
+  <table id="datatable" class="table table-bordered table-responsive" width="100%" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Property Name</th>
+        <th>Property Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+      foreach ($properties as $key => $val) {
+          ?>
+        <tr>
+          <td style="align: right"><b><?=$key?></b></td>
+          <td><?=$val?></td>
+        </tr>
+        <?php
+
+      }
+  }?>
   </body>
 </html>
