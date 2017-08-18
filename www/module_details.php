@@ -31,6 +31,8 @@ require_once 'Module.php';
 $alerts = [];
 $title = 'Module Details';
 
+$dbh = yang_db_conn($alerts);
+
 $rester = new Rester(YANG_CATALOG_URL);
 
 if (!isset($_GET['module'])) {
