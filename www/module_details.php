@@ -298,7 +298,10 @@ foreach ($alerts as $alert) {
               ?>
         <tr>
           <td style="text-align: right"><b><?=$key?></b></td>
-          <td><?=(str_replace("\n", "<br/>\n", preg_replace('!(http)(s)?:\/\/[a-zA-Z0-9.?&_/\-@]+!', "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>', htmlentities($val)))))?></td>
+          <td><?=(str_replace("\n", "<br/>\n",
+            preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
+            "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
+            htmlentities($val)))))?></td>
         </tr>
         <?php
 
