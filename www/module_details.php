@@ -287,7 +287,7 @@ foreach ($alerts as $alert) {
   <table id="datatable" class="table table-responsive" width="100%" cellspacing="0">
     <thead>
       <tr>
-        <th>Property Name</th>
+        <th style="text-align: right">Property Name</th>
         <th>Property Value</th>
       </tr>
     </thead>
@@ -298,7 +298,7 @@ foreach ($alerts as $alert) {
               ?>
         <tr>
           <td style="text-align: right"><b><?=$key?></b></td>
-          <td><?=(str_replace("\n", "<br/>\n", htmlentities($val)))?></td>
+          <td><?=(str_replace("\n", "<br/>\n", htmlentities(preg_replace('!(http|ftp|scp)(s)?:\/\/[a-zA-Z0-9.?&_/]+!', "<a href=\"\\0\">\\0</a>", $val);)))?></td>
         </tr>
         <?php
 
