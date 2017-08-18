@@ -162,7 +162,10 @@ $(document).ready(function() {
     "scrollY": "600px",
     "scrollCollapse": true,
     "paging":false,
-    "searching": false
+    "searching": false,
+    "columnDefs": [
+      { "orderable": false, "targets": 1 }
+    ]
   });
 });
 
@@ -281,7 +284,7 @@ foreach ($alerts as $alert) {
   <?php
   if ($properties !== null) {
       ?>
-  <table id="datatable" class="table table-bordered table-responsive" width="100%" cellspacing="0">
+  <table id="datatable" class="table table-responsive" width="100%" cellspacing="0">
     <thead>
       <tr>
         <th>Property Name</th>
@@ -293,8 +296,8 @@ foreach ($alerts as $alert) {
       foreach ($properties as $key => $val) {
           ?>
         <tr>
-          <td style="align: right"><b><?=$key?></b></td>
-          <td><?=$val?></td>
+          <td style="text-align: right"><b><?=$key?></b></td>
+          <td><?=(str_replace('\n', '<br/>', $val))?></td>
         </tr>
         <?php
 
