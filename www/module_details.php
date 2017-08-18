@@ -298,7 +298,7 @@ foreach ($alerts as $alert) {
               ?>
         <tr>
           <td style="text-align: right"><b><?=$key?></b></td>
-          <td><?=(str_replace("\n", "<br/>\n", htmlentities($val))?></td>
+          <td><?=(str_replace("\n", "<br/>\n", htmlentities($val)))?></td>
         </tr>
         <?php
 
