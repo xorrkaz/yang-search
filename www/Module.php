@@ -60,7 +60,7 @@ class Module
         $this->rester = $rester;
 
         foreach (Module::$objectHash as $key => $value) {
-            if (isset($attrs[$key])) {
+            if (array_key_exists($key, $attrs)) {
                 $this->$key = $attrs[$key];
             } else {
                 $this->$key = null;
@@ -158,9 +158,7 @@ class Module
         $arr = [];
 
         foreach (Module::$objectHash as $key => $value) {
-            if (isset($this->$key)) {
-                $arr[$key] = $this->$key;
-            }
+            $arr[$key] = $this->$key;
         }
 
         return $arr;

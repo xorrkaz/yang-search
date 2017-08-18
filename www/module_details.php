@@ -158,7 +158,7 @@ $(document).ready(function() {
   $('#details_commit').on('click', function(e) {
     reloadPage();
   });
-  dt = $('#datatable').DataTable({
+  /*dt = $('#datatable').DataTable({
     "scrollY": "600px",
     "scrollCollapse": true,
     "paging":false,
@@ -166,7 +166,7 @@ $(document).ready(function() {
     "columnDefs": [
       { "orderable": false, "targets": 1 }
     ]
-  });
+  });*/
 });
 
 $(document).on('click', '.panel-heading span.clickable', function(e){
