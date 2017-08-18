@@ -257,7 +257,7 @@ foreach ($alerts as $alert) {
       name: 'mod_completions',
       limit: 100,
       source: function (query, syncResults, asyncResults) {
-        $.get('completions.php?type=module&patter=' + query, function (data) {
+        $.get('completions.php?type=module&pattern=' + query, function (data) {
           asyncResults(data);
         });
       }
