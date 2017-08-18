@@ -296,7 +296,10 @@ foreach ($alerts as $alert) {
         </tr>
         <?php
 
-      }
+      } ?>
+    </tbody>
+  </table>
+  <?php
   }?>
   </body>
 </html>
