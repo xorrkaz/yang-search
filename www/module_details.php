@@ -217,7 +217,7 @@ foreach ($alerts as $alert) {
                 <tbody>
                   <tr>
                     <td><b>Module:</b></td>
-                    <td><input type="text" value="<?=(isset($module) ? $module : '')?>" id="module" class="typeahead"></td>
+                    <td><input type="text" value="<?=(isset($module) ? $module : '')?>" id="module" class="form-control" placeholder="Module Name"></td>
                   </tr>
                   <tr>
                     <td><button type="button" class="btn btn-primary" id="details_commit">Get Details</button></td>
