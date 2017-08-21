@@ -56,6 +56,7 @@ define('YANG_CATALOG_URL', 'https://yangcatalog.org:8443');
 define('REST_TIMEOUT', 300);
 define('LOCKF', '/tmp/webhook.lock');
 define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
+define('DELETE_CACHE', '/usr/share/nginx/yang_repo_deletes.dat');
 define('YANG_REPO_ID', 17985602);
 
 // Global variables

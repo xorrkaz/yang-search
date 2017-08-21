@@ -32,11 +32,14 @@ from subprocess import call
 
 mod_list = []
 find_args = []
+del_list = []
 
 parser = argparse.ArgumentParser(
     description="Process changed modules in a git repo")
 parser.add_argument('--time', type=str,
                     help='Modified time argument to find(1)', required=False)
+parser.add_argument('--dbf', type=str,
+                    help='Path to the database file', required=True)
 args = parser.parse_args()
 
 if args.time:
@@ -58,7 +61,49 @@ try:
         fd.close()
 except Exception as e:
     print('Failed to read cache file {}'.format(e))
-    sys.exit(1)
+    mod_list = []
+
+try:
+    if os.path.getsize(os.environ['YANG_DELETE_FILE']) > 0:
+        fd = open(os.environ['YANG_DELETE_FILE'], 'r+')
+        del_list = json.load(fd)
+
+        # Backup the contents just in case.
+        bfd = open(os.environ['YANG_DELETE_FILE'] + '.bak', 'w')
+        json.dump(del_list, bfd)
+        bfd.close()
+
+        # Zero out the main file.
+        fd.seek(0)
+        fd.truncate()
+        fd.close()
+except Exception as e:
+    print('Failed to read delete cache file {}'.format(e))
+    del_list = []
+
+if len(del_list) > 0:
+    try:
+        con = sqlite3.connect(args.dbf)
+        cur = con.cursor()
+        for mod in del_list:
+            mname = mod.split('@')[0]
+            mrev_org = mod.split('@')[1]
+            mrev = mrev_org.split('/')[0]
+            morg = '/'.join(mrev_org.split('/')[1:])
+            sql = 'DELETE FROM modules WHERE module=:mod AND revision=:rev AND organzation=:org'
+            try:
+                cur.execute(sql, {'mod': mname, 'rev': mrev,
+                                  'org': morg})
+                sql = 'DELETE FROM yindex WHERE module=:mod AND revision=:rev AND organzation=:org'
+                cur.execute(sql, {'mod': mname, 'rev': mrev,
+                                  'org': morg})
+            except sqlite3.Error as e:
+                print('Failed to delete {} from the index: {}'.format(
+                    mod, e.args[0]))
+        con.commit()
+        con.close()
+    except sqlite3.Error as e:
+        print("Error connecting to DB: {}".format(e.args[0]))
 
 if len(mod_list) == 0:
     sys.exit(0)
