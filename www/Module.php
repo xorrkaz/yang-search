@@ -30,6 +30,7 @@ class Module
     'name' => true,
     'revision' => true,
     'organization' => true,
+    'belongs-to' => true,
     'schema' => true,
     'generated-from' => true,
     'maturity-level' => true,
