@@ -73,6 +73,9 @@ class Module
         }
 
         $this->name = $name;
+        if ($revision == '') {
+            $revision = '1970-01-01';
+        }
         $this->revision = $revision;
         $this->organization = $organization;
     }
