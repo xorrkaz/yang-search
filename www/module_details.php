@@ -242,7 +242,7 @@ foreach ($alerts as $alert) {
                   <?php if (isset($module)) {
     ?>
                   <tr>
-                    <td style="text-align: right">
+                    <td style="text-align: right; padding-top: 10px;">
                       <a href="yang_tree.php?module=<?=$module?>"><img border="0" src="img/leaf.png" title="Tree View for <?=$module?>">
                         Tree View</a>
                         |
