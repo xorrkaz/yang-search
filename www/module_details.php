@@ -322,7 +322,7 @@ foreach ($alerts as $alert) {
                 <td><?=(str_replace("\n", "<br/>\n",
                   preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
                   "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
-                  htmlentities($val)))))?></td>
+                  htmlentities($nv)))))?></td>
                 </tr>
                 <?php
 
