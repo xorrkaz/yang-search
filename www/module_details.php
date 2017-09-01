@@ -42,18 +42,12 @@ function print_cell($key, $val)
         ?>
     <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse">Click to view <?=$key?> details.</a></div>
       <div class="accordion-body collapse" id="table-<?=$key?>"><table class="table table-responsive" cellspacing="0">
-      <thead>
-        <tr>
-          <th style="text-align: right">Property Name</th>
-          <th>Property Value</th>
-        </tr>
-      </thead>
       <tbody>
         <?php
         foreach ($val as $nk => $nv) {
             ?>
           <tr>
-            <td style="text-align: right"><b><?=$nk?></b></td>
+            <td width="10%"><b><?=$nk?> : </b></td>
             <?php print_cell($nk, $nv); ?>
           </tr>
           <?php
@@ -349,7 +343,7 @@ foreach ($alerts as $alert) {
       foreach ($properties as $key => $val) {
           ?>
         <tr>
-          <td style="text-align: right"><b><?=$key?></b></td>
+          <td style="text-align: right"><b><?=$key?> : </b></td>
           <?php print_cell($key, $val); ?>
         </tr>
         <?php
