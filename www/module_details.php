@@ -294,18 +294,48 @@ foreach ($alerts as $alert) {
     <tbody>
       <?php
       foreach ($properties as $key => $val) {
-          if (!is_array($val)) {
-              ?>
+          ?>
         <tr>
           <td style="text-align: right"><b><?=$key?></b></td>
+          <?php if (!is_array($val)) {
+              ?>
           <td><?=(str_replace("\n", "<br/>\n",
             preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
             "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
             htmlentities($val)))))?></td>
+        <?php
+
+          } else {
+              ?>
+        <td><table class="table table-responsive" cellspacing="0">
+          <thead>
+            <tr>
+              <th style="text-align: right">Property Name</th>
+              <th>Property Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($val as $nk => $nv) {
+                  ?>
+              <tr>
+                <td style="text-align: right"><b><?=$nk?></b></td>
+                <td><?=(str_replace("\n", "<br/>\n",
+                  preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
+                  "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
+                  htmlentities($val)))))?></td>
+                </tr>
+                <?php
+
+              } ?>
+          </tbody>
+        </table>
+      </td>
+      <?php
+
+          } ?>
         </tr>
         <?php
 
-          }
       } ?>
     </tbody>
   </table>
