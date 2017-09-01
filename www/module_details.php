@@ -239,6 +239,19 @@ foreach ($alerts as $alert) {
                   <tr>
                     <td><button type="button" class="btn btn-primary" id="details_commit">Get Details</button></td>
                   </tr>
+                  <?php if (isset($module)) {
+    ?>
+                  <tr>
+                    <td style="text-align: right">
+                      <a href="yang_tree.php?module=<?=$module?>"><img border="0" src="img/leaf.png" title="Tree View for <?=$module?>">
+                        Tree View</a>
+                        |
+                        <a href="impact_analysis.php?modules[]=<?=$module?>"><img src="img/impact.png" border="0" title="Impact Analysis for <?=$module?>">
+                          Impact Analysis</a>
+                    </td>
+                  </tr>
+                <?php
+} ?>
                 </tbody>
               </table>
             </form>
