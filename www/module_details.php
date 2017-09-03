@@ -28,7 +28,7 @@ include_once 'yang_catalog.inc.php';
 require_once 'Rester.php';
 require_once 'Module.php';
 
-function print_cell($key, $val, $collpased = true)
+function print_cell($key, $val, $collapsed = true)
 {
     if (!is_array($val)) {
         ?>
