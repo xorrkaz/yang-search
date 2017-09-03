@@ -38,18 +38,19 @@ function print_cell($key, $val)
       htmlentities($val)))))?></td>
       <?php
 
-    } elseif (count(array_keys($val)) == 1 && is_array($val[array_keys($val)[0]])) {
-        print_cell(array_keys($val)[0], $val[array_keys($val)[0]]);
     } else {
-        ?>
+        $def_col = 'collapse';
+        if (is_integer(array_keys($val)[0])) {
+            $def_col = '';
+        } ?>
     <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse">Click to view <?=$key?> details.</a></div>
-      <div class="accordion-body collapse" id="table-<?=$key?>"><table class="table table-responsive" cellspacing="0">
+      <div class="accordion-body <?=$def_col?>" id="table-<?=$key?>"><table class="table table-responsive" cellspacing="0">
       <tbody>
         <?php
         foreach ($val as $nk => $nv) {
             ?>
           <tr>
-            <td width="15%"><b><?=$nk?> : </b></td>
+            <td width="20%"><b><?=$nk?> : </b></td>
             <?php print_cell($nk, $nv); ?>
           </tr>
           <?php
