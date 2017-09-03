@@ -28,7 +28,7 @@ include_once 'yang_catalog.inc.php';
 require_once 'Rester.php';
 require_once 'Module.php';
 
-function print_cell($key, $val)
+function print_cell($key, $val, $collpased = true)
 {
     if (!is_array($val)) {
         ?>
@@ -40,10 +40,14 @@ function print_cell($key, $val)
 
     } else {
         $def_col = 'collapse';
+        $ncol = true;
+        if (!$collapsed) {
+            $def_col = 'collpase in';
+        }
         if (is_integer(array_keys($val)[0])) {
-            $def_col = '';
+            $ncol = false;
         } ?>
-    <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse">Click to view <?=$key?> details.</a></div>
+    <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse">Click to view "<?=$key?>" details.</a></div>
       <div class="accordion-body <?=$def_col?>" id="table-<?=$key?>"><table class="table table-responsive" cellspacing="0">
       <tbody>
         <?php
@@ -51,7 +55,7 @@ function print_cell($key, $val)
             ?>
           <tr>
             <td width="20%"><b><?=$nk?> : </b></td>
-            <?php print_cell($nk, $nv); ?>
+            <?php print_cell($nk, $nv, $ncol); ?>
           </tr>
           <?php
 
