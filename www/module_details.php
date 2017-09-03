@@ -38,6 +38,8 @@ function print_cell($key, $val)
       htmlentities($val)))))?></td>
       <?php
 
+    } elseif (count(array_keys($val)) == 1 && is_array($val[array_keys($val)[0]])) {
+        print_cell(array_keys($val)[0], $val[array_keys($val)[0]]);
     } else {
         ?>
     <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse">Click to view <?=$key?> details.</a></div>
@@ -47,7 +49,7 @@ function print_cell($key, $val)
         foreach ($val as $nk => $nv) {
             ?>
           <tr>
-            <td width="10%"><b><?=$nk?> : </b></td>
+            <td width="15%"><b><?=$nk?> : </b></td>
             <?php print_cell($nk, $nv); ?>
           </tr>
           <?php
