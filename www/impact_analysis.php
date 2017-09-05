@@ -539,7 +539,8 @@ $(function() {
         },
         hide: {
           when: 'mouseout',
-          fixed: true
+          fixed: true,
+          delay: 2000
         },
         style: {
           classes: 'qtip-bootstrap',
