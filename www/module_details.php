@@ -28,7 +28,7 @@ include_once 'yang_catalog.inc.php';
 require_once 'Rester.php';
 require_once 'Module.php';
 
-function print_cell($key, $val, $collapsed = true)
+function print_cell($key, $val, $pkey = null, $collapsed = true)
 {
     if (!is_array($val)) {
         ?>
@@ -41,14 +41,21 @@ function print_cell($key, $val, $collapsed = true)
     } else {
         $def_col = 'collapse';
         $ncol = true;
+        $npk = null;
+        $msg = "Click to view \"$key\" details.";
         if (!$collapsed) {
             $def_col = 'collpase in';
         }
         if (is_integer(array_keys($val)[0])) {
             $ncol = false;
             $def_col = 'collapse in';
+            $npk = $key;
+        }
+
+        if ($pkey !== null) {
+            $msg = "Click to view $pkey $key details.";
         } ?>
-    <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse">Click to view "<?=$key?>" details.</a></div>
+    <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse"><?=$msg?></a></div>
       <div class="accordion-body <?=$def_col?>" id="table-<?=$key?>"><table class="table table-responsive" cellspacing="0">
       <tbody>
         <?php
@@ -56,7 +63,7 @@ function print_cell($key, $val, $collapsed = true)
             ?>
           <tr>
             <td width="20%"><b><?=$nk?> : </b></td>
-            <?php print_cell($nk, $nv, $ncol); ?>
+            <?php print_cell($nk, $nv, $npk, $ncol); ?>
           </tr>
           <?php
 
