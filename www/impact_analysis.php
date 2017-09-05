@@ -538,9 +538,8 @@ $(function() {
           event: 'mouseover'
         },
         hide: {
-          when: 'mouseout',
-          fixed: true,
-          delay: 2000
+          event: false,
+          inactive: 2000
         },
         style: {
           classes: 'qtip-bootstrap',
