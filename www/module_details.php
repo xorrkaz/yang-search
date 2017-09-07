@@ -351,7 +351,7 @@ foreach ($alerts as $alert) {
       foreach ($properties as $key => $val) {
           ?>
         <tr>
-          <td style="text-align: right"><b><?=$key?> : </b></td>
+          <td style="text-align: right"><b><?=$key?> : </b> <img src="img/help.png" border="0"/></td>
           <?php print_cell($key, $val); ?>
         </tr>
         <?php
