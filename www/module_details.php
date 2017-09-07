@@ -40,13 +40,13 @@ function print_cell($key, $val, $pkey = null)
 
     } else {
         $npk = null;
-        $msg = "Click to view \"$key\" details.";
+        $msg = "Click to toggle \"$key\" details.";
         if (is_integer(array_keys($val)[0])) {
             $npk = $key;
         }
 
         if ($pkey !== null) {
-            $msg = "Click to view $pkey $key details.";
+            $msg = "Click to toggle $pkey $key details.";
         } ?>
     <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse"><?=$msg?></a></div>
       <div class="accordion-body collapse in" id="table-<?=$key?>"><table class="table table-responsive" cellspacing="0">
