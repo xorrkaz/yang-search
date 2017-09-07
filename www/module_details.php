@@ -86,6 +86,8 @@ if (!isset($_GET['module'])) {
     $module = explode('@', $module)[0];
     $properties = null;
 
+    $ycro = get_rev_org('yang-catalog', $dbh, $alerts);
+
     $mod_obj = Module::moduleFactory($rester, $module, $rev_org['rev'], $rev_org['org']);
     try {
         $properties = $mod_obj->toArray();
@@ -199,6 +201,7 @@ $(document).ready(function() {
   $('#details_commit').on('click', function(e) {
     reloadPage();
   });
+  $('[data-toggle="tooltip"]').tooltip();
   /*dt = $('#datatable').DataTable({
     "scrollY": "600px",
     "scrollCollapse": true,
@@ -349,9 +352,17 @@ foreach ($alerts as $alert) {
     <tbody>
       <?php
       foreach ($properties as $key => $val) {
-          ?>
+          $help_text = '';
+          $sql = 'SELECT description FROM yindex WHERE module=:ycmod AND revision=:ycrev AND argument=:key LIMIT 1';
+          try {
+              $sth = $dbh->prepare($sql);
+              $sth->execute(['ycmod' => 'yang-catalog', 'ycrev' => $ycro['rev'], 'key' => $key]);
+              $row = $sth->fetch();
+              $help_text = $row['description'];
+          } catch (Exception $e) {
+          } ?>
         <tr>
-          <td style="text-align: right"><b><?=$key?> : </b> <img src="img/help.png" border="0"/></td>
+          <td style="text-align: right"><b><?=$key?> : </b> <img src="img/help.png" border="0" data-html="true" data-toggle="tooltip" title="<?=$help_text?>"/></td>
           <?php print_cell($key, $val); ?>
         </tr>
         <?php
