@@ -108,8 +108,13 @@ if len(del_list) > 0:
 if len(mod_list) == 0:
     sys.exit(0)
 
-args = ['./build_yindex.sh'] + find_args + \
-    [os.environ['YANGDIR'] + '/' + m for m in mod_list]
+mod_args = []
+for m in mod_list:
+    if not m.startswith('/'):
+        m = os.environ['YANGDIR'] + '/' + m
+    mod_args.append(m)
+
+args = ['./build_yindex.sh'] + find_args + mod_args
 
 os.chdir(os.environ['TOOLS_DIR'])
 call(args)
