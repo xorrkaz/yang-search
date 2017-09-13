@@ -367,7 +367,7 @@ foreach ($alerts as $alert) {
                               if (isset($child['enum']) && $child['enum']['has_children'] === true) {
                                   foreach ($child['enum']['children'] as $echild) {
                                       if (isset($echild['description'])) {
-                                          $help_text .= "<br/>\r\n{$child['enum']['value']} : {$echild['description']['value']}";
+                                          $help_text .= "<br/>\r\n<br/>\r\n{$child['enum']['value']} : {$echild['description']['value']}";
                                       }
                                   }
                               }
