@@ -353,12 +353,29 @@ foreach ($alerts as $alert) {
       <?php
       foreach ($properties as $key => $val) {
           $help_text = '';
-          $sql = 'SELECT description FROM yindex WHERE module=:ycmod AND revision=:ycrev AND argument=:key LIMIT 1';
+          $sql = 'SELECT description, properties FROM yindex WHERE module=:ycmod AND revision=:ycrev AND argument=:key LIMIT 1';
           try {
               $sth = $dbh->prepare($sql);
               $sth->execute(['ycmod' => 'yang-catalog', 'ycrev' => $ycro['rev'], 'key' => $key]);
               $row = $sth->fetch();
               $help_text = $row['description'];
+              $nprops = json_decode($row['properties'], true);
+              foreach ($nprops as $prop) {
+                  if (isset($prop['type'])) {
+                      if ($prop['type']['has_children'] === true) {
+                          foreach ($prop['type']['children'] as $child) {
+                              if (isset($child['enum']) && $child['enum']['has_children'] === true) {
+                                  foreach ($child['enum']['children'] as $echild) {
+                                      if (isset($echild['description'])) {
+                                          $help_text .= "<br/>\r\n{$child['enum']['value']} : {$echild['description']['value']}";
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                      break;
+                  }
+              }
           } catch (Exception $e) {
           } ?>
         <tr>
