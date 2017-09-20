@@ -63,31 +63,25 @@ function get_compile_status(&$mod_obj)
     }
 }
 
-function get_parent(&$dbh, $module)
+function get_parent(&$mod_obj)
 {
     try {
-        $sth = $dbh->prepare('SELECT belongs_to FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
-        $sth->execute(['mod' => $module]);
-        $row = $sth->fetch();
-
-        if ($row['belongs_to'] === null || $row['belongs_to'] == '') {
-            return $module;
+        $bt = $mod_obj->get('belongs-to');
+        if ($bt === null || $bt == '') {
+            return $mod_obj->getName();
         }
 
-        return $row['belongs_to'];
+        return $bt;
     } catch (Exception $e) {
-        return $module;
+        return $mod_obj->getName();
     }
 }
 
-function is_submod(&$dbh, $module)
+function is_submod(&$mod_obj)
 {
     try {
-        $sth = $dbh->prepare('SELECT belongs_to FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
-        $sth->execute(['mod' => $module]);
-        $row = $sth->fetch();
-
-        if ($row['belongs_to'] === null || $row['belongs_to'] == '') {
+        $bt = $mod_obj->get('belongs-to');
+        if ($bt === null || $bt == '') {
             return false;
         }
 
@@ -104,9 +98,9 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
     $is_subm = false;
 
     if (!$show_subm && $nested) {
-        $module = get_parent($dbh, $module);
+        $module = get_parent($mod_obj);
     } elseif ($show_subm) {
-        $is_subm = is_submod($dbh, $module);
+        $is_subm = is_submod($mod_obj);
     }
 
     if ($nested && isset($nseen[$module])) {
@@ -155,16 +149,18 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 if (($show_dir == 'both' || $show_dir == 'dependents') && isset($json['impacted_modules'][$module])) {
                     foreach ($json['impacted_modules'][$module] as $mod) {
                         $is_msubm = false;
+                        $mrev_org = get_rev_org($mod, $dbh, $alerts);
+                        $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
                         if (!$show_subm) {
-                            $mod = get_parent($dbh, $mod);
+                            $mod = get_parent($mobj);
                         } else {
-                            $is_msubm = is_submod($dbh, $mod);
+                            $is_msubm = is_submod($mobj);
                         }
+
                         if (isset($eseen["mod_$module:mod_$mod"])) {
                             continue;
                         }
-                        $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                        $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+
                         $eseen["mod_$module:mod_$mod"] = true;
                         $maturity = get_maturity($mobj, $alerts);
                         if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
@@ -211,16 +207,18 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 if (($show_dir == 'both' || $show_dir == 'dependencies') && isset($json['impacting_modules'][$module])) {
                     foreach ($json['impacting_modules'][$module] as $mod) {
                         $is_msubm = false;
+                        $mrev_org = get_rev_org($mod, $dbh, $alerts);
+                        $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+
                         if (!$show_subm) {
-                            $mod = get_parent($dbh, $mod);
+                            $mod = get_parent($mobj);
                         } else {
-                            $is_msubm = is_submod($dbh, $mod);
+                            $is_msubm = is_submod($mobj);
                         }
                         if (isset($eseen["mod_$mod:mod_$module"])) {
                             continue;
                         }
-                        $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                        $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+
                         if (isset($eseen["mod_$module:mod_$mod"])) {
                             array_push($alerts, "Loop found $module <=> $mod");
                         }
