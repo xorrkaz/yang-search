@@ -30,8 +30,6 @@ require_once 'Module.php';
 
 function print_cell($key, $val, $pkey = null)
 {
-    global $mod_obj;
-
     if (!is_array($val)) {
         ?>
     <td><?=(str_replace("\n", "<br/>\n",
