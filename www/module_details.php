@@ -30,6 +30,8 @@ require_once 'Module.php';
 
 function print_cell($key, $val, $pkey = null)
 {
+    global $mod_obj;
+
     if (!is_array($val)) {
         ?>
     <td><?=(str_replace("\n", "<br/>\n",
@@ -45,11 +47,17 @@ function print_cell($key, $val, $pkey = null)
             $npk = $key;
         }
 
+        $collapse = "collpase in";
+
+        if (Module::isField($key) && !Module::autoExpand($key)) {
+            $collapse = "collapse";
+        }
+
         if ($pkey !== null) {
             $msg = "Click to toggle $pkey $key details.";
         } ?>
     <td><div><a href="#table-<?=$key?>" class="accordion-toggle" data-toggle="collapse"><?=$msg?></a></div>
-      <div class="accordion-body collapse in" id="table-<?=$key?>"><table class="table table-responsive" cellspacing="0">
+      <div class="accordion-body <?=$collapse?>" id="table-<?=$key?>"><table class="table table-responsive" cellspacing="0">
       <tbody>
         <?php
         foreach ($val as $nk => $nv) {

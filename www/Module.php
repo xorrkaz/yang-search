@@ -49,6 +49,8 @@ class Module
     'namespace' => true,
     'ietf' => true,
     'submodule' => true,
+    'dependencies' => false,
+    'dependents' => false,
     'implementations' => true
   ];
     private $rester;
@@ -117,7 +119,7 @@ class Module
 
     public function get($field)
     {
-        if (!isset(Module::$objectHash[$field])) {
+        if (!array_key_exists($field, Module::$objectHash)) {
             throw new Exception("Field $field does not exist; please specify one of:\n\n".implode("\n", array_keys(Module::$objectHash)));
         }
 
@@ -126,6 +128,20 @@ class Module
         }
 
         return $this->$field;
+    }
+
+    public static function isField($field)
+    {
+        return array_key_exists($field, Module::$objectHash);
+    }
+
+    public static function autoExpand($field)
+    {
+        if (!array_key_exists($field, Module::$objectHash)) {
+            throw new Exception("Field $field does not exist; please specify one of:\n\n".implode("\n", array_keys(Module::$objectHash)));
+        }
+
+        return Module::$objectHash[$field];
     }
 
     public function getName()
