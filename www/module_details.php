@@ -31,11 +31,14 @@ require_once 'Module.php';
 function print_cell($key, $val, $pkey = null)
 {
     if (!is_array($val)) {
-        ?>
-    <td><?=(str_replace("\n", "<br/>\n",
-      preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
-      "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
-      htmlentities($val)))))?></td>
+        $nval = str_replace("\n", "<br/>\n",
+        preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
+        "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
+        htmlentities($val))));
+        if (preg_match("/([a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+([.][a-zA-Z0-9-]+)*)(?![^<]*>|[^<>]*<\/)/", $nval, $matches)) {
+            $nval = str_replace($matches[1], "<a href=\"mailto:{$matches[1]}>{$matches[1]}</a>", $val);
+        } ?>
+    <td><?=$nval?></td>
       <?php
 
     } else {
