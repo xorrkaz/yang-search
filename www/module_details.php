@@ -36,7 +36,7 @@ function print_cell($key, $val, $pkey = null)
         "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
         htmlentities($val))));
         if (preg_match("/([a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+([.][a-zA-Z0-9-]+)*)(?![^<]*>|[^<>]*<\/)/", $nval, $matches)) {
-            $nval = str_replace($matches[1], "<a href=\"mailto:{$matches[1]}>{$matches[1]}</a>", $val);
+            $nval = str_replace($matches[1], "<a href=\"mailto:{$matches[1]}\">{$matches[1]}</a>", $nval);
         } ?>
     <td><?=$nval?></td>
       <?php
