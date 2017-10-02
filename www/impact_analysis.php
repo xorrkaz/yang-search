@@ -118,7 +118,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
     try {
         $dependents = $mod_obj->get('dependents');
         $dependencies = $mod_obj->get('dependencies');
-        $mmat = get_maturity($mod_obj, null);
+        $mmat = get_maturity($mod_obj);
         if ($nested && $mmat['level'] == 'RATIFIED' && !$show_rfcs) {
             return;
         }
@@ -158,7 +158,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
 
                 $eseen["mod_$module:mod_$mod"] = true;
-                $maturity = get_maturity($mobj, null);
+                $maturity = get_maturity($mobj);
                 if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
                     continue;
                 }
@@ -220,7 +220,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                     array_push($alerts, "Loop found $module <=> $mod");
                 }
                 $eseen["mod_$mod:mod_$module"] = true;
-                $maturity = get_maturity($mobj, null);
+                $maturity = get_maturity($mobj);
                 if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
                     continue;
                 }
@@ -354,7 +354,7 @@ if (!isset($_GET['modules'])) {
                 $mn = str_replace('mod_', '', $edge['data']['source']);
                 $rev_org = get_rev_org($mn, $dbh, $alerts);
                 $mo = Module::moduleFactory($rester, $mn, $rev_org['rev'], $rev_org['org']);
-                $maturity = get_maturity($mo, null);
+                $maturity = get_maturity($mo);
                 if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
                     array_push($bottlenecks, "node#{$edge['data']['source']}");
                     $found_dep = true;
