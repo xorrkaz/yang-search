@@ -240,8 +240,9 @@ function get_maturity(&$mod_obj, &$alerts)
             }
         }
     } catch (Exception $e) {
-
-        push_exception("Failed to get module maturity for {$mod_obj->getName()}@{$mod_obj->getRevision()}/{$mod_obj->getOrganization()} (perhaps it doesn't validate?)", $e, $alerts);
+        if ($alerts !== null) {
+            push_exception("Failed to get module maturity for {$mod_obj->getName()}@{$mod_obj->getRevision()}/{$mod_obj->getOrganization()} (perhaps it doesn't validate?)", $e, $alerts);
+        }
     }
 
     return $maturity;
