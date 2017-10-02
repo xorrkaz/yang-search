@@ -41,11 +41,11 @@ function get_doc(&$mod_obj)
     try {
         $doc_name = $mod_obj->get('document-name');
         $ref = $mod_obj->get('reference');
-        if ($ref != '' && $doc_name != '') {
+        if ($ref !== null && $doc_name !== null && $ref != '' && $doc_name != '') {
             return '<a href="' . $ref . '">' . $doc_name . '</a>';
-        } elseif ($ref != '') {
+        } elseif ($ref !== null && $ref != '') {
             return '<a href="' . $ref . '">' . $ref . '</a>';
-        } elseif ($doc_name != '') {
+        } elseif ($doc_name !== null && $doc_name != '') {
             return $doc_name;
         }
     } catch (Exception $e) {
@@ -57,7 +57,11 @@ function get_doc(&$mod_obj)
 function get_compile_status(&$mod_obj)
 {
     try {
-        return $mod_obj->get('compilation-status');
+        $cstatus = $mod_obj->get('compilation-status');
+        if ($cstatus === null) {
+            return '';
+        }
+        return $cstatus;
     } catch (Exception $e) {
         return '';
     }
