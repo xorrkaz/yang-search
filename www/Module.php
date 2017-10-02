@@ -169,6 +169,11 @@ class Module
         return "{$this->name}@{$this->revision}/{$this->organization}";
     }
 
+    public static function getFields()
+    {
+        return array_keys(Module::$objectHash);
+    }
+
     public function toArray()
     {
         if ($this->initialized === false) {

@@ -360,8 +360,12 @@ foreach ($alerts as $alert) {
     </thead>
     <tbody>
       <?php
-      foreach ($properties as $key => $val) {
+      foreach (Module::getFields() as $key) {
           $help_text = '';
+          $val = '';
+          if (array_key_exists($key, $properties)) {
+              $val = $properties[$key];
+          }
           $sql = 'SELECT description, properties FROM yindex WHERE module=:ycmod AND revision=:ycrev AND argument=:key LIMIT 1';
           try {
               $sth = $dbh->prepare($sql);
