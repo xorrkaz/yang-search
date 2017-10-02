@@ -220,7 +220,7 @@ function yang_db_conn(&$alerts)
  * Output:
  *  The maturity level and color for the given module
  */
-function get_maturity(&$mod_obj, &$alerts)
+function get_maturity(&$mod_obj, &$alerts = null)
 {
     global $SDO_CMAP, $MATURITY_UNKNOWN;
 
