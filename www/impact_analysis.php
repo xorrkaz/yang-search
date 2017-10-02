@@ -115,165 +115,156 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
         }
     }
     $found_orgs[$org] = true;
-    $f = YDEPS_DIR.'/'.$module.'.json';
-    if (is_file($f)) {
-        try {
-            $contents = file_get_contents($f);
-            $json = json_decode($contents, true);
-            if ($json === null) {
-                array_push($alerts, "Failed to decode JSON data for {$module}: ".json_error_to_str(json_last_error()));
-            } else {
-                $mmat = get_maturity($mod_obj, $alerts);
-                if ($nested && $mmat['level'] == 'RATIFIED' && !$show_rfcs) {
-                    return;
+    try {
+        $dependents = $mod_obj->get('dependents');
+        $dependencies = $mod_obj->get('dependencies');
+        $mmat = get_maturity($mod_obj, $alerts);
+        if ($nested && $mmat['level'] == 'RATIFIED' && !$show_rfcs) {
+            return;
+        }
+        $color = $mmat['color'];
+        if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
+            $cstatus = get_compile_status($mod_obj);
+            if ($cstatus == 'failed') {
+                $color = $COLOR_FAILED;
+                $found_failed = true;
+            }
+        }
+        if (!isset($SDO_CMAP[strtoupper($org)])) {
+            $found_mats[':'.$mmat['level']] = true;
+        } else {
+            $found_mats[strtoupper($org).':'.$mmat['level']] = true;
+        }
+        $document = get_doc($mod_obj);
+        array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm]]);
+        if (!isset($edge_counts[$module])) {
+            $edge_counts[$module] = 0;
+        }
+        $nseen[$module] = true;
+        if (($show_dir == 'both' || $show_dir == 'dependents') && !is_null($dependents)) {
+            foreach ($dependents as $mod) {
+                $is_msubm = false;
+                $mrev_org = get_rev_org($mod, $dbh, $alerts);
+                $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+                if (!$show_subm) {
+                    $mod = get_parent($mobj);
+                } else {
+                    $is_msubm = is_submod($mobj);
                 }
-                $color = $mmat['color'];
-                if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
-                    $cstatus = get_compile_status($mod_obj);
+
+                if (isset($eseen["mod_$module:mod_$mod"])) {
+                    continue;
+                }
+
+                $eseen["mod_$module:mod_$mod"] = true;
+                $maturity = get_maturity($mobj, $alerts);
+                if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
+                    continue;
+                }
+
+                $mcolor = $maturity['color'];
+                if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
+                    $cstatus = get_compile_status($mobj);
                     if ($cstatus == 'failed') {
-                        $color = $COLOR_FAILED;
+                        $mcolor = $COLOR_FAILED;
                         $found_failed = true;
                     }
                 }
+
+                $org = $mrev_org['org'];
                 if (!isset($SDO_CMAP[strtoupper($org)])) {
-                    $found_mats[':'.$mmat['level']] = true;
+                    $found_mats[':'.$maturity['level']] = true;
                 } else {
-                    $found_mats[strtoupper($org).':'.$mmat['level']] = true;
+                    $found_mats[strtoupper($org).':'.$maturity['level']] = true;
                 }
-                $document = get_doc($mod_obj);
-                array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm]]);
-                if (!isset($edge_counts[$module])) {
-                    $edge_counts[$module] = 0;
-                }
-                $nseen[$module] = true;
-                if (($show_dir == 'both' || $show_dir == 'dependents') && isset($json['impacted_modules'][$module])) {
-                    foreach ($json['impacted_modules'][$module] as $mod) {
-                        $is_msubm = false;
-                        $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                        $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
-                        if (!$show_subm) {
-                            $mod = get_parent($mobj);
-                        } else {
-                            $is_msubm = is_submod($mobj);
-                        }
-
-                        if (isset($eseen["mod_$module:mod_$mod"])) {
-                            continue;
-                        }
-
-                        $eseen["mod_$module:mod_$mod"] = true;
-                        $maturity = get_maturity($mobj, $alerts);
-                        if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
-                            continue;
-                        }
-
-                        $mcolor = $maturity['color'];
-                        if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
-                            $cstatus = get_compile_status($mobj);
-                            if ($cstatus == 'failed') {
-                                $mcolor = $COLOR_FAILED;
-                                $found_failed = true;
-                            }
-                        }
-
-                        $org = $mrev_org['org'];
-                        if (!isset($SDO_CMAP[strtoupper($org)])) {
-                            $found_mats[':'.$maturity['level']] = true;
-                        } else {
-                            $found_mats[strtoupper($org).':'.$maturity['level']] = true;
-                        }
-                        if (count($orgs) > 0) {
-                            if (array_search($org, $orgs) === false) {
-                                continue;
-                            }
-                        }
-                        $found_orgs[$org] = true;
-
-                        if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
-                            ++$edge_counts[$module];
-                        }
-                        if ("mod_$module" != "mod_$mod") {
-                            array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor]]);
-                        }
-                        if ($recurse > 0 || $recurse < 0) {
-                            $r = $recurse - 1;
-                            build_graph($mod, $mobj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm, $show_dir);
-                        } else {
-                            $document = get_doc($mobj);
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
-                        }
+                if (count($orgs) > 0) {
+                    if (array_search($org, $orgs) === false) {
+                        continue;
                     }
                 }
-                if (($show_dir == 'both' || $show_dir == 'dependencies') && isset($json['impacting_modules'][$module])) {
-                    foreach ($json['impacting_modules'][$module] as $mod) {
-                        $is_msubm = false;
-                        $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                        $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+                $found_orgs[$org] = true;
 
-                        if (!$show_subm) {
-                            $mod = get_parent($mobj);
-                        } else {
-                            $is_msubm = is_submod($mobj);
-                        }
-                        if (isset($eseen["mod_$mod:mod_$module"])) {
-                            continue;
-                        }
-
-                        if (isset($eseen["mod_$module:mod_$mod"])) {
-                            array_push($alerts, "Loop found $module <=> $mod");
-                        }
-                        $eseen["mod_$mod:mod_$module"] = true;
-                        $maturity = get_maturity($mobj, $alerts);
-                        if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
-                            continue;
-                        }
-
-                        $org = $mrev_org['org'];
-                        if (!isset($SDO_CMAP[strtoupper($org)])) {
-                            $found_mats[':'.$maturity['level']] = true;
-                        } else {
-                            $found_mats[strtoupper($org).':'.$maturity['level']] = true;
-                        }
-                        if (count($orgs) > 0) {
-                            if (array_search($org, $orgs) === false) {
-                                continue;
-                            }
-                        }
-                        $found_orgs[$org] = true;
-
-                        $mcolor = $maturity['color'];
-                        if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
-                            $cstatus = get_compile_status($mobj);
-                            if ($cstatus == 'failed') {
-                                $mcolor = $COLOR_FAILED;
-                                $found_failed = true;
-                            }
-                            if (!isset($edge_counts[$mod])) {
-                                $edge_counts[$mod] = 1;
-                            } else {
-                                ++$edge_counts[$mod];
-                            }
-                        }
-                        if (!$nested) {
-                            if ("mod_$mod" != "mod_$module") {
-                                array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor]]);
-                            }
-                        }
-                        if ($nested && ($recurse > 0 || $recurse < 0)) {
-                            $r = $recurse - 1;
-                            //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
-                        } elseif (!$nested) {
-                            $document = get_doc($mobj);
-                            array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
-                        }
-                    }
+                if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
+                    ++$edge_counts[$module];
+                }
+                if ("mod_$module" != "mod_$mod") {
+                    array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor]]);
+                }
+                if ($recurse > 0 || $recurse < 0) {
+                    $r = $recurse - 1;
+                    build_graph($mod, $mobj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm, $show_dir);
+                } else {
+                    $document = get_doc($mobj);
+                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
                 }
             }
-        } catch (Exception $e) {
-            push_exception("Failed to read dependency data for $module", $e, $alerts);
         }
-    } else {
-        array_push($alerts, "YANG dependency graph data does not exist for $module");
+        if (($show_dir == 'both' || $show_dir == 'dependencies') && !is_null($dependencies)) {
+            foreach ($dependencies as $mod) {
+                $is_msubm = false;
+                $mrev_org = get_rev_org($mod, $dbh, $alerts);
+                $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+
+                if (!$show_subm) {
+                    $mod = get_parent($mobj);
+                } else {
+                    $is_msubm = is_submod($mobj);
+                }
+                if (isset($eseen["mod_$mod:mod_$module"])) {
+                    continue;
+                }
+
+                if (isset($eseen["mod_$module:mod_$mod"])) {
+                    array_push($alerts, "Loop found $module <=> $mod");
+                }
+                $eseen["mod_$mod:mod_$module"] = true;
+                $maturity = get_maturity($mobj, $alerts);
+                if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
+                    continue;
+                }
+
+                $org = $mrev_org['org'];
+                if (!isset($SDO_CMAP[strtoupper($org)])) {
+                    $found_mats[':'.$maturity['level']] = true;
+                } else {
+                    $found_mats[strtoupper($org).':'.$maturity['level']] = true;
+                }
+                if (count($orgs) > 0) {
+                    if (array_search($org, $orgs) === false) {
+                        continue;
+                    }
+                }
+                $found_orgs[$org] = true;
+
+                $mcolor = $maturity['color'];
+                if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
+                    $cstatus = get_compile_status($mobj);
+                    if ($cstatus == 'failed') {
+                        $mcolor = $COLOR_FAILED;
+                        $found_failed = true;
+                    }
+                    if (!isset($edge_counts[$mod])) {
+                        $edge_counts[$mod] = 1;
+                    } else {
+                        ++$edge_counts[$mod];
+                    }
+                }
+                if (!$nested) {
+                    if ("mod_$mod" != "mod_$module") {
+                        array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor]]);
+                    }
+                }
+                if ($nested && ($recurse > 0 || $recurse < 0)) {
+                    $r = $recurse - 1;
+                            //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
+                } elseif (!$nested) {
+                    $document = get_doc($mobj);
+                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
+                }
+            }
+        }
+    } catch (Exception $e) {
+        push_exception("Failed to read dependency data for $module", $e, $alerts);
     }
 }
 
