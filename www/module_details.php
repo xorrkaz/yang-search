@@ -35,8 +35,10 @@ function print_cell($key, $val, $pkey = null)
         preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
         "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
         htmlentities($val))));
-        if (preg_match("/([a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+([.][a-zA-Z0-9-]+)*)(?![^<]*>|[^<>]*<\/)/", $nval, $matches)) {
-            $nval = str_replace($matches[1], "<a href=\"mailto:{$matches[1]}\">{$matches[1]}</a>", $nval);
+        if (preg_match_all("/([a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+([.][a-zA-Z0-9-]+)*)(?![^<]*>|[^<>]*<\/)/", $nval, $matches)) {
+            foreach ($matches[1] as $match) {
+                $nval = str_replace($match, "<a href=\"mailto:{$match}\">{$match}</a>", $nval);
+            }
         } ?>
     <td><?=$nval?></td>
       <?php
