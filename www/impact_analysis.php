@@ -142,7 +142,8 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
         }
         $nseen[$module] = true;
         if (($show_dir == 'both' || $show_dir == 'dependents') && !is_null($dependents)) {
-            foreach ($dependents as $mod) {
+            foreach ($dependents as $moda) {
+                $mod = $moda['name'];
                 $is_msubm = false;
                 $mrev_org = get_rev_org($mod, $dbh, $alerts);
                 $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
@@ -200,7 +201,8 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
             }
         }
         if (($show_dir == 'both' || $show_dir == 'dependencies') && !is_null($dependencies)) {
-            foreach ($dependencies as $mod) {
+            foreach ($dependencies as $moda) {
+                $mod = $moda['name'];
                 $is_msubm = false;
                 $mrev_org = get_rev_org($mod, $dbh, $alerts);
                 $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
