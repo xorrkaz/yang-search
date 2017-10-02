@@ -51,6 +51,8 @@ class Module
     'submodule' => true,
     'dependencies' => false,
     'dependents' => false,
+    'semantic-version' => true,
+    'derived-semantic-version' => true,
     'implementations' => true
   ];
     private $rester;
