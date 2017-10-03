@@ -24,7 +24,7 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-include_once 'yang_catalog.inc.php';
+//include_once 'yang_catalog.inc.php';
 require_once 'httpful.phar';
 
 class RestException extends RuntimeException
