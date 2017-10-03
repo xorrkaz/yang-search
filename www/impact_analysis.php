@@ -745,9 +745,9 @@ foreach ($alerts as $alert) {
       <div class="panel-body">
         <fieldset>
           <p>Click on legend elements below to highlight on the graph.</p>
+          <p><a href="#" onClick="return highlight('org', '__ALL__')";>Highlight All</a></p>
           <label>Element Colors</label>
           <ul class="color-list">
-            <li><a href="#" onClick="return highlight('org', '__ALL__')";>Highlight All</a></li>
             <?php
             foreach ($found_orgs as $fo => $val) {
                 $fo = strtoupper($fo);
