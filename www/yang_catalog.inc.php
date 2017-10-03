@@ -62,7 +62,6 @@ define('YANG_REPO_ID', 17985602);
 
 // Global variables
 //$COLOR_UNKNOWN = '#F5A45D';
-$COLOR_FAILED = '#ff0000'; # red
 /*$MATURITY_UNKNOWN = [
   'level' => 'UNKNOWN',
   'color' => '#663300',
@@ -74,6 +73,7 @@ $MATURITY_MAP = [
   'ADOPTED' => '#86b342',
   'RATIFIED' => '#0066ff',
   'N/A'      => '#663300',
+  'COMPILATION FAILED' => '#ff0000',
 ];
 /*$SDO_CMAP = [
   'IETF' => [
@@ -219,6 +219,27 @@ function yang_db_conn(&$alerts)
 }
 
 /*
+ * This function gets a module's compilation status.
+ *
+ * Input:
+ *  $mod_obj : Instance of a Module object
+ * Output:
+ *  The compilation status.
+ */
+function get_compile_status(&$mod_obj)
+{
+    try {
+        $cstatus = $mod_obj->get('compilation-status');
+        if ($cstatus === null) {
+            return '';
+        }
+        return $cstatus;
+    } catch (Exception $e) {
+        return '';
+    }
+}
+
+/*
  * This function gets an object's maturity.
  *
  * Input:
@@ -237,6 +258,13 @@ function get_maturity(&$mod_obj, &$alerts = null)
         $mmat = strtoupper($mod_obj->get('maturity-level'));
         if (isset($MATURITY_MAP[$mmat])) {
             $maturity = ['color' => $MATURITY_MAP[$mmat], 'level' => $mmat];
+        }
+        if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
+            $cstatus = get_compile_status($mod_obj);
+            if ($cstatus == 'failed') {
+                $level = 'COMPILATION FAILED';
+                $maturity = ['color' => $MATURITY_MAP[$level], 'level' => $level];
+            }
         }
     } catch (Exception $e) {
         if ($alerts !== null) {

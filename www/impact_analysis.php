@@ -30,7 +30,6 @@ require_once 'Module.php';
 
 $found_orgs = [];
 $found_mats = [];
-$found_failed = false;
 
 $DIR_HELP_TEXT = "<b>Both:</b> Show a graph that consists of both dependencies (modules imported by the target module(s)) and dependents (modules that import the target module(s))<br/>&nbsp;<br/>\n" .
                  "<b>Dependencies Only:</b> Only show those modules that are imported by the target module(s)<br/>&nbsp;<br/>\n" .
@@ -57,19 +56,6 @@ function get_doc(&$mod_obj)
     }
 
     return 'N/A';
-}
-
-function get_compile_status(&$mod_obj)
-{
-    try {
-        $cstatus = $mod_obj->get('compilation-status');
-        if ($cstatus === null) {
-            return '';
-        }
-        return $cstatus;
-    } catch (Exception $e) {
-        return '';
-    }
 }
 
 function get_parent(&$mod_obj)
@@ -102,7 +88,7 @@ function is_submod(&$mod_obj)
 
 function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true, $show_dir = 'both')
 {
-    global $found_orgs, $found_mats, $found_failed, $COLOR_FAILED;
+    global $found_orgs, $found_mats;
 
     $is_subm = false;
 
@@ -135,13 +121,6 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
             return;
         }
         $color = color_gen($dbh, $org);
-        if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
-            $cstatus = get_compile_status($mod_obj);
-            if ($cstatus == 'failed') {
-                $color = $COLOR_FAILED;
-                $found_failed = true;
-            }
-        }
         if (!isset($found_mats[$mmat['level']])) {
             $found_mats[$mmat['level']] = [$module];
         } else {
@@ -180,13 +159,6 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                     $org = 'UNKNOWN';
                 }
                 $mcolor = color_gen($dbh, $org);
-                if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
-                    $cstatus = get_compile_status($mobj);
-                    if ($cstatus == 'failed') {
-                        $mcolor = $COLOR_FAILED;
-                        $found_failed = true;
-                    }
-                }
 
                 if (!isset($found_mats[$maturity['level']])) {
                     $found_mats[$maturity['level']] = [$mod];
@@ -259,11 +231,6 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
 
                 $mcolor = color_gen($dbh, $org);
                 if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
-                    $cstatus = get_compile_status($mobj);
-                    if ($cstatus == 'failed') {
-                        $mcolor = $COLOR_FAILED;
-                        $found_failed = true;
-                    }
                     if (!isset($edge_counts[$mod])) {
                         $edge_counts[$mod] = 1;
                     } else {
@@ -388,7 +355,7 @@ if (!isset($_GET['modules'])) {
         }
     }
 
-    $num_legend_cols = intval(count(array_keys($found_orgs)) / 6);
+    $num_legend_cols = ceil(count(array_keys($found_orgs)) / 6);
     if ($num_legend_cols < 1) {
         $num_legend_cols = 1;
     }
