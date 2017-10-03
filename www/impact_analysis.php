@@ -117,7 +117,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
         $dependents = $mod_obj->get('dependents');
         $dependencies = $mod_obj->get('dependencies');
         $mmat = get_maturity($mod_obj);
-        if ($nested && $mmat['level'] == 'RATIFIED' && !$show_rfcs) {
+        if ($nested && $mmat['olevel'] == 'RATIFIED' && !$show_rfcs) {
             return;
         }
         $color = color_gen($dbh, $org);
@@ -150,7 +150,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
 
                 $eseen["mod_$module:mod_$mod"] = true;
                 $maturity = get_maturity($mobj);
-                if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
+                if ($maturity['olevel'] == 'RATIFIED' && !$show_rfcs) {
                     continue;
                 }
 
@@ -172,7 +172,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
                 $found_orgs[$org] = true;
 
-                if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
+                if ($mmat['olevel'] == 'INITIAL' || $mmat['olevel'] == 'ADOPTED') {
                     ++$edge_counts[$module];
                 }
                 if ("mod_$module" != "mod_$mod") {
@@ -208,7 +208,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
                 $eseen["mod_$mod:mod_$module"] = true;
                 $maturity = get_maturity($mobj);
-                if ($maturity['level'] == 'RATIFIED' && !$show_rfcs) {
+                if ($maturity['olevel'] == 'RATIFIED' && !$show_rfcs) {
                     continue;
                 }
 
@@ -230,7 +230,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 $found_orgs[$org] = true;
 
                 $mcolor = color_gen($dbh, $org);
-                if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
+                if ($maturity['olevel'] == 'INITIAL' || $maturity['olevel'] == 'ADOPTED') {
                     if (!isset($edge_counts[$mod])) {
                         $edge_counts[$mod] = 1;
                     } else {

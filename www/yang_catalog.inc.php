@@ -257,13 +257,13 @@ function get_maturity(&$mod_obj, &$alerts = null)
     try {
         $mmat = strtoupper($mod_obj->get('maturity-level'));
         if (isset($MATURITY_MAP[$mmat])) {
-            $maturity = ['color' => $MATURITY_MAP[$mmat], 'level' => $mmat];
+            $maturity = ['color' => $MATURITY_MAP[$mmat], 'level' => $mmat, 'olevel' => $mmat];
         }
-        if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
+        if ($mmat == 'INITIAL' || $mmat == 'ADOPTED') {
             $cstatus = get_compile_status($mod_obj);
             if ($cstatus == 'failed') {
                 $level = 'COMPILATION FAILED';
-                $maturity = ['color' => $MATURITY_MAP[$level], 'level' => $level];
+                $maturity = ['color' => $MATURITY_MAP[$level], 'level' => $level 'olevel' => $mmat;
             }
         }
     } catch (Exception $e) {
