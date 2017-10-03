@@ -50,6 +50,7 @@ define('CYTOSCAPE_QTIP_JS', '<script src="js/cytoscape-qtip.js" type="text/javas
 define('QTIP_CSS', '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.1/jquery.qtip.min.css" integrity="sha256-ETJXPMaFFQmwk7vArlWKUK3Pr/s84J3zfiXC83Pi2xg=" crossorigin="anonymous" />');
 define('QTIP_JS', '<script src="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.1/jquery.qtip.min.js" integrity="sha256-Mir9XErZ/xEi1+rIQUpp7nFnZLsJfUS325iUvHDUpyY=" crossorigin="anonymous"></script>');
 define('TYPEAHEAD_JS', '<script src="js/typeahead.bundle.js" type="text/javascript"></script>');
+define('FONT_AWESOME_CSS', '<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">');
 
 // Global data_definitions
 define('YANG_CATALOG_URL', 'https://yangcatalog.org:8443');
@@ -61,13 +62,19 @@ define('YANG_REPO_ID', 17985602);
 
 // Global variables
 //$COLOR_UNKNOWN = '#F5A45D';
-$COLOR_FAILED = 'red';
-$MATURITY_UNKNOWN = [
+$COLOR_FAILED = '#ff0000'; # red
+/*$MATURITY_UNKNOWN = [
   'level' => 'UNKNOWN',
   'color' => '#663300',
   'name' => 'N/A',
+];*/
+$MATURITY_UNKNOWN = '#663300';
+$MATURITY_MAP = [
+  'INITIAL' => '#c900ff',
+  'ADOPTED' => '#86b342',
+  'RATIFIED' => '#0066ff',
 ];
-$SDO_CMAP = [
+/*$SDO_CMAP = [
   'IETF' => [
     [
       'level' => 'UNKNOWN',
@@ -112,7 +119,7 @@ $SDO_CMAP = [
       'name' => 'STANDARD',
     ],
   ],
-];
+];*/
 
 /*
  * Mapping table of URN to catalog org tree name for Standards Definition
@@ -222,22 +229,13 @@ function yang_db_conn(&$alerts)
  */
 function get_maturity(&$mod_obj, &$alerts = null)
 {
-    global $SDO_CMAP, $MATURITY_UNKNOWN;
+    global $MATURITY_UNKNOWN, $MATURITY_MAP;
 
-    $maturity = $MATURITY_UNKNOWN;
+    $maturity = ['color' => $MATURITY_UNKNOWN, 'level' => 'N/A'];
     try {
-        $organization = strtoupper($mod_obj->getOrganization());
         $mmat = strtoupper($mod_obj->get('maturity-level'));
-        if (isset($SDO_CMAP[$organization])) {
-            $mname = array_search($mmat, array_column($SDO_CMAP[$organization], 'level'));
-            if ($mname !== false) {
-                $maturity = $SDO_CMAP[$organization][$mname];
-            } else {
-                $mname = array_search('UNKNOWN', array_column($SDO_CMAP[$organization], 'level'));
-                if ($mname !== false) {
-                    $maturity = $SDO_CMAP[$organization][$mname];
-                }
-            }
+        if (isset($MATURITY_MAP[$mmat])) {
+            $maturity = ['color' => $MATURITY_MAP[$mmap], 'level' => $mmat];
         }
     } catch (Exception $e) {
         if ($alerts !== null) {
@@ -246,6 +244,60 @@ function get_maturity(&$mod_obj, &$alerts = null)
     }
 
     return $maturity;
+}
+
+$NUM_STEPS = -1;
+$CUR_STEP = 0;
+$ORG_CACHE = [];
+
+/*
+ * This function generates evenly spaced colors.
+ * Adapted from: https://stackoverflow.com/questions/1484506/random-color-generator
+ *
+ * Input:
+ *  $steps   : Total number of colors required
+ *  $step    : Current color step
+ * Output:
+ *  A color in HTML hex code
+ */
+function color_gen(&$dbh, $org)
+{
+    global $NUM_STEPS, $CUR_STEP, $ORG_CACHE;
+
+    $org = strtoupper($org);
+
+    if (isset($ORG_CACHE[$org])) {
+        return $ORG_CACHE[$org];
+    }
+    if ($NUM_STEPS == -1) {
+        try {
+            $sql = 'SELECT COUNT(organization) AS count FROM modules GROUP BY organization';
+            $res = $dbh->query($sql);
+            $row = $res->fetch();
+            $NUM_STEPS = $row['count'];
+        } catch (Exception $e) {
+            $NUM_STEPS = 32;
+        }
+    }
+    $r = -1;
+    $g = -1;
+    $b = -1;
+    $h = $CUR_STEP / $NUM_STEPS;
+    $i = ~~($h * 6);
+    $f = $h * 6 - $i;
+    $q = 1 - $f;
+    switch ($i % 6) {
+        case 0: $r = 1; $g = $f; $b = 0; break;
+        case 1: $r = $q; $g = 1; $b = 0; break;
+        case 2: $r = 0; $g = 1; $b = $f; break;
+        case 3: $r = 0; $g = $q; $b = 1; break;
+        case 4: $r = $f; $g = 0; $b = 1; break;
+        case 5: $r = 1; $g = 0; $b = $q; break;
+    }
+    $c = '#' . (substr('00' . dechex(~ ~($r * 255)), -2)) . (substr('00' . dechex(~ ~($g * 255)), -2)) . (substr('00' . dechex(~ ~($b * 255)), -2));
+    $ORG_CACHE[$org] = $c;
+    $CUR_STEP++;
+    return $c;
 }
 
 /*

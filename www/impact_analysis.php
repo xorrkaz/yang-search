@@ -36,6 +36,11 @@ $DIR_HELP_TEXT = "<b>Both:</b> Show a graph that consists of both dependencies (
                  "<b>Dependencies Only:</b> Only show those modules that are imported by the target module(s)<br/>&nbsp;<br/>\n" .
                  '<b>Dependents Only:</b> Only show those modules that depend on the target module(s)';
 
+function nodify($n)
+{
+    return 'node#mod_' . $n;
+}
+
 function get_doc(&$mod_obj)
 {
     try {
@@ -126,7 +131,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
         if ($nested && $mmat['level'] == 'RATIFIED' && !$show_rfcs) {
             return;
         }
-        $color = $mmat['color'];
+        $color = color_gen($dbh, $org);
         if ($mmat['level'] == 'INITIAL' || $mmat['level'] == 'ADOPTED') {
             $cstatus = get_compile_status($mod_obj);
             if ($cstatus == 'failed') {
@@ -134,10 +139,10 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 $found_failed = true;
             }
         }
-        if (!isset($SDO_CMAP[strtoupper($org)])) {
-            $found_mats[':'.$mmat['level']] = true;
+        if (!isset($found_mats[$maturity['level']])) {
+            $found_mats[$maturity['level']] = [$module];
         } else {
-            $found_mats[strtoupper($org).':'.$mmat['level']] = true;
+            array_push($found_mats[$maturity['level']], $module);
         }
         $document = get_doc($mod_obj);
         array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm]]);
@@ -167,7 +172,8 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                     continue;
                 }
 
-                $mcolor = $maturity['color'];
+                $org = $mrev_org['org'];
+                $mcolor = color_gen($dbh, $org);
                 if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
                     $cstatus = get_compile_status($mobj);
                     if ($cstatus == 'failed') {
@@ -176,11 +182,10 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                     }
                 }
 
-                $org = $mrev_org['org'];
-                if (!isset($SDO_CMAP[strtoupper($org)])) {
-                    $found_mats[':'.$maturity['level']] = true;
+                if (!isset($found_mats[$maturity['level']])) {
+                    $found_mats[$maturity['level']] = [$mod];
                 } else {
-                    $found_mats[strtoupper($org).':'.$maturity['level']] = true;
+                    array_push($found_mats[$maturity['level']], $mod);
                 }
                 if (count($orgs) > 0) {
                     if (array_search($org, $orgs) === false) {
@@ -230,11 +235,12 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
 
                 $org = $mrev_org['org'];
-                if (!isset($SDO_CMAP[strtoupper($org)])) {
-                    $found_mats[':'.$maturity['level']] = true;
+                if (!isset($found_mats[$maturity['level']])) {
+                    $found_mats[$maturiy['level']] = [$mod];
                 } else {
-                    $found_mats[strtoupper($org).':'.$maturity['level']] = true;
+                    array_push($found_mats[$maturity['level']], $mod);
                 }
+
                 if (count($orgs) > 0) {
                     if (array_search($org, $orgs) === false) {
                         continue;
@@ -242,7 +248,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
                 $found_orgs[$org] = true;
 
-                $mcolor = $maturity['color'];
+                $mcolor = color_gen($dbh, $org);
                 if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
                     $cstatus = get_compile_status($mobj);
                     if ($cstatus == 'failed') {
@@ -343,6 +349,7 @@ if (!isset($_GET['modules'])) {
     arsort($edge_counts, SORT_NUMERIC);
     $curr_count = 0;
     $tbottlenecks = [];
+    $rim_cols = count($found_mats);
     foreach ($edge_counts as $m => $c) {
         if ($c < 1 || $c < $curr_count) {
             break;
@@ -369,6 +376,11 @@ if (!isset($_GET['modules'])) {
             array_push($bottlenecks, "node#mod_{$bn}");
         }
     }
+
+    $num_legend_cols = intval(count(array_keys($found_orgs)) / 6);
+    if ($found_bottleneck) {
+        $rim_cols++;
+    }
 }
 
 ?>
@@ -384,68 +396,85 @@ if (!isset($_GET['modules'])) {
 
     <?=QTIP_CSS?>
 
+    <?=FONT_AWESOME_CSS?>
+
     <style>
 
     /* Style taken from https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/assets/app.css */
-    .twitter-typeahead .tt-query,
-.twitter-typeahead .tt-hint {
-    margin-bottom: 0;
-}
 
-.twitter-typeahead .tt-hint
-{
-    display: none;
-}
+    .twitter-typeahead .tt-query, .twitter-typeahead .tt-hint {
+      margin-bottom: 0;
+    }
 
-.tt-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 1000;
-    display: none;
-    float: left;
-    min-width: 160px;
-    padding: 5px 0;
-    margin: 2px 0 0;
-    list-style: none;
-    font-size: 14px;
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 4px;
-    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-    background-clip: padding-box;
-    cursor: pointer;
-    max-height: 150px;
-    overflow-y: auto;
-}
+    .twitter-typeahead .tt-hint {
+      display: none;
+    }
 
-.tt-suggestion {
-    display: block;
-    padding: 3px 20px;
-    clear: both;
-    font-weight: normal;
-    line-height: 1.428571429;
-    color: #333333;
-    white-space: nowrap;
-}
+    .tt-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      display: none;
+      float: left;
+      min-width: 160px;
+      padding: 5px 0;
+      margin: 2px 0 0;
+      list-style: none;
+      font-size: 14px;
+      background-color: #ffffff;
+      border: 1px solid #cccccc;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+      background-clip: padding-box;
+      cursor: pointer;
+      max-height: 150px;
+      overflow-y: auto;
+    }
 
-.tt-suggestion:hover,
-.tt-suggestion:focus {
-  color: #ffffff;
-  text-decoration: none;
-  outline: 0;
-  background-color: #428bca;
-}
+    .tt-suggestion {
+      display: block;
+      padding: 3px 20px;
+      clear: both;
+      font-weight: normal;
+      line-height: 1.428571429;
+      color: #333333;
+      white-space: nowrap;
+    }
 
-table.controls {
-  border-collapse: separate; border-spacing: 5px;
-}
+    .tt-suggestion:hover, .tt-suggestion:focus {
+      color: #ffffff;
+      text-decoration: none;
+      outline: 0;
+      background-color: #428bca;
+    }
 
-.tooltip-inner {
-  text-align: left;
-}
+    table.controls {
+      border-collapse: separate;
+      border-spacing: 5px;
+    }
+
+    .tooltip-inner {
+      text-align: left;
+    }
+
+    ul.color-list {
+      list-style: none;
+      padding-left: 0;
+      column-count: <?=$num_legend_cols?>;
+      -moz-column-count: <?=$num_legend_cols?>;
+      -webkit-column-count: <?=$num_legend_cols?>;
+    }
+
+    ul.rim-list {
+      list-type: none;
+      padding-left: 0;
+      column-count: <?=$rim_cols?>;
+      -moz-column-count: <?=$rim_cols?>;
+      -webkit-column-count: <?=$rim_cols?>;
+    }
     </style>
 
 		<?=JQUERY_JS?>
@@ -511,6 +540,12 @@ $(function() {
       if ($found_bottleneck) {
           ?>
       this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
+      <?php
+
+      }
+      foreach ($found_mats as $mat => $mlist) {
+          ?>
+      this.elements('<?=implode(',', array_map('nodify', $mlist))?>').css({'border-width':5, 'border-color': '<?=$MATURITY_MAP[$mat]?>'});
       <?php
 
       }
@@ -660,53 +695,34 @@ foreach ($alerts as $alert) {
       <div class="panel-body">
         <fieldset>
           <label>Legend</label>
-          <table border="0" class="controls">
-            <tbody>
-              <?php
-              if (isset($found_mats[':UNKNOWN'])) {
-                  ?>
-              <tr>
-                <td style="background-color: <?=$MATURITY_UNKNOWN['color']?>">&nbsp;&nbsp;</td>
-                <td>Status: N/A</td>
-              </tr>
-              <?php
-
-              }
-              if ($found_failed) {
-                  ?>
-              <tr>
-                <td style="background-color: <?=$COLOR_FAILED?>">&nbsp;&nbsp;</td>
-                <td>Status: Compilation Failed</td>
-              </tr>
-            <?php
-
-              } ?>
+          <ul class="color-list">
             <?php
             foreach ($found_orgs as $fo => $val) {
                 $fo = strtoupper($fo);
-                if (!isset($SDO_CMAP[$fo])) {
+                if (!isset($ORG_CACHE[$fo])) {
                     continue;
-                }
-                foreach ($SDO_CMAP[$fo] as $mat) {
-                    if (!isset($found_mats[$fo.':'.$mat['level']])) {
-                        continue;
-                    } ?>
-                <tr>
-                  <td style="background-color: <?=$mat['color']?>">&nbsp;&nbsp;</td>
-                  <td>Status: <?=$fo?>:<?=$mat['name']?></td>
-                </tr>
+                } ?>
+              <li><span class="fa fa-square" style="color: <?=$ORG_CACHE[$fo]?>;"></span> <?=$fo?></li>
               <?php
 
-                }
             } ?>
-            </tbody>
-          </table>
-          <?php if ($found_bottleneck) {
-                ?>
-          <p><b>NOTE:</b> Unselected node(s) with a black rim represent bottleneck(s)</p>
+          </ul>
+          <label>Rim Color</label>
+          <ul class="rim-list">
+          <?php
+          foreach ($found_mats as $mat) {
+              ?>
+            <li><span class="fa fa-circle-o" style="color: <?=$MATURITY_MAP[$mat]?>;"></span> Maturity: <?=$mat?></li>
+            <?php
+
+          }
+          if ($found_bottleneck) {
+              ?>
+          <li><span class="fa fa-circle-o" style="color: #000000;"></span> Bottleneck to Ratification</li>
           <?php
 
-            } ?>
+          } ?>
+        </ul>
         </fieldset>
       <div>
         <div>
@@ -724,7 +740,7 @@ foreach ($alerts as $alert) {
                   </tr>
                   <tr>
                     <td><b>Recursion Levels:</b>&nbsp;&nbsp;&nbsp;<input type="text" id="recursion" size="2" value="<?=$recurse?>"></td>
-                    <td><b>Include Standards?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
+                    <td><b>Include Ratified Standards?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_rfcs" value="1" <?=($show_rfcs) ? 'checked' : ''?>></td>
                     <td><b>Include Sub-modules?</b>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="show_subm" value="1" <?=($show_subm) ? 'checked' : ''?>></td>
                     <td><b>Show Graph Direction:</b>&nbsp;&nbsp;&nbsp;<select id="show_dir" data-html="true" data-toggle="tooltip" title="<?=$DIR_HELP_TEXT?>">
                       <option value="both" <?=($show_dir == 'both') ? 'selected' : ''?>>Both</option>
