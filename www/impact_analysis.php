@@ -539,15 +539,15 @@ $(function() {
 		ready: function() {
 		  window.cy = this;
       <?php
-      if ($found_bottleneck) {
-          ?>
-      this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
-      <?php
-
-      }
       foreach ($found_mats as $mat => $mlist) {
           ?>
       this.elements('<?=implode(',', array_map('nodify', $mlist))?>').css({'border-width':5, 'border-color': '<?=$MATURITY_MAP[$mat]?>'});
+      <?php
+
+      }
+      if ($found_bottleneck) {
+          ?>
+      this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
       <?php
 
       }
