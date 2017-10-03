@@ -475,184 +475,222 @@ if (!isset($_GET['modules'])) {
     <?=TYPEAHEAD_JS?>
 
 		<script>
-$(function() {
-	$("#cy").cytoscape({
-		layout: {
-			name: 'spread',
-			minDist: 40
-		},
-		style: cytoscape.stylesheet()
-		  .selector('node')
-		    .css({
-		      'content'            : 'data(name)',
-		      'text-valign'        : 'center',
-		      'color'              : '#fff',
-		      'text-outline-width' : 2,
-		      'background-color'   : 'data(objColor)',
-		      'text-outline-color' : 'data(objColor)'
-		    })
-		  .selector(':selected')
-		    .css({
-		      'border-width' : 3,
-		      'border-color' : '#2c1ec1'
-		    })
-		  .selector('edge')
-		    .css({
-		      'curve-style'        : 'bezier',
-		      'target-arrow-shape' : 'triangle',
-		      'source-arrow-shape' : 'circle',
-		      'line-color'         : 'data(objColor)',
-		      'opacity'            : 0.666,
-		      'source-arrow-color' : 'data(objColor)',
-		      'target-arrow-color' : 'data(objColor)'
-		    })
-		  .selector('.faded')
-		    .css({
-		      'opacity'      : 0.25,
-		      'text-opacity' : 0
-		    }),
-		elements: {
-		  nodes: <?=json_encode($nodes)?>,
-		  edges: <?=json_encode($edges)?>
-		},
-		ready: function() {
-		  window.cy = this;
-      <?php
-      foreach ($found_mats as $mat => $mlist) {
-          ?>
-      this.elements('<?=implode(',', array_map('nodify', $mlist))?>').css({'border-width':5, 'border-color': '<?=$MATURITY_MAP[$mat]?>'});
-      <?php
-
-      }
-      if ($found_bottleneck) {
-          ?>
-      this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
-      this.elements('<?=implode(',', $bottlenecks)?>').data('bottleneck', true);
-      <?php
-
-      }
-      foreach ($nodes as $node) {
-          if ($node['data']['sub_mod'] === true) {
+    $(function() {
+      $("#cy").cytoscape({
+        layout: {
+          name: 'spread',
+          minDist: 40
+        },
+        style: cytoscape.stylesheet()
+          .selector('node')
+          .css({
+            'content': 'data(name)',
+            'text-valign': 'center',
+            'color': '#fff',
+            'text-outline-width': 2,
+            'background-color': 'data(objColor)',
+            'text-outline-color': 'data(objColor)'
+          })
+          .selector(':selected')
+          .css({
+            'border-width': 3,
+            'border-color': '#2c1ec1'
+          })
+          .selector('edge')
+          .css({
+            'curve-style': 'bezier',
+            'target-arrow-shape': 'triangle',
+            'source-arrow-shape': 'circle',
+            'line-color': 'data(objColor)',
+            'opacity': 0.666,
+            'source-arrow-color': 'data(objColor)',
+            'target-arrow-color': 'data(objColor)'
+          })
+          .selector('.faded')
+          .css({
+            'opacity': 0.25,
+            'text-opacity': 0
+          }),
+        elements: {
+          nodes: <?=json_encode($nodes)?>,
+          edges: <?=json_encode($edges)?>
+        },
+        ready: function() {
+          window.cy = this;
+          <?php
+          foreach ($found_mats as $mat => $mlist) {
               ?>
-      this.elements('node[name = "<?=$node['data']['name']?>"]').data('name', 'sub-module: ' + this.elements('node[name = "<?=$node['data']['name']?>"]').data('name')).css({'font-size': '8px'});
-      <?php
+          this.elements('<?=implode(',', array_map('nodify', $mlist))?>').css({
+            'border-width': 5,
+            'border-color': '<?=$MATURITY_MAP[$mat]?>'
+          });
+          <?php
 
           }
-      }
-      ?>
-      window.cy.nodes().qtip({
-        content: function() { return 'Document ' + this.data('document') },
-        position: {
-          my: 'bottom right',
-          at: 'top left'
-        },
-        show: {
-          event: 'mouseover'
-        },
-        hide: {
-          event: false,
-          inactive: 2000
-        },
-        style: {
-          classes: 'qtip-bootstrap',
-          tip: {
-            width: 16,
-            height: 8
+          if ($found_bottleneck) {
+              ?>
+          this.elements('<?=implode(',', $bottlenecks)?>').css({
+            'border-width': 5,
+            'border-color': '#333'
+          });
+          this.elements('<?=implode(',', $bottlenecks)?>').data('bottleneck', true);
+          <?php
+
           }
+          foreach ($nodes as $node) {
+              if ($node['data']['sub_mod'] === true) {
+                  ?>
+          this.elements('node[name = "<?=$node['data']['name']?>"]').data('name', 'sub-module: ' + this.elements('node[name = "<?=$node['data']['name']?>"]').data('name')).css({
+            'font-size': '8px'
+          });
+          <?php
+
+              }
+          }
+          ?>
+          window.cy.nodes().qtip({
+            content: function() {
+              return 'Document ' + this.data('document')
+            },
+            position: {
+              my: 'bottom right',
+              at: 'top left'
+            },
+            show: {
+              event: 'mouseover'
+            },
+            hide: {
+              event: false,
+              inactive: 2000
+            },
+            style: {
+              classes: 'qtip-bootstrap',
+              tip: {
+                width: 16,
+                height: 8
+              }
+            }
+          });
         }
       });
-		}
-	});
-});
+    });
 
-function reloadPage() {
-  var url = "<?=$_SERVER['PHP_SELF']?>?";
-  var uargs = [];
-  $.each($('#modtags').val().split(","), function(k, v) {
-    if (v !== '') {
-      uargs.push("modules[]=" + v);
+    function reloadPage() {
+      var url = "<?=$_SERVER['PHP_SELF']?>?";
+      var uargs = [];
+      $.each($('#modtags').val().split(","), function(k, v) {
+        if (v !== '') {
+          uargs.push("modules[]=" + v);
+        }
+      });
+      $.each($('#orgtags').val().split(","), function(k, v) {
+        if (v !== '') {
+          uargs.push("orgs[]=" + v);
+        }
+      });
+      var recursion = $('#recursion').val();
+      if (recursion === '') {
+        recusrion = 0;
+      }
+      uargs.push("recurse=" + recursion);
+      if ($('#show_rfcs').is(':checked')) {
+        uargs.push("rfcs=1");
+      } else {
+        uargs.push("rfcs=0");
+      }
+      if ($('#show_subm').is(':checked')) {
+        uargs.push("show_subm=1");
+      } else {
+        uargs.push("show_subm=0");
+      }
+      uargs.push("show_dir=" + $('#show_dir').val());
+
+      url += uargs.join("&");
+
+      window.location.href = url;
     }
-  });
-  $.each($('#orgtags').val().split(","), function(k, v) {
-    if (v !== '') {
-      uargs.push("orgs[]=" + v);
+
+    function highlight(what, match) {
+      if (match == '__ALL__') {
+        window.cy.elements('node').css({
+          'opacity': 1.0
+        });
+        window.cy.elements('edge').css({
+          'opacity': 1.0
+        });
+      } else {
+        if (what == 'org') {
+          window.cy.elements('node[org != "' + match + '"]').css({
+            'opacity': 0.25
+          });
+          window.cy.elements('edge[org != "' + match + '"]').css({
+            'opacity': 0.25
+          });
+          window.cy.elements('node[org = "' + match + '"]').css({
+            'opacity': 1.0
+          });
+          window.cy.elements('edge[org = "' + match + '"]').css({
+            'opacity': 1.0
+          });
+        } else if (what == 'maturity') {
+          window.cy.elements('node[mat != "' + match + '"]').css({
+            'opacity': 0.25
+          });
+          window.cy.elements('edge[mat != "' + match + '"]').css({
+            'opacity': 0.25
+          });
+          window.cy.elements('node[mat = "' + match + '"]').css({
+            'opacity': 1.0
+          });
+          window.cy.elements('edge[mat = "' + match + '"]').css({
+            'opacity': 1.0
+          });
+        } else if (what == 'bottleneck') {
+          window.cy.elements('node[!bottleneck]').css({
+            'opacity': 0.25
+          });
+          window.cy.elements('edge').css({
+            'opacity': 0.25
+          });
+          window.cy.elements('node[bottleneck]').css({
+            'opacity': 1.0
+          });
+        }
+      }
+      return false;
     }
-  });
-  var recursion = $('#recursion').val();
-  if (recursion === '') {
-    recusrion = 0;
-  }
-  uargs.push("recurse=" + recursion);
-  if ($('#show_rfcs').is(':checked')) {
-    uargs.push("rfcs=1");
-  } else {
-    uargs.push("rfcs=0");
-  }
-  if ($('#show_subm').is(':checked')) {
-    uargs.push("show_subm=1");
-  } else {
-    uargs.push("show_subm=0");
-  }
-  uargs.push("show_dir=" + $('#show_dir').val());
 
-  url += uargs.join("&");
+    $(document).ready(function() {
+      $('#graph_commit').on('click', function(e) {
+        reloadPage();
+      });
+      $('#graph_export').on('click', function(e) {
+        var png = window.cy.png({
+          full: true
+        });
+        var img = new Image();
+        img.src = png;
 
-  window.location.href = url;
-}
+        var win = window.open("");
+        win.document.write(img.outerHTML);
+      });
 
-function highlight(what, match) {
-  if (match == '__ALL__') {
-    window.cy.elements('node').css({'opacity': 1.0});
-    window.cy.elements('edge').css({'opacity': 1.0});
-  } else {
-    if (what == 'org') {
-      window.cy.elements('node[org != "' + match + '"]').css({'opacity': 0.25});
-      window.cy.elements('edge[org != "' + match + '"]').css({'opacity': 0.25});
-      window.cy.elements('node[org = "' + match + '"]').css({'opacity': 1.0});
-      window.cy.elements('edge[org = "' + match + '"]').css({'opacity': 1.0});
-    } else if (what == 'maturity') {
-      window.cy.elements('node[mat != "' + match + '"]').css({'opacity': 0.25});
-      window.cy.elements('edge[mat != "' + match + '"]').css({'opacity': 0.25});
-      window.cy.elements('node[mat = "' + match + '"]').css({'opacity': 1.0});
-      window.cy.elements('edge[mat = "' + match + '"]').css({'opacity': 1.0});
-    } else if (what == 'bottleneck') {
-      window.cy.elements('node[!bottleneck]').css({'opacity': 0.25});
-      window.cy.elements('edge').css({'opacity': 0.25});
-      window.cy.elements('node[bottleneck]').css({'opacity': 1.0});
-    }
-  }
-  return false;
-}
+      $('[data-toggle="tooltip"]').tooltip();
+    });
 
-$(document).ready(function() {
-  $('#graph_commit').on('click', function(e) {
-    reloadPage();
-  });
-  $('#graph_export').on('click', function(e) {
-    var png = window.cy.png({full: true});
-    var img = new Image();
-    img.src = png;
-
-    var win = window.open("");
-    win.document.write(img.outerHTML);
-  });
-
-  $('[data-toggle="tooltip"]').tooltip();
-});
-
-$(document).on('click', '.panel-heading span.clickable', function(e){
-  if(!$(this).hasClass('panel-collapsed')) {
-    $(this).parents('.panel').find('.panel-body').slideUp();
-    $(this).addClass('panel-collapsed');
-    $(this).find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-    window.cy.resize();
-  } else {
-    $(this).parents('.panel').find('.panel-body').slideDown();
-    $(this).removeClass('panel-collapsed');
-    $(this).find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-    window.cy.resize();
-  }
-});
+    $(document).on('click', '.panel-heading span.clickable', function(e) {
+      if (!$(this).hasClass('panel-collapsed')) {
+        $(this).parents('.panel').find('.panel-body').slideUp();
+        $(this).addClass('panel-collapsed');
+        $(this).find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+        window.cy.resize();
+      } else {
+        $(this).parents('.panel').find('.panel-body').slideDown();
+        $(this).removeClass('panel-collapsed');
+        $(this).find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+        window.cy.resize();
+      }
+    });
 </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
