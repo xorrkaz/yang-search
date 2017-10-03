@@ -263,7 +263,7 @@ function get_maturity(&$mod_obj, &$alerts = null)
             $cstatus = get_compile_status($mod_obj);
             if ($cstatus == 'failed') {
                 $level = 'COMPILATION FAILED';
-                $maturity = ['color' => $MATURITY_MAP[$level], 'level' => $level 'olevel' => $mmat;
+                $maturity = ['color' => $MATURITY_MAP[$level], 'level' => $level, 'olevel' => $mmat;
             }
         }
     } catch (Exception $e) {
