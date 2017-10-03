@@ -272,12 +272,12 @@ function color_gen(&$dbh, $org)
     }
     if ($NUM_STEPS == -1) {
         try {
-            $sql = 'SELECT COUNT(DISTINCT(organization)) AS count FROM modules';
+            $sql = 'SELECT COUNT(DISTINCT(UPPER(organization))) AS count FROM modules';
             $res = $dbh->query($sql);
             $row = $res->fetch();
-            $NUM_STEPS = $row['count'];
+            $NUM_STEPS = $row['count'] + 1;
         } catch (Exception $e) {
-            $NUM_STEPS = 32;
+            $NUM_STEPS = 33;
         }
     }
     $r = -1;

@@ -296,7 +296,7 @@ $show_dir = 'both';
 $found_bottleneck = false;
 $bottlenecks = [];
 $title = 'Empty Impact Graph';
-$num_legend_cols = 0;
+$num_legend_cols = 1;
 $rim_cols = 0;
 
 $dbh = yang_db_conn($alerts);
@@ -380,6 +380,9 @@ if (!isset($_GET['modules'])) {
     }
 
     $num_legend_cols = intval(count(array_keys($found_orgs)) / 6);
+    if ($num_legend_cols < 1) {
+        $num_legend_cols = 1;
+    }
     if ($found_bottleneck) {
         $rim_cols++;
     }
