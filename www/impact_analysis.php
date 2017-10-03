@@ -148,7 +148,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
             array_push($found_mats[$mmat['level']], $module);
         }
         $document = get_doc($mod_obj);
-        array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm]]);
+        array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm, 'org' => strtoupper($org)]]);
         if (!isset($edge_counts[$module])) {
             $edge_counts[$module] = 0;
         }
@@ -204,14 +204,14 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                     ++$edge_counts[$module];
                 }
                 if ("mod_$module" != "mod_$mod") {
-                    array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor]]);
+                    array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor, 'org' => strtoupper($org)]]);
                 }
                 if ($recurse > 0 || $recurse < 0) {
                     $r = $recurse - 1;
                     build_graph($mod, $mobj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm, $show_dir);
                 } else {
                     $document = get_doc($mobj);
-                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
+                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm, 'org' => strtoupper($org)]]);
                 }
             }
         }
@@ -272,7 +272,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
                 if (!$nested) {
                     if ("mod_$mod" != "mod_$module") {
-                        array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor]]);
+                        array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor, 'org' => strtoupper($org)]]);
                     }
                 }
                 if ($nested && ($recurse > 0 || $recurse < 0)) {
@@ -280,7 +280,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                             //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                 } elseif (!$nested) {
                     $document = get_doc($mobj);
-                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm]]);
+                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm, 'org' => strtoupper($org)]]);
                 }
             }
         }
@@ -632,6 +632,17 @@ function reloadPage() {
   window.location.href = url;
 }
 
+function highlight(what, match) {
+  if (what == 'org') {
+    if (match == '__ALL__') {
+      window.cy.elements('nodes').css({'opacity': 1.0});
+      window.cy.elements('edges').css({'opacity': 1.0});
+    } else {
+      window.cy.elements('node[org != ' + match + ']').css({'opacity': 0.2});
+      window.cy.elements('edges[org != ' + match + ']').css({'opacity': 0.2});
+  }
+}
+
 $(document).ready(function() {
   $('#graph_commit').on('click', function(e) {
     reloadPage();
@@ -716,7 +727,7 @@ foreach ($alerts as $alert) {
                 if (!isset($ORG_CACHE[$fo])) {
                     continue;
                 } ?>
-              <li><span class="fa fa-square" style="color: <?=$ORG_CACHE[$fo]?>;"></span> <?=$fo?></li>
+              <li><a href="#" onClick="return highlight('org', '<?=$fo?>');"><span class="fa fa-square" style="color: <?=$ORG_CACHE[$fo]?>;"></span> <?=$fo?></a></li>
               <?php
 
             } ?>
