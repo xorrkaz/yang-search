@@ -102,7 +102,7 @@ function is_submod(&$mod_obj)
 
 function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_counts, &$nseen, &$eseen, &$alerts, $show_rfcs, $recurse = 0, $nested = false, $show_subm = true, $show_dir = 'both')
 {
-    global $found_orgs, $found_mats, $found_failed, $SDO_CMAP, $COLOR_FAILED;
+    global $found_orgs, $found_mats, $found_failed, $COLOR_FAILED;
 
     $is_subm = false;
 
@@ -139,10 +139,10 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 $found_failed = true;
             }
         }
-        if (!isset($found_mats[$maturity['level']])) {
-            $found_mats[$maturity['level']] = [$module];
+        if (!isset($found_mats[$mmat['level']])) {
+            $found_mats[$mmat['level']] = [$module];
         } else {
-            array_push($found_mats[$maturity['level']], $module);
+            array_push($found_mats[$mmat['level']], $module);
         }
         $document = get_doc($mod_obj);
         array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm]]);
@@ -236,7 +236,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
 
                 $org = $mrev_org['org'];
                 if (!isset($found_mats[$maturity['level']])) {
-                    $found_mats[$maturiy['level']] = [$mod];
+                    $found_mats[$maturity['level']] = [$mod];
                 } else {
                     array_push($found_mats[$maturity['level']], $mod);
                 }
@@ -296,6 +296,8 @@ $show_dir = 'both';
 $found_bottleneck = false;
 $bottlenecks = [];
 $title = 'Empty Impact Graph';
+$num_legend_cols = 0;
+$rim_cols = 0;
 
 $dbh = yang_db_conn($alerts);
 
@@ -349,7 +351,7 @@ if (!isset($_GET['modules'])) {
     arsort($edge_counts, SORT_NUMERIC);
     $curr_count = 0;
     $tbottlenecks = [];
-    $rim_cols = count($found_mats);
+    $rim_cols = count(array_keys($found_mats));
     foreach ($edge_counts as $m => $c) {
         if ($c < 1 || $c < $curr_count) {
             break;
@@ -469,7 +471,7 @@ if (!isset($_GET['modules'])) {
     }
 
     ul.rim-list {
-      list-type: none;
+      list-style: none;
       padding-left: 0;
       column-count: <?=$rim_cols?>;
       -moz-column-count: <?=$rim_cols?>;
@@ -710,7 +712,7 @@ foreach ($alerts as $alert) {
           <label>Rim Color</label>
           <ul class="rim-list">
           <?php
-          foreach ($found_mats as $mat) {
+          foreach (array_keys($found_mats) as $mat) {
               ?>
             <li><span class="fa fa-circle-o" style="color: <?=$MATURITY_MAP[$mat]?>;"></span> Maturity: <?=$mat?></li>
             <?php

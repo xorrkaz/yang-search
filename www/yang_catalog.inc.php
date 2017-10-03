@@ -73,6 +73,7 @@ $MATURITY_MAP = [
   'INITIAL' => '#c900ff',
   'ADOPTED' => '#86b342',
   'RATIFIED' => '#0066ff',
+  'N/A'      => '#663300',
 ];
 /*$SDO_CMAP = [
   'IETF' => [
@@ -235,7 +236,7 @@ function get_maturity(&$mod_obj, &$alerts = null)
     try {
         $mmat = strtoupper($mod_obj->get('maturity-level'));
         if (isset($MATURITY_MAP[$mmat])) {
-            $maturity = ['color' => $MATURITY_MAP[$mmap], 'level' => $mmat];
+            $maturity = ['color' => $MATURITY_MAP[$mmat], 'level' => $mmat];
         }
     } catch (Exception $e) {
         if ($alerts !== null) {
@@ -271,7 +272,7 @@ function color_gen(&$dbh, $org)
     }
     if ($NUM_STEPS == -1) {
         try {
-            $sql = 'SELECT COUNT(organization) AS count FROM modules GROUP BY organization';
+            $sql = 'SELECT COUNT(DISTINCT(organization)) AS count FROM modules';
             $res = $dbh->query($sql);
             $row = $res->fetch();
             $NUM_STEPS = $row['count'];
