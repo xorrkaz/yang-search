@@ -253,7 +253,7 @@ function get_maturity(&$mod_obj, &$alerts = null)
 {
     global $MATURITY_UNKNOWN, $MATURITY_MAP;
 
-    $maturity = ['color' => $MATURITY_UNKNOWN, 'level' => 'N/A'];
+    $maturity = ['color' => $MATURITY_UNKNOWN, 'level' => 'N/A', 'olevel' => 'N/A'];
     try {
         $mmat = strtoupper($mod_obj->get('maturity-level'));
         if (isset($MATURITY_MAP[$mmat])) {
