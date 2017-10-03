@@ -635,12 +635,17 @@ function reloadPage() {
 function highlight(what, match) {
   if (what == 'org') {
     if (match == '__ALL__') {
-      window.cy.elements('nodes').css({'opacity': 1.0});
-      window.cy.elements('edges').css({'opacity': 1.0});
+      window.cy.elements('node').css({'opacity': 1.0});
+      window.cy.elements('edge').css({'opacity': 1.0});
     } else {
-      window.cy.elements('node[org != ' + match + ']').css({'opacity': 0.2});
-      window.cy.elements('edges[org != ' + match + ']').css({'opacity': 0.2});
+      window.cy.elements('node[org != "' + match + '"]').css({'opacity': 0.25});
+      window.cy.elements('edge[org != "' + match + '"]').css({'opacity': 0.25});
+      window.cy.elements('node[org = "' + match + '"]').css({'opacity': 1.0});
+      window.cy.elements('edge[org = "' + match + '"]').css({'opacity': 1.0});
+    }
   }
+
+  return false;
 }
 
 $(document).ready(function() {
@@ -721,6 +726,7 @@ foreach ($alerts as $alert) {
         <fieldset>
           <label>Legend</label>
           <ul class="color-list">
+            <li><a href="#" onClick="return highlight('org', '__ALL__')";>Highlight All</a></li>
             <?php
             foreach ($found_orgs as $fo => $val) {
                 $fo = strtoupper($fo);
