@@ -117,6 +117,9 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
     }
 
     $org = $mod_obj->getOrganization();
+    if ($org == '') {
+        $org = 'UNKNOWN';
+    }
 
     if ($nested > 0 && count($orgs) > 0 && !(count($orgs) == 1 && $orgs[0] == '')) {
         if (array_search($org, $orgs) === false) {
@@ -173,6 +176,9 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
 
                 $org = $mrev_org['org'];
+                if ($org == '') {
+                    $org = 'UNKNOWN';
+                }
                 $mcolor = color_gen($dbh, $org);
                 if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
                     $cstatus = get_compile_status($mobj);
@@ -235,6 +241,9 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
 
                 $org = $mrev_org['org'];
+                if ($org == '') {
+                    $org = 'UNKNOWN';
+                }
                 if (!isset($found_mats[$maturity['level']])) {
                     $found_mats[$maturity['level']] = [$mod];
                 } else {
