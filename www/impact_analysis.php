@@ -362,6 +362,9 @@ if (!isset($_GET['modules'])) {
     if ($found_bottleneck) {
         $rim_cols++;
     }
+    if ($rim_cols > 1) {
+        $rim_cols--;
+    }
 }
 
 ?>
@@ -455,6 +458,9 @@ if (!isset($_GET['modules'])) {
       column-count: <?=$rim_cols?>;
       -moz-column-count: <?=$rim_cols?>;
       -webkit-column-count: <?=$rim_cols?>;
+      column-gap: 1px;
+      -moz-column-gap: 1px;
+      -webkit-column-gap: 1px;
     }
     </style>
 
