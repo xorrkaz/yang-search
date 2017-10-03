@@ -247,7 +247,7 @@ function get_maturity(&$mod_obj, &$alerts = null)
 }
 
 $NUM_STEPS = -1;
-$CUR_STEP = 0;
+$CUR_STEP = 1;
 $ORG_CACHE = [];
 
 /*
