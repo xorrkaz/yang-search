@@ -148,7 +148,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
             array_push($found_mats[$mmat['level']], $module);
         }
         $document = get_doc($mod_obj);
-        array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm, 'org' => strtoupper($org)]]);
+        array_push($nodes, ['data' => ['id' => "mod_$module", 'name' => $module, 'objColor' => $color, 'document' => $document, 'sub_mod' => $is_subm, 'org' => strtoupper($org), 'mat' => $mmat['level']]]);
         if (!isset($edge_counts[$module])) {
             $edge_counts[$module] = 0;
         }
@@ -204,14 +204,14 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                     ++$edge_counts[$module];
                 }
                 if ("mod_$module" != "mod_$mod") {
-                    array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor, 'org' => strtoupper($org)]]);
+                    array_push($edges, ['data' => ['source' => "mod_$module", 'target' => "mod_$mod", 'objColor' => $mcolor, 'org' => strtoupper($org), 'mat' => $maturity['level']]]);
                 }
                 if ($recurse > 0 || $recurse < 0) {
                     $r = $recurse - 1;
                     build_graph($mod, $mobj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true, $show_subm, $show_dir);
                 } else {
                     $document = get_doc($mobj);
-                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm, 'org' => strtoupper($org)]]);
+                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm, 'org' => strtoupper($org), 'mat' => $maturity['level']]]);
                 }
             }
         }
@@ -272,7 +272,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                 }
                 if (!$nested) {
                     if ("mod_$mod" != "mod_$module") {
-                        array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor, 'org' => strtoupper($org)]]);
+                        array_push($edges, ['data' => ['source' => "mod_$mod", 'target' => "mod_$module", 'objColor' => $mcolor, 'org' => strtoupper($org), 'mat' => $maturity['level']]]);
                     }
                 }
                 if ($nested && ($recurse > 0 || $recurse < 0)) {
@@ -280,7 +280,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                             //build_graph($mod, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $r, true);
                 } elseif (!$nested) {
                     $document = get_doc($mobj);
-                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm, 'org' => strtoupper($org)]]);
+                    array_push($nodes, ['data' => ['id' => "mod_$mod", 'name' => $mod, 'objColor' => $mcolor, 'document' => $document, 'sub_mod' => $is_msubm, 'org' => strtoupper($org), 'mat' => $maturity['level']]]);
                 }
             }
         }
@@ -560,6 +560,7 @@ $(function() {
       if ($found_bottleneck) {
           ?>
       this.elements('<?=implode(',', $bottlenecks)?>').css({'border-width':5, 'border-color': '#333'});
+      this.elements('<?=implode(',', $bottlenecks)?>').data('bottleneck', true);
       <?php
 
       }
@@ -633,18 +634,26 @@ function reloadPage() {
 }
 
 function highlight(what, match) {
-  if (what == 'org') {
-    if (match == '__ALL__') {
-      window.cy.elements('node').css({'opacity': 1.0});
-      window.cy.elements('edge').css({'opacity': 1.0});
-    } else {
+  if (match == '__ALL__') {
+    window.cy.elements('node').css({'opacity': 1.0});
+    window.cy.elements('edge').css({'opacity': 1.0});
+  } else {
+    if (what == 'org') {
       window.cy.elements('node[org != "' + match + '"]').css({'opacity': 0.25});
       window.cy.elements('edge[org != "' + match + '"]').css({'opacity': 0.25});
       window.cy.elements('node[org = "' + match + '"]').css({'opacity': 1.0});
       window.cy.elements('edge[org = "' + match + '"]').css({'opacity': 1.0});
+    } else if (what == 'maturity') {
+      window.cy.elements('node[mat != "' + match + '"]').css({'opacity': 0.25});
+      window.cy.elements('edge[mat != "' + match + '"]').css({'opacity': 0.25});
+      window.cy.elements('node[mat = "' + match + '"]').css({'opacity': 1.0});
+      window.cy.elements('edge[mat = "' + match + '"]').css({'opacity': 1.0});
+    } else if (what == 'bottleneck') {
+      window.cy.elements('node[!bottleneck]').css({'opacity': 0.25});
+      window.cy.elements('edge').css({'opacity': 0.25});
+      window.cy.elements('node[bottleneck]').css({'opacity': 1.0});
     }
   }
-
   return false;
 }
 
@@ -724,7 +733,8 @@ foreach ($alerts as $alert) {
       </div>
       <div class="panel-body">
         <fieldset>
-          <label>Legend</label>
+          <p>Click on legend elements below to highlight on the graph.</p>
+          <label>Element Colors</label>
           <ul class="color-list">
             <li><a href="#" onClick="return highlight('org', '__ALL__')";>Highlight All</a></li>
             <?php
@@ -738,18 +748,18 @@ foreach ($alerts as $alert) {
 
             } ?>
           </ul>
-          <label>Rim Color</label>
+          <label>Rim Colors</label>
           <ul class="rim-list">
           <?php
           foreach (array_keys($found_mats) as $mat) {
               ?>
-            <li><span class="fa fa-circle-o" style="color: <?=$MATURITY_MAP[$mat]?>;"></span> Maturity: <?=$mat?></li>
+            <li><a href="#" onClick="return highlight('maturity', '<?=$mat?>');"><span class="fa fa-circle-o" style="color: <?=$MATURITY_MAP[$mat]?>;"></span> Maturity: <?=$mat?></a></li>
             <?php
 
           }
           if ($found_bottleneck) {
               ?>
-          <li><span class="fa fa-circle-o" style="color: #000000;"></span> Bottleneck to Ratification</li>
+          <li><a href="#" onClick="return highlight('bottleneck', '');"><span class="fa fa-circle-o" style="color: #000000;"></span> Bottleneck to Ratification</a></li>
           <?php
 
           } ?>
