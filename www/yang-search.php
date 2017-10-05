@@ -223,6 +223,9 @@ if (isset($_POST['search_string'])) {
     if (count($results) > 0) {
         $modules = [];
         foreach ($results as $res_mod) {
+            if ($res_mod->getModule('error') !== null) {
+                continue;
+            }
             $organization = $res_mod->getModule('organization');
             $maturity = $res_mod->getModule('maturity-level');
             $compile_status = $res_mod->getModule('compilation-status');
