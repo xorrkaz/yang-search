@@ -334,7 +334,7 @@ class Search
     {
         $response = $this->rester->post('/index/search', $this->toSearchPayload());
         $hits = [];
-        foreach ($response as $hit) {
+        foreach ($response['results'] as $hit) {
             array_push($hits, new SearchResult($hit));
         }
 
