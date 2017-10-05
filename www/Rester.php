@@ -109,7 +109,7 @@ class Rester
         $req = $req->expects($mime)->timeoutIn($this->timeout);
         if ($mime == 'application/json') {
             $req = $req->parseWith(function ($body) {
-                $json = json_deocde($body, true);
+                $json = json_decode($body, true);
 
                 return $json;
             });
