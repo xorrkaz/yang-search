@@ -57,7 +57,9 @@ class SearchResult
     public function getModule($field)
     {
         if (array_search($field, Module::getFields()) === false) {
-            throw new Exception("Field {$field} is not a module field; must be one of ".implode(', ', Module::getFields()));
+            if ($field != 'error') {
+                throw new Exception("Field {$field} is not a module field; must be one of ".implode(', ', Module::getFields()));
+            }
         }
 
         if (!isset($this->module[$field])) {
