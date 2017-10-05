@@ -181,7 +181,7 @@ class Search
         }
         if ($allowed !== null) {
             foreach ($value as $val) {
-                if (array_search($value, $allowed) === false) {
+                if (array_search($val, $allowed) === false) {
                     throw new Exception("$val is not an allowed value; must be one of ".implode(', ', $allowed));
                 }
             }
