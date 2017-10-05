@@ -249,7 +249,7 @@ if (isset($_POST['search_string'])) {
 <?php
             if ((isset($modules[$mod_sig]) && $modules[$mod_sig] === true) || (!isset($modules[$res_mod->getModule('name')]) && is_file(YTREES_DIR.'/'.$res_mod->getModule('name').'@'.$res_mod->getModule('revision').'.json'))) {
                 ?>
-            <td><?=$res_mod->getModule('name')?><br/><span style="font-size: small">(<a href="module_details.php?module=<?=$res_mod->getModule('module')?>"><img src="img/details.png" border="0" title="Module Details for <?=$res_mod->getModule('name')?>"> Module Details</a> |
+            <td><?=$res_mod->getModule('name')?><br/><span style="font-size: small">(<a href="module_details.php?module=<?=$res_mod->getModule('name')?>"><img src="img/details.png" border="0" title="Module Details for <?=$res_mod->getModule('name')?>"> Module Details</a> |
               <a href="yang_tree.php?module=<?=$res_mod->getModule('name')?>"><img border="0" src="img/leaf.png" title="Tree View for <?=$res_mod->getModule('name')?>">
               Tree View</a>
               |
