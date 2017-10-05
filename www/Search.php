@@ -176,6 +176,9 @@ class Search
         if ($value !== null && !is_array($value)) {
             throw Exception("$name must be either null or an array.");
         }
+        if ($value === null) {
+            return;
+        }
         if ($allowed !== null) {
             foreach ($value as $val) {
                 if (array_search($value, $allowed) === false) {
