@@ -49,7 +49,6 @@ $results = null;
 $title = 'YANG DB Search';
 $search_string = null;
 
-$dbh = yang_db_conn($alerts);
 $rester = new Rester(YANG_CATALOG_URL);
 
 if (isset($_POST['search_string'])) {
