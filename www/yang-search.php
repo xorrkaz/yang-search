@@ -27,21 +27,7 @@
 include_once 'yang_catalog.inc.php';
 require_once 'Module.php';
 require_once 'Rester.php';
-
-function __sqlite_regexp($pattern, $buf, $modifiers = 'is')
-{
-    $pattern = str_replace('/', '\/', $pattern);
-    if (isset($pattern, $buf)) {
-        $res = @preg_match("/$pattern/$modifiers", $buf);
-        if ($res === false) {
-            throw new RuntimeException("Invalid regular expression: '$pattern'");
-        }
-
-        return $res > 0;
-    }
-
-    return null;
-}
+require_once 'Search.php';
 
 $schema_types = [
     ['Typedef' => 'typedef', 'Grouping' => 'grouping', 'Feature' => 'feature'],
@@ -59,7 +45,7 @@ $search_fields = [
 ];
 
 $alerts = [];
-$sth = null;
+$results = null;
 $title = 'YANG DB Search';
 $search_string = null;
 
@@ -75,18 +61,15 @@ if ($search_string !== null && $search_string == '') {
     array_push($alerts, 'No search term(s) specified');
 }
 
-if ($dbh !== null && $search_string !== null) {
+if ($search_string !== null) {
+    $search = new Search($rester, $search_string);
     $do_regexp = false;
     $case_sensitive = false;
-    $modifiers = 'is';
     if (isset($_POST['case']) && $_POST['case'] == 1) {
-        $modifiers = 's';
         $case_sensitive = true;
     }
     if (isset($_POST['regexp']) && $_POST['regexp'] == 1) {
         $do_regexp = true;
-    } else {
-        $search_string = '%'.$search_string.'%';
     }
 
     if (!isset($_POST['schemaAll']) && !isset($_POST['schemaTypes'])) {
@@ -96,111 +79,47 @@ if ($dbh !== null && $search_string !== null) {
     $title = "YANG DB Search Results for '{$_POST['search_string']}'";
     try {
         if ($do_regexp) {
-            $dbh->sqliteCreateFunction('REGEXP', '__sqlite_regexp');
+            $search->setType('regex');
         } else {
+            $search->setType('keyword');
             if ($case_sensitive) {
-                $dbh->query('PRAGMA case_sensitive_like=ON');
+                $search->setCaseSensitive(true);
             } else {
-                $dbh->query('PRAGMA case_sensitive_like=OFF');
+                $search->setCaseSensitive(false);
             }
         }
 
-        $sql = 'SELECT yi.*, MAX(mo.revision) AS latest_revision FROM yindex yi, modules mo WHERE ';
-        $qparams['descr'] = $search_string;
+        $search->setModFilter(['name', 'revision', 'organization', 'maturity-level', 'compilation-status', 'dependents']);
+
         $sts = ['argument', 'description', 'module'];
         if (isset($_POST['searchFields']) && count($_POST['searchFields']) > 0) {
             $sts = $_POST['searchFields'];
         }
-        $wclause = [];
-        if ($do_regexp) {
-            foreach ($sts as $field) {
-                array_push($wclause, "REGEXP(:descr, yi.{$field})");
-            }
-        } else {
-            foreach ($sts as $field) {
-                array_push($wclause, "yi.{$field} LIKE :descr");
-            }
-        }
-        $sql .= '('. implode(' OR ', $wclause) . ')';
+        $search->setSearchFields($sts);
+
         if (!isset($_POST['schemaAll']) || $_POST['schemaAll'] != 1) {
-            $queries = [];
-            $sql .= ' AND (';
-            foreach ($_POST['schemaTypes'] as $st) {
-                array_push($queries, "yi.statement = '$st'");
-            }
-            $sql .= implode(' OR ', $queries);
-            $sql .= ')';
+            $search->setSchemaTypes($_POST['schemaTypes']);
         }
 
-        $sql .= ' AND (mo.module = yi.module) GROUP BY yi.module, yi.revision';
+        if (isset($_POST['onlyLatest']) && $_POST['onlyLatest'] == 1) {
+            $search->setLatestRevisions(true);
+        } else {
+            $search->setLatestRevisions(false);
+        }
 
-        $sth = $dbh->prepare($sql);
-        $sth->execute($qparams);
+        if (!isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1) {
+            $search->setIncludeMibs(false);
+        } else {
+            $search->setIncludeMibs(true);
+        }
+
+        if (isset($_POST['yangVersions']) && count($_POST['yangVersions']) > 0) {
+            $search->setYangVersions($_POST['yangVersions']);
+        }
+
+        $results = $search->search();
     } catch (Exception $e) {
         push_exception('', $e, $alerts);
-        $sth = null;
-    }
-
-    $res_set = [];
-    if ($sth !== null) {
-        $rejects = [];
-        $not_founds = [];
-        # Post-filter the returned data based on additional MD options.
-        while ($row = $sth->fetch()) {
-            $mod_obj = Module::moduleFactory($rester, $row['module'], $row['revision'], $row['organization']);
-            $mod_sig = $mod_obj->getModSig();
-            if (isset($rejects[$mod_sig])) {
-                continue;
-            }
-            if (isset($_POST['onlyLatest']) && $_POST['onlyLatest'] == 1) {
-                if ($row['latest_revision'] != $row['revision']) {
-                    $rejects[$mod_sig] = true;
-                    continue;
-                }
-            }
-            $try_checks = true;
-            $maturity = '';
-            $comp_status = 'unknown';
-            try {
-                if (!isset($not_founds[$mod_sig])) {
-                    try {
-                        $maturity = $mod_obj->get('maturity-level');
-                        $comp_status = $mod_obj->get('compilation-status');
-                    } catch (RestException $re) {
-                        if ($re->getResponseCode() == 404) {
-                            #array_push($alerts, "Metadata for {$mod_sig} was not found in the Catalog.");
-                          $try_checks = false;
-                            $not_founds[$mod_sig] = true;
-                        } else {
-                            push_exception("Failed to pull metadata from the API (mod: {$mod_sig})", $re, $alerts);
-                            break;
-                        }
-                    }
-                } else {
-                    $try_checks = false;
-                }
-                if ($try_checks && (!isset($_POST['includeMIBs']) || $_POST['includeMIBs'] != 1)) {
-                    if (@preg_match('/yang:smiv2:/', $mod_obj->get('namespace'))) {
-                        $rejects[$mod_sig] = true;
-                        continue;
-                    }
-                }
-                if ($try_checks && isset($_POST['yangVersions']) && count($_POST['yangVersions']) > 0) {
-                    if (array_search($mod_obj->get('yang-version'), $_POST['yangVersions']) === false) {
-                        $rejects[$mod_sig] = true;
-                        continue;
-                    }
-                }
-                $res_mod = $row;
-                $res_mod['maturity'] = $maturity;
-                $res_mod['compile_status'] = $comp_status;
-                $res_mod['sig'] = $mod_sig;
-                array_push($res_set, $res_mod);
-            } catch (Exception $e) {
-                push_exception("Failed to pull metadata from the API (mod: {$mod_sig})", $e, $alerts);
-                break;
-            }
-        }
     }
 }
 
@@ -301,12 +220,13 @@ if (isset($_POST['search_string'])) {
         </thead>
         <tbody>
 <?php
-    if (count($res_set) > 0) {
+    if (count($results) > 0) {
         $modules = [];
-        foreach ($res_set as $res_mod) {
-            $organization = $res_mod['organization'];
-            $maturity = $res_mod['maturity'];
-            $compile_status = $res_mod['compile_status'];
+        foreach ($results as $res_mod) {
+            $organization = $res_mod->getModule('organization');
+            $maturity = $res_mod->getModule('maturity-level');
+            $compile_status = $res_mod->getModule('compilation-status');
+            $mod_sig = "{$res_mod->getModule('name')}@{$res_mod->getModule('revision')}/{$res_mod->getModule('organization')}";
 
             if ($organization === null || $organization == '') {
                 $organization = 'N/A';
@@ -319,43 +239,33 @@ if (isset($_POST['search_string'])) {
                 $origin = 'Vendor-Specific';
             } ?>
           <tr>
-            <td><a href="show_node.php?module=<?=$res_mod['module']?>&amp;path=<?=urlencode($res_mod['path'])?>&amp;revision=<?=$res_mod['revision']?>"><?=$res_mod['argument']?></a></td>
-            <td><?=$res_mod['revision']?></td>
-            <td><?=$res_mod['statement']?></td>
-            <td><?=$res_mod['path']?></td>
+            <td><a href="show_node.php?module=<?=$res_mod->getModule('name')?>&amp;path=<?=urlencode($res_mod->getNode('path'))?>&amp;revision=<?=$res_mod->getModule('revision')?>"><?=$res_mod->getNode('name')?></a></td>
+            <td><?=$res_mod->getModule('revision')?></td>
+            <td><?=$res_mod->getNode('type')?></td>
+            <td><?=$res_mod->getNode('path')?></td>
 <?php
-            if ((isset($modules[$res_mod['sig']]) && $modules[$res_mod['sig']] === true) || (!isset($modules[$res_mod['module']]) && is_file(YTREES_DIR.'/'.$res_mod['module'].'@'.$res_mod['revision'].'.json'))) {
+            if (($modules[$mod_sig] === true) || (!isset($modules[$res_mod->getModule('name')]) && is_file(YTREES_DIR.'/'.$res_mod->getModule('name').'@'.$res_mod->getModule('revision').'.json'))) {
                 ?>
-            <td><?=$res_mod['module']?><br/><span style="font-size: small">(<a href="module_details.php?module=<?=$res_mod['module']?>"><img src="img/details.png" border="0" title="Module Details for <?=$res_mod['module']?>"> Module Details</a> |
-              <a href="yang_tree.php?module=<?=$res_mod['module']?>"><img border="0" src="img/leaf.png" title="Tree View for <?=$res_mod['module']?>">
+            <td><?=$res_mod->getModule('name')?><br/><span style="font-size: small">(<a href="module_details.php?module=<?=$res_mod->getModule('module')?>"><img src="img/details.png" border="0" title="Module Details for <?=$res_mod->getModule('name')?>"> Module Details</a> |
+              <a href="yang_tree.php?module=<?=$res_mod->getModule('name')?>"><img border="0" src="img/leaf.png" title="Tree View for <?=$res_mod->getModule('name')?>">
               Tree View</a>
               |
-              <a href="impact_analysis.php?modules[]=<?=$res_mod['module']?>"><img src="img/impact.png" border="0" title="Impact Analysis for <?=$res_mod['module']?>">
+              <a href="impact_analysis.php?modules[]=<?=$res_mod->getModule('name')?>"><img src="img/impact.png" border="0" title="Impact Analysis for <?=$res_mod->getModule('name')?>">
                 Impact Analysis</a>)</span></td>
 <?php
-                $modules[$res_mod['sig']] = true;
+                $modules[$mod_sig] = true;
             } else {
                 ?>
-            <td><?=$res_mod['module']?></td>
+            <td><?=$res_mod->getModule('name')?></td>
 <?php
-                $modules[$res_mod['sig']] = false;
+                $modules[$mod_sig] = false;
             } ?>
             <td><?=$origin?></td>
             <td><?=htmlentities($organization)?></td>
             <td><?=$maturity?></td>
-            <?php
-            if (is_file(YDEPS_DIR.'/'.$res_mod['module'].'.json')) {
-                try {
-                    $deps = json_decode(file_get_contents(YDEPS_DIR.'/'.$res_mod['module'].'.json'), true);
-                    echo "<td>" . (count($deps['impacted_modules'][$res_mod['module']])) . "</td>\n";
-                } catch (Exception $e) {
-                    echo "<td>0</td>\n";
-                }
-            } else {
-                echo "<td>0</td>\n";
-            } ?>
+            <td><?=count($res_mod->getModule('dependents'))?></td>
             <td><?=($compile_status != '' ? $compile_status : 'N/A')?></td>
-            <td><?=htmlentities($res_mod['description'])?></td>
+            <td><?=htmlentities($res_mod->getNode('description'))?></td>
           </tr>
 <?php
 

@@ -94,4 +94,43 @@ class Rester
 
         return $response->body;
     }
+
+    public function post($path, $payload, $payloadMime = 'application/json', $mime = 'application/json', $parseWith = null)
+    {
+        $url = $this->base;
+
+        $url .= $path;
+        $req = \Httpful\Request::post($url);
+        $req = $req->body($payload);
+        if ($this->username !== null && $this->password !== null) {
+            $req = $req->authenticateWithBasic($this->username, $this->password);
+        }
+
+        $req = $req->expects($mime)->timeoutIn($this->timeout);
+        if ($mime == 'application/json') {
+            $req = $req->parseWith(function ($body) {
+                $json = json_deocde($body, true);
+
+                return $json;
+            });
+        } elseif ($parseWith === null) {
+            throw new RuntimeException("Function to parse type {$mime} not specified.");
+        } else {
+            $req->parseWith($parseWith);
+        }
+
+        if ($payloadMime == 'application/json') {
+            $req = $req->sendsJson();
+        } elseif ($payloadMime == 'text/xml') {
+            $req = $req->sendsXml();
+        } else {
+            $req->addHeaders('Content-Type', $payloadMime);
+        }
+
+        $response = $req->send();
+
+        Rester::assertResponse($response, "post to {$path} from {$this->base}");
+
+        return $response->body;
+    }
 }
