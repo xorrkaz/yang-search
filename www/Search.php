@@ -167,14 +167,14 @@ class Search
     private static function assertBoolean($name, $value)
     {
         if ($value !== true && $value !== false) {
-            throw Exception("$name must be either true or false.");
+            throw new Exception("$name must be either true or false.");
         }
     }
 
     private static function assertArray($name, $value, $allowed = null)
     {
         if ($value !== null && !is_array($value)) {
-            throw Exception("$name must be either null or an array.");
+            throw new Exception("$name must be either null or an array.");
         }
         if ($value === null) {
             return;
@@ -182,7 +182,7 @@ class Search
         if ($allowed !== null) {
             foreach ($value as $val) {
                 if (array_search($value, $allowed) === false) {
-                    throw Exception("$val is not an allowed value; must be one of ".implode(', ', $allowed));
+                    throw new Exception("$val is not an allowed value; must be one of ".implode(', ', $allowed));
                 }
             }
         }
@@ -193,12 +193,12 @@ class Search
         switch ($type) {
         case 'search-term':
         if ($value === null || $value == '') {
-            throw Exception("Search term cannot be empty.");
+            throw new Exception("Search term cannot be empty.");
         }
         break;
         case 'type':
         if ($value === null || array_search($value, Search::$types) === false) {
-            throw Exception("Type must be one of ".implode(', ', Search::$types));
+            throw new Exception("Type must be one of ".implode(', ', Search::$types));
         }
         break;
         case 'case-sensitive':
