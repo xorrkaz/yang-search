@@ -128,7 +128,7 @@ class Search
     {
         $this->rester = $rester;
 
-        Search::assertValue('search-term', $search_term);
+        Search::assertValid('search-term', $search_term);
         $this->search_term = $search_term;
 
         Search::assertValid('type', $type);
