@@ -235,7 +235,7 @@ class Search
         $payload['type'] = $this->type;
         $payload['case-sensitive'] = $this->case_sensitive;
         $payload['include-mibs'] = $this->include_mibs;
-        $payload['latest-revisions'] = $this->latest_versions;
+        $payload['latest-revisions'] = $this->latest_revisions;
         if ($this->search_fields !== null) {
             $payload['search-fields'] = $this->search_fields;
         }
