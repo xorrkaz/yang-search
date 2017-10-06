@@ -225,14 +225,18 @@ if (isset($_POST['search_string'])) {
             if ($res_mod->getModule('error') !== null) {
                 continue;
             }
+            if ($res_mod->getModule('name') === null) {
+                continue;
+            }
             $organization = $res_mod->getModule('organization');
             $maturity = $res_mod->getModule('maturity-level');
             $compile_status = $res_mod->getModule('compilation-status');
-            $mod_sig = "{$res_mod->getModule('name')}@{$res_mod->getModule('revision')}/{$res_mod->getModule('organization')}";
 
             if ($organization === null || $organization == '') {
                 $organization = 'N/A';
             }
+
+            $mod_sig = "{$res_mod->getModule('name')}@{$res_mod->getModule('revision')}/{$res_mod->getModule('organization')}";
 
             $origin = 'N/A';
             if ($organization != 'N/A' && isset($SDOS[$organization])) {
