@@ -624,15 +624,15 @@ if (!isset($_GET['modules'])) {
     var allHighlighted = true;
 
     function highlight(what, match) {
-      var eles = window.cy.elements;
+      var wcy = window.cy;
       if (what === 'maturity') {
         what = 'mat';
       }
       if (match === '__ALL__') {
-        eles('node').css({
+        wcy.elements('node').css({
           'opacity': opacity_full
         });
-        eles('edge').css({
+        wcy.elements('edge').css({
           'opacity': opacity_full
         });
         allHighlighted = true;
@@ -647,12 +647,12 @@ if (!isset($_GET['modules'])) {
         allHighlighted = false;
         if (allHighlighted === true) {
           if (nexpr !== '') {
-            eles('node[' + nexpr + ']').css({
+            wcy.elements('node[' + nexpr + ']').css({
               'opacity': opacity_faded
             });
           }
           if (eexpr !== '') {
-            eles('edge[' + eexpr + ']').css({
+            wcy.elements('edge[' + eexpr + ']').css({
               'opacity': opacity_faded
             });
           }
@@ -661,24 +661,24 @@ if (!isset($_GET['modules'])) {
 
         if (!(key in highlighted) || highlight[key] === true) {
           if (nexpr !== '') {
-            eles('node[' + nexpr + ']').css({
+            wcy.elements('node[' + nexpr + ']').css({
               'opacity': opacity_faded
             });
           }
           if (eexpr !== '') {
-            eles('edge[' + eexpr + ']').css({
+            wcy.elements('edge[' + eexpr + ']').css({
               'opacity': opacity_faded
             });
           }
           highlighted[key] = false;
         } else if (highlighted[key] === false) {
           if (nexpr !== '') {
-            eles('node[' + nexpr + ']').css({
+            wcy.elements('node[' + nexpr + ']').css({
               'opacity': opacity_full
             });
           }
           if (eexpr !== '') {
-            eles('edge[' + eexpr + ']').css({
+            wcy.elements('edge[' + eexpr + ']').css({
               'opacity': opacity_full
             });
           }
