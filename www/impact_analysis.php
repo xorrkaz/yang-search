@@ -637,7 +637,7 @@ if (!isset($_GET['modules'])) {
           'opacity': opacity_full
         });
         allHighlighted = true;
-        highighted = {};
+        highlighted = {};
       } else {
         var eop = '=';
         var seop = '';
