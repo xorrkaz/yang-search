@@ -667,7 +667,7 @@ if (!isset($_GET['modules'])) {
           return highlight(owhat, match);
         }
 
-        if (!(key in highlighted) || highlight[key] === false) {
+        if (!(key in highlighted) || highlighted[key] === false) {
           if (nexpr !== '') {
             wcy.elements('node[' + nexpr + ']').css({
               'opacity': opacity_full
