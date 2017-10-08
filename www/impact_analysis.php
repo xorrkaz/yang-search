@@ -481,6 +481,10 @@ if (!isset($_GET['modules'])) {
     <?=TYPEAHEAD_JS?>
 
 		<script>
+
+    var opacity_full = 1.0;
+    var opacity_faded = 0.25;
+
     $(function() {
       $("#cy").cytoscape({
         layout: {
@@ -514,7 +518,7 @@ if (!isset($_GET['modules'])) {
           })
           .selector('.faded')
           .css({
-            'opacity': 0.25,
+            'opacity': opacity_faded,
             'text-opacity': 0
           }),
         elements: {
@@ -616,51 +620,69 @@ if (!isset($_GET['modules'])) {
       window.location.href = url;
     }
 
+    var highlighted = {};
+    var allHighlighted = true;
+
     function highlight(what, match) {
-      if (match == '__ALL__') {
-        window.cy.elements('node').css({
-          'opacity': 1.0
+      var eles = window.cy.elements;
+      if (what === 'maturity') {
+        what = 'mat';
+      }
+      if (match === '__ALL__') {
+        eles('node').css({
+          'opacity': opacity_full
         });
-        window.cy.elements('edge').css({
-          'opacity': 1.0
+        eles('edge').css({
+          'opacity': opacity_full
         });
+        allHighlighted = true;
       } else {
-        if (what == 'org') {
-          window.cy.elements('node[org != "' + match + '"]').css({
-            'opacity': 0.25
-          });
-          window.cy.elements('edge[org != "' + match + '"]').css({
-            'opacity': 0.25
-          });
-          window.cy.elements('node[org = "' + match + '"]').css({
-            'opacity': 1.0
-          });
-          window.cy.elements('edge[org = "' + match + '"]').css({
-            'opacity': 1.0
-          });
-        } else if (what == 'maturity') {
-          window.cy.elements('node[mat != "' + match + '"]').css({
-            'opacity': 0.25
-          });
-          window.cy.elements('edge[mat != "' + match + '"]').css({
-            'opacity': 0.25
-          });
-          window.cy.elements('node[mat = "' + match + '"]').css({
-            'opacity': 1.0
-          });
-          window.cy.elements('edge[mat = "' + match + '"]').css({
-            'opacity': 1.0
-          });
-        } else if (what == 'bottleneck') {
-          window.cy.elements('node[!bottleneck]').css({
-            'opacity': 0.25
-          });
-          window.cy.elements('edge').css({
-            'opacity': 0.25
-          });
-          window.cy.elements('node[bottleneck]').css({
-            'opacity': 1.0
-          });
+        var nexpr = what + ' = "' + match + '"';
+        var eexpr = nexpr;
+        if (what === 'bottleneck') {
+          nexpr = 'bottleneck';
+          eexpr = '';
+        }
+        var key = what + ':' + match;
+        allHighlighted = false;
+        if (allHighlighted === true) {
+          if (nexpr !== '') {
+            eles('node[' + nexpr + ']').css({
+              'opacity': opacity_faded
+            });
+          }
+          if (eexpr !== '') {
+            eles('edge[' + eexpr + ']').css({
+              'opacity': opacity_faded
+            });
+          }
+          highlighted[key] = true;
+        }
+
+        if (!(key in highlighted) || highlight[key] === true) {
+          if (nexpr !== '') {
+            eles('node[' + nexpr + ']').css({
+              'opacity': opacity_faded
+            });
+          }
+          if (eexpr !== '') {
+            eles('edge[' + eexpr + ']').css({
+              'opacity': opacity_faded
+            });
+          }
+          highlighted[key] = false;
+        } else if (highlighted[key] === false) {
+          if (nexpr !== '') {
+            eles('node[' + nexpr + ']').css({
+              'opacity': opacity_full
+            });
+          }
+          if (eexpr !== '') {
+            eles('edge[' + eexpr + ']').css({
+              'opacity': opacity_full
+            });
+          }
+          highlighted[key] = true;
         }
       }
       return false;
@@ -744,7 +766,7 @@ foreach ($alerts as $alert) {
       </div>
       <div class="panel-body">
         <fieldset>
-          <p>Click on legend elements below to highlight on the graph.</p>
+          <p>Click on legend elements below to toggle highlighting on the graph.</p>
           <p><a href="#" onClick="return highlight('org', '__ALL__')";>Highlight All</a></p>
           <label>Element Colors</label>
           <ul class="color-list">

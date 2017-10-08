@@ -90,7 +90,7 @@ if ($search_string !== null) {
 
         $search->setModFilter(['name', 'revision', 'organization', 'maturity-level', 'compilation-status', 'dependents']);
 
-        $sts = ['argument', 'description', 'module'];
+        $sts = array_values($search_fields);
         if (isset($_POST['searchFields']) && count($_POST['searchFields']) > 0) {
             $sts = $_POST['searchFields'];
         }
