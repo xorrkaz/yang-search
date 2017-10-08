@@ -663,7 +663,7 @@ if (!isset($_GET['modules'])) {
             });
           }
           allHighlighted = false;
-          highlight(what, match);
+          return highlight(what, match);
         }
 
         if (!(key in highlighted) || highlight[key] === true) {
