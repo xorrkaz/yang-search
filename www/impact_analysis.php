@@ -638,14 +638,17 @@ if (!isset($_GET['modules'])) {
         allHighlighted = true;
         highighted = {};
       } else {
-        var nexpr = what + ' = "' + match + '"';
+        var op = '=';
+        if (allHighlighted === true) {
+          eop = '!=';
+        }
+        var nexpr = what + ' ' + eop + ' "' + match + '"';
         var eexpr = nexpr;
         if (what === 'bottleneck') {
           nexpr = 'bottleneck';
           eexpr = '';
         }
         var key = what + ':' + match;
-        allHighlighted = false;
         if (allHighlighted === true) {
           if (nexpr !== '') {
             wcy.elements('node[' + nexpr + ']').css({
@@ -657,7 +660,7 @@ if (!isset($_GET['modules'])) {
               'opacity': opacity_faded
             });
           }
-          highlighted[key] = true;
+          allHighlighted = false;
         }
 
         if (!(key in highlighted) || highlight[key] === true) {
