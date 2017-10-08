@@ -625,6 +625,7 @@ if (!isset($_GET['modules'])) {
 
     function highlight(what, match) {
       var wcy = window.cy;
+      var owhat = what;
       if (what === 'maturity') {
         what = 'mat';
       }
@@ -663,22 +664,10 @@ if (!isset($_GET['modules'])) {
             });
           }
           allHighlighted = false;
-          return highlight(what, match);
+          return highlight(owhat, match);
         }
 
-        if (!(key in highlighted) || highlight[key] === true) {
-          if (nexpr !== '') {
-            wcy.elements('node[' + nexpr + ']').css({
-              'opacity': opacity_faded
-            });
-          }
-          if (eexpr !== '') {
-            wcy.elements('edge[' + eexpr + ']').css({
-              'opacity': opacity_faded
-            });
-          }
-          highlighted[key] = false;
-        } else if (highlighted[key] === false) {
+        if (!(key in highlighted) || highlight[key] === false) {
           if (nexpr !== '') {
             wcy.elements('node[' + nexpr + ']').css({
               'opacity': opacity_full
@@ -690,6 +679,18 @@ if (!isset($_GET['modules'])) {
             });
           }
           highlighted[key] = true;
+        } else if (highlighted[key] === true) {
+          if (nexpr !== '') {
+            wcy.elements('node[' + nexpr + ']').css({
+              'opacity': opacity_faded
+            });
+          }
+          if (eexpr !== '') {
+            wcy.elements('edge[' + eexpr + ']').css({
+              'opacity': opacity_faded
+            });
+          }
+          highlighted[key] = false;
         }
       }
       return false;
