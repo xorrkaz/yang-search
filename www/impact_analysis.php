@@ -636,6 +636,7 @@ if (!isset($_GET['modules'])) {
           'opacity': opacity_full
         });
         allHighlighted = true;
+        highighted = {};
       } else {
         var nexpr = what + ' = "' + match + '"';
         var eexpr = nexpr;
