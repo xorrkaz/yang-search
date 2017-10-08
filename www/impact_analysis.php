@@ -638,14 +638,16 @@ if (!isset($_GET['modules'])) {
         allHighlighted = true;
         highighted = {};
       } else {
-        var op = '=';
+        var eop = '=';
+        var seop = '';
         if (allHighlighted === true) {
           eop = '!=';
+          seop = '!';
         }
         var nexpr = what + ' ' + eop + ' "' + match + '"';
         var eexpr = nexpr;
         if (what === 'bottleneck') {
-          nexpr = 'bottleneck';
+          nexpr = seop + 'bottleneck';
           eexpr = '';
         }
         var key = what + ':' + match;
@@ -661,6 +663,7 @@ if (!isset($_GET['modules'])) {
             });
           }
           allHighlighted = false;
+          highlight(what, match);
         }
 
         if (!(key in highlighted) || highlight[key] === true) {
