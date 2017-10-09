@@ -171,10 +171,10 @@ for m in ${modules}; do
         echo "WARNING: Failed to generate YANG tree data for ${mod_name}@${mod_rev} (${m})!"
     fi
     # XXX Hmmm, this is lame as symd only looks for mod name and not mod@rev
-    symd -r --rfc-repos ${RFCS_DIR} --draft-repos ${DRAFTS_DIR} --json-output ${YDEP_DIR}/${mod_name}.json --single-impact-analysis-json ${mod_name} 2>/dev/null
-    if [ $? != 0 ]; then
-        echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
-    fi
+    #symd -r --rfc-repos ${RFCS_DIR} --draft-repos ${DRAFTS_DIR} --json-output ${YDEP_DIR}/${mod_name}.json --single-impact-analysis-json ${mod_name} 2>/dev/null
+    #if [ $? != 0 ]; then
+    #    echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
+    #fi
 
     if [ -n "${YANG_EXPLORER_DIR}" ]; then
       pyang -p ${YANGREPO} -f cxml ${m} > "${YANG_EXPLORER_DIR}/server/data/users/guest/cxml/${mod_name}@${mod_rev}.xml"
