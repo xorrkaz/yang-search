@@ -179,7 +179,7 @@ for m in ${modules}; do
     if [ -n "${YANG_EXPLORER_DIR}" ]; then
       pyang -p ${YANGREPO} -f cxml ${m} > "${YANG_EXPLORER_DIR}/server/data/users/guest/cxml/${mod_name}@${mod_rev}.xml"
       if [ $? != 0 ]; then
-        echo "WARNING: Failed to generate YANG dependency data for ${mod_name} (${m})!"
+        echo "WARNING: Failed to generate YANG Explorer data for ${mod_name} (${m})!"
       else
         cp -f ${m} "${YANG_EXPLORER_DIR}/server/data/users/guest/yang/${mod_name}@${mod_rev}.yang"
       fi
