@@ -114,6 +114,8 @@ else
             RFCS_DIR="${RFCS_DIR} ${m}"
         else
             if echo ${m} | grep -qE '\.yang$'; then
+                dname=$(dirname ${m})
+                YANGREPO="${YANGREPO}:${dname}"
                 modules="${modules} ${m}"
             fi
         fi
@@ -121,6 +123,9 @@ else
     update=1
     first_run=0
 fi
+
+export YANGREPO
+YANGREPO="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{YANGREPO}))')"
 
 mtotal=$(echo ${modules} | wc -w)
 mcur=0
