@@ -355,6 +355,10 @@ function get_rev_org($module, &$dbh, &$alerts)
 
         $row = $sth->fetch();
 
+        if ($row['organization'] == '') {
+            $row['organization'] = 'independent';
+        }
+
         return ['org' => $row['organization'], 'rev' => $row['revision']];
     } catch (Exception $e) {
         push_exception("Failed to get module revision and organization for $module", $e, $alerts);

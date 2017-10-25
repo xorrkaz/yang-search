@@ -104,7 +104,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
 
     $org = $mod_obj->getOrganization();
     if ($org == '') {
-        $org = 'UNKNOWN';
+        $org = 'independent';
     }
 
     if ($nested > 0 && count($orgs) > 0 && !(count($orgs) == 1 && $orgs[0] == '')) {
