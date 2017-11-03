@@ -180,7 +180,7 @@ if (isset($_POST['search_string'])) {
       prev_idx = idx;
 
       if (idx == -1) {
-        dt.search(stext).columns().search(stext).draw();
+        dt.search(stext).draw();
       } else {
         dt.search(stext).columns(idx).search(stext).draw();
       }
