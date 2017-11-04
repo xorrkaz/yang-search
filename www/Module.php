@@ -48,6 +48,8 @@ class Module
     'module-type' => true,
     'belongs-to' => true,
     'tree-type' => true,
+    'yang-tree' => true,
+    'expires' => true,
     'submodule' => true,
     'dependencies' => false,
     'dependents' => false,
