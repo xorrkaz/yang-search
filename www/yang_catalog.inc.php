@@ -355,8 +355,8 @@ function get_rev_org($module, &$dbh, &$alerts)
 
         $row = $sth->fetch();
 
-        if (!array_key_exists($row['organization']) && !array_key_exists($row['revision'])) {
-            return ['org' => '', 'rev' => ''];
+        if (!array_key_exists('organization', $row) && !array_key_exists('revision', $row)) {
+            return ['org' => 'independent', 'rev' => ''];
         }
 
         if ($row['organization'] == '') {
@@ -368,7 +368,7 @@ function get_rev_org($module, &$dbh, &$alerts)
         push_exception("Failed to get module revision and organization for $module", $e, $alerts);
     }
 
-    return ['org' => '', 'rev' => ''];
+    return ['org' => 'independent', 'rev' => ''];
 }
 
 /*
