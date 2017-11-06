@@ -355,6 +355,10 @@ function get_rev_org($module, &$dbh, &$alerts)
 
         $row = $sth->fetch();
 
+        if (!array_key_exists($row['organization']) && !array_key_exists($row['revision'])) {
+            return ['org' => '', 'rev' => ''];
+        }
+
         if ($row['organization'] == '') {
             $row['organization'] = 'independent';
         }
