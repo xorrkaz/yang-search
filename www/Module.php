@@ -58,11 +58,13 @@ class Module
     'implementations' => true
   ];
     private $rester;
+    private $yang_suite;
+    private $ys_url = null;
     private $initialized = false;
 
     private static $seen_modules = [];
 
-    private function __construct($rester, $name, $revision, $organization, $attrs = [])
+    private function __construct($rester, $name, $revision, $organization, $yang_suite = false, $attrs = [])
     {
         $this->rester = $rester;
 
@@ -84,9 +86,11 @@ class Module
         }
         $this->revision = $revision;
         $this->organization = $organization;
+
+        $this->yang_suite = $yang_suite;
     }
 
-    public static function moduleFactory($rester, $name, $revision, $organization, $override = false, $attrs = [])
+    public static function moduleFactory($rester, $name, $revision, $organization, $override = false, $yang_suite = false, $attrs = [])
     {
         $mod_sig = "{$name}@{$revision}/{$organization}";
         $create_new = false;
@@ -98,7 +102,7 @@ class Module
         }
 
         if ($create_new) {
-            Module::$seen_modules[$mod_sig] = new Module($rester, $name, $revision, $organization, $attrs);
+            Module::$seen_modules[$mod_sig] = new Module($rester, $name, $revision, $organization, $yang_suit, $attrs);
         }
 
         return Module::$seen_modules[$mod_sig];
@@ -109,13 +113,21 @@ class Module
         if ($this->initialized === true) {
             return;
         }
-        $result = $this->rester->get('/search/modules/'.urlencode($this->name).','.urlencode($this->revision).','.urlencode($this->organization));
+        $headers = [];
+        if ($this->$yang_suite) {
+            $headers['yangsuite'] = true;
+        }
+        $result = $this->rester->get('/search/modules/'.urlencode($this->name).','.urlencode($this->revision).','.urlencode($this->organization), $headers);
         foreach ($result['module'][0] as $key => $value) {
             if (isset(Module::$objectHash[$key])) {
                 $this->$key = $value;
             } else {
                 throw new Exception("Failed to set key {$key}: not defined");
             }
+        }
+
+        if ($this->yang_suite && isset($result['yangsuite-url'])) {
+            $this->ys_url = $result['yangsuite-url'];
         }
 
         $this->initialized = true;
@@ -176,6 +188,15 @@ class Module
     public static function getFields()
     {
         return array_keys(Module::$objectHash);
+    }
+
+    public function getYangSuiteURL()
+    {
+        if ($this->initialized === false) {
+            $this->fetch();
+        }
+        
+        return $this->ys_url;
     }
 
     public function toArray()

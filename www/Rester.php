@@ -65,7 +65,7 @@ class Rester
         }
     }
 
-    public function get($path, $mime = 'application/json', $parseWith = null)
+    public function get($path, $headers = [], $mime = 'application/json', $parseWith = null)
     {
         $url = $this->base;
 
@@ -73,6 +73,10 @@ class Rester
         $req = \Httpful\Request::get($url);
         if ($this->username !== null && $this->password !== null) {
             $req = $req->authenticateWithBasic($this->username, $this->password);
+        }
+
+        if (count($headers) > 0) {
+            $req->addHeaders($headers);
         }
 
         $req = $req->expects($mime)->timeoutIn($this->timeout);

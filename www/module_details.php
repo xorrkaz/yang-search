@@ -303,6 +303,8 @@ foreach ($alerts as $alert) {
                         |
                         <a href="impact_analysis.php?modules[]=<?=$module?>"><img src="img/impact.png" border="0" title="Impact Analysis for <?=$module?>">
                           Impact Analysis</a>
+                        |
+                        <a href="yangsuite.php?module=<?=$module?>"><img src="img/yang_suite.png" border="0" title="Yang Suite for <?=$module?>">Yang Suite</a>
                     </td>
                   </tr>
                 <?php
