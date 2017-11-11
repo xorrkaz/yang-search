@@ -115,7 +115,7 @@ class Module
         }
         $headers = [];
         if ($this->yang_suite) {
-            $headers['yangsuite'] = true;
+            $headers['yangsuite'] = 'true';
         }
         $result = $this->rester->get('/search/modules/'.urlencode($this->name).','.urlencode($this->revision).','.urlencode($this->organization), $headers);
         foreach ($result['module'][0] as $key => $value) {

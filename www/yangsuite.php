@@ -41,11 +41,16 @@ if (!isset($_GET['module'])) {
     $rev_org = get_rev_org($module, $dbh, $alerts);
     $module = explode('@', $module)[0];
     $url = null;
+    $error = false;
 
-    $mod_obj = Module::moduleFactory($rester, $module, $rev_org['rev'], $rev_org['org'], true);
+    $mod_obj = Module::moduleFactory($rester, $module, $rev_org['rev'], $rev_org['org'], false, true);
     try {
         $url = $mod_obj->getYangSuiteURL();
     } catch (Exception $e) {
+        $error = true;
+    }
+
+    if ($error || $url === null || $url == '') {
         die("Failed to get Yang Suite URL for {$mod_obj->getModSig()}");
     }
 

@@ -76,7 +76,7 @@ class Rester
         }
 
         if (count($headers) > 0) {
-            $req->addHeaders($headers);
+            $req = $req->addHeaders($headers);
         }
 
         $req = $req->expects($mime)->timeoutIn($this->timeout);
