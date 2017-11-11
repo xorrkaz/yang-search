@@ -114,7 +114,7 @@ class Module
             return;
         }
         $headers = [];
-        if ($this->$yang_suite) {
+        if ($this->yang_suite) {
             $headers['yangsuite'] = true;
         }
         $result = $this->rester->get('/search/modules/'.urlencode($this->name).','.urlencode($this->revision).','.urlencode($this->organization), $headers);
