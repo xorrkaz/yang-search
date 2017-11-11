@@ -102,7 +102,7 @@ class Module
         }
 
         if ($create_new) {
-            Module::$seen_modules[$mod_sig] = new Module($rester, $name, $revision, $organization, $yang_suit, $attrs);
+            Module::$seen_modules[$mod_sig] = new Module($rester, $name, $revision, $organization, $yang_suite, $attrs);
         }
 
         return Module::$seen_modules[$mod_sig];
@@ -195,7 +195,7 @@ class Module
         if ($this->initialized === false) {
             $this->fetch();
         }
-        
+
         return $this->ys_url;
     }
 
