@@ -108,6 +108,19 @@ class Module
         return Module::$seen_modules[$mod_sig];
     }
 
+    public static function moduleFactoryFromSearch($rester, $search)
+    {
+        $result = $rester->get('/search'.$search);
+        $mod_objs = [];
+        foreach ($result['yang-catalog:modules']['module'] as $mod) {
+            $mod_sig = "{$mod['name']}@{$mod['revision']}/{$mod['organization']}";
+            Module::$seen_modules[$mod_sig] = new Module($rester, $mod['name'], $mod['revision'], $mod['organization'], false, $mod);
+            array_push($mod_objs, Module::$seen_modules[$mod_sig]);
+        }
+
+        return $mod_objs;
+    }
+
     private function fetch()
     {
         if ($this->initialized === true) {

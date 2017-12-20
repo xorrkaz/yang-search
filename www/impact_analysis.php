@@ -305,20 +305,33 @@ if (!isset($_GET['modules'])) {
             $show_dir = 'both';
         }
     }
-    foreach ($modules as $module) {
-        $nmodule = basename($module);
-        if ($nmodule != $module) {
-            array_push($alerts, 'Invalid module name specified');
-            $module = '';
+    if (isset($_GET['ietf_wg']) && $_GET['ietf_wg'] != '') {
+        $mod_objs = Module::moduleFactoryFromSearch($rester, "/ietf/ietf-wg/{$_GET['ietf_wg']}");
+        if ($mod_objs === null || count($mod_objs) == 0) {
+            array_push($alerts, "No modules found for {$_GET['ietf_wg']}");
         } else {
-            $module = str_replace('.yang', '', $module);
-            $module = str_replace('.yin', '', $module);
+            foreach ($mod_objs as $mod_obj) {
+                $module = $mod_obj->getName();
+                array_push($good_mods, $module);
+                build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
+            }
+        }
+    } else {
+        foreach ($modules as $module) {
+            $nmodule = basename($module);
+            if ($nmodule != $module) {
+                array_push($alerts, 'Invalid module name specified');
+                $module = '';
+            } else {
+                $module = str_replace('.yang', '', $module);
+                $module = str_replace('.yin', '', $module);
             // XXX: symd does not handle revisions yet.
             $module = explode('@', $module)[0];
-            array_push($good_mods, $module);
-            $org_rev = get_rev_org($module, $dbh, $alerts);
-            $mod_obj = Module::moduleFactory($rester, $module, $org_rev['rev'], $org_rev['org']);
-            build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
+                array_push($good_mods, $module);
+                $org_rev = get_rev_org($module, $dbh, $alerts);
+                $mod_obj = Module::moduleFactory($rester, $module, $org_rev['rev'], $org_rev['org']);
+                build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
+            }
         }
     }
     if (count($good_mods) > 0) {
