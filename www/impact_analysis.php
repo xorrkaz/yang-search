@@ -313,6 +313,7 @@ if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
             foreach ($mod_objs as $mod_obj) {
                 $module = $mod_obj->getName();
                 array_push($good_mods, $module);
+                array_push($modules, $module);
                 build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
             }
         }
@@ -748,7 +749,7 @@ if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
     <div style="margin-top:20px;" id="alert_container">
 <?php
 
-if (!isset($_GET['modules'])) {
+if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
     ?>
   <div class="row">
     <div class="col-sm-8">
