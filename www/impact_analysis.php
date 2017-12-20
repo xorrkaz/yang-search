@@ -282,9 +282,9 @@ $rester = new Rester(YANG_CATALOG_URL);
 if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
     //array_push($alerts, 'Modules were not specified');
 } else {
-    if (is_array($_GET['modules'])) {
+    if (isset($_GET['modules']) && is_array($_GET['modules'])) {
         $modules = $_GET['modules'];
-    } else {
+    } elseif (isset($_GET['modules'])) {
         array_push($modules, $_GET['modules']);
     }
     if (isset($_GET['orgs'])) {
