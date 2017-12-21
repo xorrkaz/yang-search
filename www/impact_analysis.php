@@ -312,7 +312,7 @@ if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
         } else {
             foreach ($mod_objs as $mod_obj) {
                 $module = $mod_obj->getName();
-                if ($mod_obj->getMaturity() != 'adopted' && $mod_obj->getMaturity() != 'ratified') {
+                if ($mod_obj->get('maturity-level') != 'adopted' && $mod_obj->get('maturity-level') != 'ratified') {
                     continue;
                 }
                 array_push($good_mods, $module);
