@@ -312,6 +312,9 @@ if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
         } else {
             foreach ($mod_objs as $mod_obj) {
                 $module = $mod_obj->getName();
+                if ($mod_obj->getMaturity() != 'adopted' && $mod_obj->getMaturity() != 'ratified') {
+                    continue;
+                }
                 array_push($good_mods, $module);
                 array_push($modules, $module);
                 build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
