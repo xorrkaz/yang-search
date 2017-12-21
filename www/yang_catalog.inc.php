@@ -53,7 +53,7 @@ define('TYPEAHEAD_JS', '<script src="js/typeahead.bundle.js" type="text/javascri
 define('FONT_AWESOME_CSS', '<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">');
 
 // Global data_definitions
-define('YANG_CATALOG_URL', 'https://yangcatalog.org:8443');
+define('YANG_CATALOG_URL', 'https://yangcatalog.org/api');
 define('REST_TIMEOUT', 300);
 define('LOCKF', '/tmp/webhook.lock');
 define('CHANGES_CACHE', '/usr/share/nginx/yang_repo_cache.dat');
