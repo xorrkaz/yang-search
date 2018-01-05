@@ -364,19 +364,25 @@ foreach ($alerts as $alert) {
     </thead>
     <tbody>
       <?php
+      $ycdet = [];
+      $sql = 'SELECT argument, description, properties FROM yindex WHERE module=:ycmod AND revision=:ycrev GROUP BY argument, module, revision';
+      try {
+          $sth = $dbh->prepare($sql);
+          $sth->execute(['ycmod' => 'yang-catalog', 'ycrev' => $ycro['rev']]);
+          while ($ycrow = $sth->fetch()) {
+              $ycdet[$ycrow['argument']] = $ycrow;
+          }
+      } catch (Exception $e) {
+      }
       foreach (Module::getFields() as $key) {
           $help_text = '';
           $val = '';
           if (array_key_exists($key, $properties)) {
               $val = $properties[$key];
           }
-          $sql = 'SELECT description, properties FROM yindex WHERE module=:ycmod AND revision=:ycrev AND argument=:key LIMIT 1';
-          try {
-              $sth = $dbh->prepare($sql);
-              $sth->execute(['ycmod' => 'yang-catalog', 'ycrev' => $ycro['rev'], 'key' => $key]);
-              $row = $sth->fetch();
-              $help_text = $row['description'];
-              $nprops = json_decode($row['properties'], true);
+          if (isset($ycdet[$key])) {
+              $help_text = $ycdet[$key]['description'];
+              $nprops = json_decode($ycdet[$key]['properties'], true);
               foreach ($nprops as $prop) {
                   if (isset($prop['type'])) {
                       if ($prop['type']['has_children'] === true) {
@@ -394,7 +400,6 @@ foreach ($alerts as $alert) {
                       break;
                   }
               }
-          } catch (Exception $e) {
           } ?>
         <tr>
           <td style="text-align: right"><b><?=$key?> : </b> <img src="img/help.png" border="0" data-html="true" data-toggle="tooltip" title="<?=$help_text?>"/></td>
