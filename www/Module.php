@@ -50,6 +50,7 @@ class Module
     'tree-type' => true,
     'yang-tree' => true,
     'expires' => true,
+    'expired' => true,
     'submodule' => true,
     'dependencies' => false,
     'dependents' => false,
