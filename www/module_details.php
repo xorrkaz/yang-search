@@ -87,6 +87,8 @@ $dbh = yang_db_conn($alerts);
 
 $rester = new Rester(YANG_CATALOG_URL);
 
+$properties = null;
+
 if (!isset($_GET['module'])) {
     //array_push($alerts, 'Modules were not specified');
 } else {
