@@ -91,11 +91,11 @@ if len(del_list) > 0:
             mrev_org = mod.split('@')[1]
             mrev = mrev_org.split('/')[0]
             morg = '/'.join(mrev_org.split('/')[1:])
-            sql = 'DELETE FROM modules WHERE module=:mod AND revision=:rev AND organzation=:org'
+            sql = 'DELETE FROM modules WHERE module=:mod AND revision=:rev AND organization=:org'
             try:
                 cur.execute(sql, {'mod': mname, 'rev': mrev,
                                   'org': morg})
-                sql = 'DELETE FROM yindex WHERE module=:mod AND revision=:rev AND organzation=:org'
+                sql = 'DELETE FROM yindex WHERE module=:mod AND revision=:rev AND organization=:org'
                 cur.execute(sql, {'mod': mname, 'rev': mrev,
                                   'org': morg})
             except sqlite3.Error as e:
