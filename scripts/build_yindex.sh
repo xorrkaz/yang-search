@@ -133,8 +133,13 @@ cur_mod=""
 
 trap -- 'update_progress ${mtotal} ${cur_mod} ${mcur}' 10 16 29 30
 
-for m in ${modules}; do
+for mo in ${modules}; do
     mcur=$((${mcur} + 1))
+    IFS=":"
+    mo_parts=(${mo})
+    m=${mo_parts[0]}
+    org=${mo_parts[1]}
+    IFS=${old_IFS}
     cur_mod="${m}"
     cmd="pyang -p ${YANGREPO} -f yang-catalog-index --yang-index-make-module-table --yang-index-no-schema ${m}"
     if [ ${first_run} = 1 ]; then
@@ -168,6 +173,13 @@ for m in ${modules}; do
     echo "UPDATE modules SET file_path='${m}' WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
     if [ $? != 0 ]; then
         echo "ERROR: Failed to update file path in YANG DB for ${mod_name}@${mod_rev} (${m})!"
+    fi
+
+    if [ -n "${org}" ]; then
+      echo "UPDATE modules SET organization='${org}' WHERE module='${mod_name}' AND revision='${mod_rev}'; UPDATE yindex SET organization='${org}' WHERE module='${mod_name}' AND revision='${mod_rev}';" | sqlite3 ${TDBF}
+      if [ $? != 0 ]; then
+        echo "ERROR: Failed to update organization to ${org} in YANG DB for ${mod_name}@${mod_rev} (${m})!"
+      fi
     fi
 
     # Generate YANG tree data.

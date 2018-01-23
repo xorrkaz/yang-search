@@ -110,10 +110,13 @@ if len(mod_list) == 0:
     sys.exit(0)
 
 mod_args = []
-for m in mod_list:
-    if not m.startswith('/'):
-        m = os.environ['YANGDIR'] + '/' + m
-    mod_args.append(m)
+for m, mod_path in mod_list.items():
+    mparts = m.split('/')
+    if len(mparts) == 2:
+        mod_path += ':' + mparts[1]
+    if not mod_path.startswith('/'):
+        mod_path = os.environ['YANGDIR'] + '/' + mod_path
+    mod_args.append(mod_path)
 
 args = ['./build_yindex.sh'] + find_args + mod_args
 
