@@ -113,7 +113,7 @@ else
             DRAFTS_DIR="${DRAFTS_DIR} ${m}"
             RFCS_DIR="${RFCS_DIR} ${m}"
         else
-            if echo ${m} | grep -qE '\.yang$'; then
+            if echo ${m} | grep -qE '\.yang(:.+)?$'; then
                 dname=$(dirname ${m})
                 YANGREPO="${YANGREPO}:${dname}"
                 modules="${modules} ${m}"
@@ -135,6 +135,7 @@ trap -- 'update_progress ${mtotal} ${cur_mod} ${mcur}' 10 16 29 30
 
 for mo in ${modules}; do
     mcur=$((${mcur} + 1))
+    old_IFS=${IFS}
     IFS=":"
     mo_parts=(${mo})
     m=${mo_parts[0]}
