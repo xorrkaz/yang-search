@@ -74,9 +74,7 @@ try {
     }
 
     foreach ($json['modules-to-index'] as $mname => $mpath) {
-        if (array_search($mpath, $changes_cache) === false) {
-            array_push($changes_cache, $mpath);
-        }
+        $changes_cache[$mname] = $mpath;
     }
 
     foreach ($json['modules-to-delete'] as $mname) {
