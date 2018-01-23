@@ -31,6 +31,11 @@ require_once 'Module.php';
 function print_cell($key, $val, $pkey = null)
 {
     if (!is_array($val)) {
+        if ($val === false) {
+            $val = 'false';
+        } elseif ($val === true) {
+            $val = 'true';
+        }
         $nval = str_replace("\n", "<br/>\n",
         preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
         "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
