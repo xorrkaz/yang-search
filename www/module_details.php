@@ -37,7 +37,7 @@ function print_cell($key, $val, $pkey = null)
             $val = 'true';
         }
         $nval = str_replace("\n", "<br/>\n",
-        preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@]+!',
+        preg_replace('!(((http)(s)?:\/\/)|mailto:)[a-zA-Z0-9.?&_/\-@+]+!',
         "<a href=\"\\0\">\\0</a>", str_replace('&gt;', '>',
         htmlentities($val))));
         if (preg_match_all("/([a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+([.][a-zA-Z0-9-]+)*)(?![^<]*>|[^<>]*<\/)/", $nval, $matches)) {
