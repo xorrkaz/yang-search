@@ -31,7 +31,7 @@ import argparse
 from subprocess import call
 import sqlite3
 
-mod_list = []
+mod_list = {}
 find_args = []
 del_list = []
 
@@ -62,7 +62,7 @@ try:
         fd.close()
 except Exception as e:
     print('Failed to read cache file {}'.format(e))
-    mod_list = []
+    mod_list = {}
 
 try:
     if os.path.getsize(os.environ['YANG_DELETE_FILE']) > 0:
