@@ -44,7 +44,8 @@ NS_MAP = {
     "http://cisco.com/": "cisco",
     "http://www.huawei.com/netconf": "huawei",
     "http://openconfig.net/yang": "openconfig",
-    "http://tail-f.com/": "tail-f"
+    "http://tail-f.com/": "tail-f",
+    "http://www.nic.cz/ns/yang": "CZ.NIC"
 }
 
 mods = {}
