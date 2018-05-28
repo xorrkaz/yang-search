@@ -137,11 +137,10 @@ if (!isset($_GET['module'])) {
         $module = '';
     } else {
         $title = "YANG Tree for Module: '$module'";
-        $rev_org = get_rev_org($module, $dbh, $alerts);
+        $mod_obj = get_rev_org_obj($module, $rester, $dbh, $alerts);
         $modn = explode('@', $module)[0];
-        $module = "{$modn}@{$rev_org['rev']}";
+        $module = "{$modn}@{$mod_obj->getRevision()}";
         $f = YTREES_DIR.'/'.$module.'.json';
-        $mod_obj = Module::moduleFactory($rester, $modn, $rev_org['rev'], $rev_org['org']);
         $maturity = get_maturity($mod_obj, $alerts);
         if (is_file($f)) {
             try {

@@ -327,10 +327,10 @@ if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
             } else {
                 $module = str_replace('.yang', '', $module);
                 $module = str_replace('.yin', '', $module);
-            // XXX: symd does not handle revisions yet.
-            $module = explode('@', $module)[0];
-                array_push($good_mods, $module);
                 $mod_obj = get_rev_org_obj($module, $rester, $dbh, $alerts);
+                $module = explode('@', $module)[0];
+                array_push($good_mods, $module);
+
                 build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
             }
         }

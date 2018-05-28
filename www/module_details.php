@@ -100,20 +100,23 @@ if (!isset($_GET['module'])) {
     $module = $_GET['module'];
     $module = str_replace('.yang', '', $module);
     $module = str_replace('.yin', '', $module);
-    $rev_org = get_rev_org($module, $dbh, $alerts);
-    $module = explode('@', $module)[0];
     $properties = null;
 
     $ycro = get_rev_org('yang-catalog', $dbh, $alerts);
+    $mod_obj = null;
 
-    $mod_obj = Module::moduleFactory($rester, $module, $rev_org['rev'], $rev_org['org']);
     try {
+        $mod_obj = get_rev_org_obj($module, $rester, $dbh, $alerts);
+        $module = explode('@', $module)[0];
         $properties = $mod_obj->toArray();
     } catch (Exception $e) {
-        push_exception("Failed to get module details for {$mod_obj->getModSig()}", $e, $alerts);
+        push_exception("Failed to get module details for {$module}", $e, $alerts);
     }
 
-    $title = "Module Details for {$module}@{$rev_org['rev']}/{$rev_org['org']}";
+    $title = "Module Details for {$module}";
+    if ($mod_obj !== null) {
+        $title = "Module Details for {$module}@{$mod_obj->getRevision()}/{$mod_obj->getOrganization()}";
+    }
 }
 
 ?>

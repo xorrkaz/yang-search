@@ -405,7 +405,8 @@ function get_rev_org_obj($module, $rester, &$dbh, &$alerts)
         if ($rev_org === null) {
             throw new Exception("Failed to find revision for module {$module} in the API");
         }
-        $mobj = Module::moduleFactory($rester, $module, $rev_org['rev'], $rev_org['org']);
+        $modn = explode('@', $module)[0];
+        $mobj = Module::moduleFactory($rester, $modn, $rev_org['rev'], $rev_org['org']);
         try {
             $mobj->get('name');
             return $mobj;
