@@ -136,8 +136,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
             foreach ($dependents as $moda) {
                 $mod = $moda['name'];
                 $is_msubm = false;
-                $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+                $mobj = get_rev_org_obj($mod, $mod_obj->getRester(), $dbh, $alerts);
                 if (!$show_subm) {
                     $mod = get_parent($mobj);
                 } else {
@@ -154,7 +153,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                     continue;
                 }
 
-                $org = $mrev_org['org'];
+                $org = $mobj->getOrganization();
                 if ($org == '') {
                     $org = 'UNKNOWN';
                 }
@@ -191,8 +190,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
             foreach ($dependencies as $moda) {
                 $mod = $moda['name'];
                 $is_msubm = false;
-                $mrev_org = get_rev_org($mod, $dbh, $alerts);
-                $mobj = Module::moduleFactory($mod_obj->getRester(), $mod, $mrev_org['rev'], $mrev_org['org']);
+                $mobj = get_rev_org_obj($mod, $mod_obj->getRester(), $dbh, $alerts);
 
                 if (!$show_subm) {
                     $mod = get_parent($mobj);
@@ -212,7 +210,7 @@ function build_graph($module, &$mod_obj, $orgs, &$dbh, &$nodes, &$edges, &$edge_
                     continue;
                 }
 
-                $org = $mrev_org['org'];
+                $org = $mobj->getOrganization();
                 if ($org == '') {
                     $org = 'UNKNOWN';
                 }
@@ -332,8 +330,7 @@ if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
             // XXX: symd does not handle revisions yet.
             $module = explode('@', $module)[0];
                 array_push($good_mods, $module);
-                $org_rev = get_rev_org($module, $dbh, $alerts);
-                $mod_obj = Module::moduleFactory($rester, $module, $org_rev['rev'], $org_rev['org']);
+                $mod_obj = get_rev_org_obj($module, $rester, $dbh, $alerts);
                 build_graph($module, $mod_obj, $orgs, $dbh, $nodes, $edges, $edge_counts, $nseen, $eseen, $alerts, $show_rfcs, $recurse, false, $show_subm, $show_dir);
             }
         }
@@ -358,8 +355,7 @@ if (!isset($_GET['modules']) && !isset($_GET['ietf_wg'])) {
         foreach ($edges as $edge) {
             if ($edge['data']['target'] == "mod_{$bn}") {
                 $mn = str_replace('mod_', '', $edge['data']['source']);
-                $rev_org = get_rev_org($mn, $dbh, $alerts);
-                $mo = Module::moduleFactory($rester, $mn, $rev_org['rev'], $rev_org['org']);
+                $mo = get_rev_org_obj($mn, $rester, $dbh, $alerts);
                 $maturity = get_maturity($mo);
                 if ($maturity['level'] == 'INITIAL' || $maturity['level'] == 'ADOPTED') {
                     array_push($bottlenecks, "node#{$edge['data']['source']}");

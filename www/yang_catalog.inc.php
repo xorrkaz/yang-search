@@ -25,6 +25,7 @@
 // SUCH DAMAGE.
 
 include_once 'yang_db.inc.php';
+require_once 'Module.php';
 
 // Where to find various files.
 define('YTREES_DIR', '/var/yang/ytrees');
@@ -339,8 +340,9 @@ function color_gen(&$dbh, $org)
  * Output:
  *  A hash of org => organization, rev => revision
  */
-function get_rev_org($module, &$dbh, &$alerts)
+function get_rev_org($module, &$dbh, &$alerts, $depth=1)
 {
+    $needs_depth = false;
     try {
         if (preg_match('/@/', $module)) {
             $mod_parts = explode('@', $module);
@@ -349,14 +351,24 @@ function get_rev_org($module, &$dbh, &$alerts)
             $sth = $dbh->prepare('SELECT revision, organization FROM modules WHERE module=:mod AND revision=:rev');
             $sth->execute(['mod' => $modn, 'rev' => $rev]);
         } else {
-            $sth = $dbh->prepare('SELECT revision, organization FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
-            $sth->execute(['mod' => $module]);
+            $sth = $dbh->prepare('SELECT revision, organization FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT :depth');
+            $sth->execute(['mod' => $module, 'depth' => $depth]);
+            if ($depth > 1) {
+                $needs_depth = true;
+            }
         }
 
         $row = $sth->fetch();
+        if ($needs_depth) {
+            $i = 1;
+            while ($i < $depth) {
+                $row = $sth->fetch();
+                $i++;
+            }
+        }
 
         if ($row === false) {
-            return ['org' => 'independent', 'rev' => ''];
+            return null;
         }
 
         if ($row['organization'] == '') {
@@ -368,7 +380,39 @@ function get_rev_org($module, &$dbh, &$alerts)
         push_exception("Failed to get module revision and organization for $module", $e, $alerts);
     }
 
-    return ['org' => 'independent', 'rev' => ''];
+    return null;
+}
+
+/*
+ * Get an object for a given module name (or name@rev).
+ *
+ * Input:
+ *  $module : YANG module name or name@revision
+ *  $rester : Rester object
+ *  $dbh    : Pointer to the YANG index database handle
+ *  $alerts : Pointer to an array containing errors
+ * Output:
+ *  An object corresponding to the API results for the
+ *  module.
+ */
+function get_rev_org_obj($module, $rester, &$dbh, &$alerts)
+{
+    $rev_org = null;
+    $mobj = null;
+    $depth = 1;
+    while (true) {
+        $rev_org = get_rev_org($module, $dbh, $alerts, $depth);
+        if ($rev_org === null) {
+            throw new Exception("Failed to find revision for module {$module} in the API");
+        }
+        $mobj = Module::moduleFactory($rester, $module, $rev_org['rev'], $rev_org['org']);
+        try {
+            $mobj->get('name');
+            return $mobj;
+        } catch (Exception $e) {
+            $depth++;
+        }
+    }
 }
 
 /*
@@ -381,12 +425,16 @@ function get_rev_org($module, &$dbh, &$alerts)
  * Output:
  *  The latest module in module@revision format
  */
- function get_latest_mod($module, &$dbh, &$alerts)
+ function get_latest_mod($module, &$dbh, &$alerts, $depth=1)
  {
      try {
-         $sth = $dbh->prepare('SELECT revision FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT 1');
-         $sth->execute(['mod' => $module]);
-         $row = $sth->fetch();
+         $sth = $dbh->prepare('SELECT revision FROM modules WHERE module=:mod ORDER BY revision DESC LIMIT :depth');
+         $sth->execute(['mod' => $module, 'depth' => $depth]);
+         $i = 0;
+         while ($i < $depth) {
+             $row = $sth->fetch();
+             $i++;
+         }
 
          if ($row && isset($row['revision'])) {
              return "{$module}@{$row['revision']}";
