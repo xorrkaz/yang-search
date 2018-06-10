@@ -1,3 +1,5 @@
+2-Clause BSD License
+
 Copyright 2016-2018 Joe Clarke <jclarke@cisco.com>
 
 Redistribution and use in source and binary forms, with or without modification,
