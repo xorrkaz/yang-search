@@ -797,7 +797,7 @@ foreach ($alerts as $alert) {
                 if (!isset($ORG_CACHE[$fo])) {
                     continue;
                 } ?>
-              <li><a href="#" onClick="return highlight('org', '<?=$fo?>');"><span class="fa fa-square" style="color: <?=$ORG_CACHE[$fo]?>;"></span> <?=$fo?></a></li>
+              <li><a href="#" onClick="return highlight('org', '<?=$fo?>');"><span class="fas fa-square" style="color: <?=$ORG_CACHE[$fo]?>;"></span> <?=$fo?></a></li>
               <?php
 
             } ?>
@@ -807,13 +807,13 @@ foreach ($alerts as $alert) {
           <?php
           foreach (array_keys($found_mats) as $mat) {
               ?>
-            <li><a href="#" onClick="return highlight('maturity', '<?=$mat?>');"><span class="fa fa-circle-o" style="color: <?=$MATURITY_MAP[$mat]?>;"></span> Maturity: <?=$mat?></a></li>
+            <li><a href="#" onClick="return highlight('maturity', '<?=$mat?>');"><span class="far fa-circle" style="color: <?=$MATURITY_MAP[$mat]?>;"></span> Maturity: <?=$mat?></a></li>
             <?php
 
           }
           if ($found_bottleneck) {
               ?>
-          <li><a href="#" onClick="return highlight('bottleneck', '');"><span class="fa fa-circle-o" style="color: #000000;"></span> Bottleneck to Ratification</a></li>
+          <li><a href="#" onClick="return highlight('bottleneck', '');"><span class="far fa-circle" style="color: #000000;"></span> Bottleneck to Ratification</a></li>
           <?php
 
           } ?>

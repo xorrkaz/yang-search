@@ -32,9 +32,9 @@ define('YTREES_DIR', '/var/yang/ytrees');
 define('YDEPS_DIR', '/var/yang/ydeps');
 
 // JS and CSS components from CDNs.
-define('BOOTSTRAP_CSS', '<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">');
-define('BOOTSTRAP_THEME_CSS', '<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">');
-define('BOOTSTRAP_JS', '<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>');
+define('BOOTSTRAP_CSS', '<link rel="stylesheet" href="css/bootstrap.min.css" crossorigin="anonymous">');
+define('BOOTSTRAP_THEME_CSS', '<link rel="stylesheet" href="css/bootstrap-theme.min.css" crossorigin="anonymous">');
+define('BOOTSTRAP_JS', '<script src="js/bootstrap.min.js" crossorigin="anonymous"></script>');
 define('CYTOSCAPE_JS', '<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cytoscape/2.7.10/cytoscape.min.js" integrity="sha256-Nb/w8L97ZY7g1BTV4SkV2w+mB5+mtSb6fv2UsSry3UE=" crossorigin="anonymous"></script>');
 define('JQUERY_JS', '<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>');
 define('DATATABLES_BOOTSTRAP_CSS', '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap.min.css" integrity="sha256-7MXHrlaY+rYR1p4jeLI23tgiUamQVym2FWmiUjksFDc=" crossorigin="anonymous" />');
@@ -51,8 +51,7 @@ define('CYTOSCAPE_QTIP_JS', '<script src="js/cytoscape-qtip.js" type="text/javas
 define('QTIP_CSS', '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.1/jquery.qtip.min.css" integrity="sha256-ETJXPMaFFQmwk7vArlWKUK3Pr/s84J3zfiXC83Pi2xg=" crossorigin="anonymous" />');
 define('QTIP_JS', '<script src="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.1/jquery.qtip.min.js" integrity="sha256-Mir9XErZ/xEi1+rIQUpp7nFnZLsJfUS325iUvHDUpyY=" crossorigin="anonymous"></script>');
 define('TYPEAHEAD_JS', '<script src="js/typeahead.bundle.js" type="text/javascript"></script>');
-define('FONT_AWESOME_CSS', '<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">');
-
+define('FONT_AWESOME_CSS', '<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">');
 // Global data_definitions
 define('YANG_CATALOG_URL', 'https://yangcatalog.org/api');
 define('REST_TIMEOUT', 300);
