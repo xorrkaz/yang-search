@@ -35,6 +35,8 @@ mod_list = {}
 find_args = []
 del_list = []
 
+LOCK_FILE = '/tmp/process-changed-mods.lck'
+
 parser = argparse.ArgumentParser(
     description="Process changed modules in a git repo")
 parser.add_argument('--time', type=str,
@@ -45,6 +47,12 @@ args = parser.parse_args()
 
 if args.time:
     find_args = ['-f', args.time]
+
+if os.path.exists(LOCK_FILE):
+    sys.exit(0)
+else:
+    fd = os.open(LOCK_FILE, os.O_CREAT | os.O_WRONLY | os.O_EXCL)
+    os.close(fd)
 
 try:
     if os.path.getsize(os.environ['YANG_CACHE_FILE']) > 0:
@@ -107,6 +115,7 @@ if len(del_list) > 0:
         print("Error connecting to DB: {}".format(e.args[0]))
 
 if len(mod_list) == 0:
+    os.remove(LOCK_FILE)
     sys.exit(0)
 
 mod_args = []
@@ -128,3 +137,4 @@ args = ['./build_yindex.sh'] + find_args + mod_args
 
 os.chdir(os.environ['TOOLS_DIR'])
 call(args)
+os.remove(LOCK_FILE)
